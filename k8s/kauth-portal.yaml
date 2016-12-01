@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kauth
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kauth-portal
+  namespace: kauth
+data:
+  kauth-portal.cfg: |-
+    EmailDomains:
+    - "*"
+
+
+---
+
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: kauth-portal
+#  namespace: kauth
+#data:
+#  # modify these
+#  client.id: "c2VjcmV0Cg=="
+#  client.secret: "c2VjcmV0Cg=="
+#
+#---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kauth-portal
+  namespace: kauth
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kauth-portal
+    spec:
+      containers:
+      - name: kauth-portal
+        image: kopeio/kauth-portal:latest
+        ports:
+        - containerPort: 8080
+        command:
+        - /kauth-portal
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        env:
+        - name: CONFIG
+          value: /config/kauth-portal.cfg
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OAUTH2_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: kauth-portal
+              key: client.id
+        - name: OAUTH2_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: kauth-portal
+              key: client.secret
+        - name: OAUTH2_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: kauth-portal
+              key: cookie.secret
+      volumes:
+      - name: config
+        configMap:
+          name: kauth-portal
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kauth-portal
+  namespace: kauth
+spec:
+  selector:
+    app: kauth-portal
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  name: kauth-portal
+  namespace: kauth
+spec:
+  rules:
+  - host: useast1.k8s.justinsb.com
+    http:
+      paths:
+      - backend:
+          serviceName: kauth-portal
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - useast1.k8s.justinsb.com
+    secretName: tls-useast1.k8s.justinsb.com
