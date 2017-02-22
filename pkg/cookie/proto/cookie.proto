@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package proto;
+
+message SessionData {
+    string access_token = 1;
+    int64 expires_on = 2;
+    string refresh_token = 3;
+    string email = 4;
+    string user = 5;
+}

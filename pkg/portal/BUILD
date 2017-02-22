@@ -10,6 +10,7 @@ go_library(
         "@io_k8s_client_go//kubernetes:go_default_library",
         "@io_k8s_client_go//pkg/apis/authentication/v1beta1:go_default_library",
         "@io_k8s_client_go//rest:go_default_library",
+        "//pkg/apis/auth:go_default_library",
         "//pkg/oauth2proxy:go_default_library",
         "//pkg/tokenstore:go_default_library",
     ],

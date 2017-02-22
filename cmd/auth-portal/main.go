@@ -1,19 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"flag"
-	"os"
-	"github.com/kopeio/kauth/pkg/portal"
-	"io/ioutil"
 	"encoding/json"
-	"k8s.io/client-go/pkg/util/yaml"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"k8s.io/apimachinery/pkg/util/yaml"
+	"kope.io/auth/pkg/portal"
+	"os"
 )
 
 func main() {
 	var o portal.Options
 	o.Listen = ":8080"
-	o.Namespace = os.Getenv("NAMESPACE")
+
+	o.StaticDir = "/webapp"
 
 	o.ClientID = os.Getenv("OAUTH2_CLIENT_ID")
 	o.ClientSecret = os.Getenv("OAUTH2_CLIENT_SECRET")
@@ -43,7 +44,6 @@ func main() {
 		}
 	}
 	flag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
-	flag.StringVar(&o.Namespace, "namespace", o.Namespace, "kubernetes namespace in which to store secrets")
 
 	flag.Parse()
 

@@ -9,11 +9,46 @@ load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
 
 go_repositories()
 
+#=============================================================================
+
+
+git_repository(
+    name = "org_pubref_rules_protobuf",
+    tag = "v0.7.1",
+    remote = "https://github.com/pubref/rules_protobuf.git",
+)
+
+load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
+
+go_proto_repositories()
+
+
+#=============================================================================
+
+
 
 new_go_repository(
     name = "io_k8s_client_go",
     importpath = "k8s.io/client-go",
-    commit = "b22087a53becae45931ed72d5e0f12e0031d771a",
+    commit = "1679e38db83a0dbe1ef86deab577eead47ce75e2",
+)
+
+new_go_repository(
+    name = "io_k8s_apimachinery",
+    importpath = "k8s.io/apimachinery",
+    commit = "7080e31e90e981181435294bca96c80a37db8941",
+)
+
+new_go_repository(
+    name = "com_github_bmizerany_assert",
+    importpath = "github.com/bmizerany/assert",
+    commit = "b7ed37b82869576c289d7d97fb2bbd8b64a0cb28",
+)
+
+new_go_repository(
+    name = "com_github_kr_pretty",
+    importpath = "github.com/kr/pretty",
+    commit = "cfb55aafdaf3ec08f0db22699ab822c50091b1c4",
 )
 
 new_go_repository(
@@ -255,13 +290,13 @@ new_go_repository(
 debs = (
     (
         "busybox_deb",
-        "51651980a993b02c8dc663a5539a4d83704e56c2fed93dd8d1b2580e61319af5",
-        "http://ftp.us.debian.org/debian/pool/main/b/busybox/busybox-static_1.22.0-19_amd64.deb",
+        "f262cc9cf893740bb70c3dd01da9429b858c94be696badd4a702e0a8c7f6f80b",
+        "http://ftp.us.debian.org/debian/pool/main/b/busybox/busybox-static_1.22.0-19+b1_amd64.deb",
     ),
     (
         "libc_deb",
-        "ee4d9dea08728e2c2bbf43d819c3c7e61798245fab4b983ae910865980f791ad",
-        "http://ftp.us.debian.org/debian/pool/main/g/glibc/libc6_2.19-18+deb8u6_amd64.deb",
+        "2d8de90c084a26c266fa8efa91564f99b2373a7949caa9a1db83460918e6e832",
+        "http://ftp.us.debian.org/debian/pool/main/g/glibc/libc6_2.19-18+deb8u7_amd64.deb",
     ),
     (
         "ca_certificates_deb",

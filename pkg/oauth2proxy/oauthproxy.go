@@ -14,9 +14,13 @@ import (
 	"strings"
 	"time"
 
+	"kope.io/auth/pkg/apis/auth"
+	"kope.io/auth/pkg/tokenstore"
+	"github.com/golang/glog"
+	"kope.io/auth/pkg/providers"
+	"kope.io/auth/pkg/cookie"
+	"kope.io/auth/pkg/cookie/proto"
 	"github.com/18F/hmacauth"
-	"github.com/bitly/oauth2_proxy/cookie"
-	"github.com/bitly/oauth2_proxy/providers"
 )
 
 const SignatureHeader = "GAP-Signature"
@@ -268,10 +272,12 @@ func (p *OAuthProxy) MakeCookie(req *http.Request, value string, expiration time
 }
 
 func (p *OAuthProxy) ClearCookie(rw http.ResponseWriter, req *http.Request) {
+	glog.Infof("clearing cookie")
 	http.SetCookie(rw, p.MakeCookie(req, "", time.Hour*-1, time.Now()))
 }
 
 func (p *OAuthProxy) SetCookie(rw http.ResponseWriter, req *http.Request, val string) {
+	glog.Infof("Setting cookie to %q", val)
 	http.SetCookie(rw, p.MakeCookie(req, val, p.CookieExpire, time.Now()))
 }
 
@@ -410,26 +416,26 @@ func getRemoteAddr(req *http.Request) (s string) {
 	return
 }
 
-func (p *OAuthProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	switch path := req.URL.Path; {
-	case path == p.RobotsPath:
-		p.RobotsTxt(rw)
-	case path == p.PingPath:
-		p.PingPage(rw)
-	case p.IsWhitelistedPath(path):
-		p.serveMux.ServeHTTP(rw, req)
-	case path == p.SignInPath:
-		p.SignIn(rw, req)
-	case path == p.OAuthStartPath:
-		p.OAuthStart(rw, req)
-	case path == p.OAuthCallbackPath:
-		p.OAuthCallback(rw, req)
-	case path == p.AuthOnlyPath:
-		p.AuthenticateOnly(rw, req)
-	default:
-		p.Proxy(rw, req)
-	}
-}
+//func (p *OAuthProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+//	switch path := req.URL.Path; {
+//	case path == p.RobotsPath:
+//		p.RobotsTxt(rw)
+//	case path == p.PingPath:
+//		p.PingPage(rw)
+//	case p.IsWhitelistedPath(path):
+//		p.serveMux.ServeHTTP(rw, req)
+//	case path == p.SignInPath:
+//		p.SignIn(rw, req)
+//	case path == p.OAuthStartPath:
+//		p.OAuthStart(rw, req)
+//	case path == p.OAuthCallbackPath:
+//		p.OAuthCallback(rw, req)
+//	case path == p.AuthOnlyPath:
+//		p.AuthenticateOnly(rw, req)
+//	default:
+//		p.Proxy(rw, req)
+//	}
+//}
 
 func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
 	redirect, err := p.GetRedirect(req)
@@ -440,7 +446,7 @@ func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
 
 	user, ok := p.ManualSignIn(rw, req)
 	if ok {
-		session := &providers.SessionState{User: user}
+		session := &providers.SessionState{proto.SessionData{User: user}}
 		p.SaveSession(rw, req, session)
 		http.Redirect(rw, req, redirect, 302)
 	} else {
@@ -458,7 +464,7 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 	http.Redirect(rw, req, p.provider.GetLoginURL(redirectURI, redirect), 302)
 }
 
-func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
+func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request, tokenStore tokenstore.Interface) {
 	remoteAddr := getRemoteAddr(req)
 
 	// finish the oauth cycle
@@ -488,13 +494,25 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 	// set cookie, or deny
 	if p.Validator(session.Email) && p.provider.ValidateGroup(session.Email) {
 		log.Printf("%s authentication complete %s", remoteAddr, session)
-		err := p.SaveSession(rw, req, session)
+
+		id := p.MapToIdentity(session)
+
+		_, err := tokenStore.MapToUser(id, true)
+		if err != nil {
+			log.Printf("%s error mapping to user: %s", remoteAddr, err)
+			p.ErrorPage(rw, 500, "Internal Error", "Internal Error")
+			return
+		}
+
+		//session.User = string(user.Metadata.UID)
+		//session.Email = ""
+		err = p.SaveSession(rw, req, session)
 		if err != nil {
 			log.Printf("%s %s", remoteAddr, err)
 			p.ErrorPage(rw, 500, "Internal Error", "Internal Error")
 			return
 		}
-		http.Redirect(rw, req, redirect, 302)
+		return
 	} else {
 		log.Printf("%s Permission Denied: %q is unauthorized", remoteAddr, session.Email)
 		p.ErrorPage(rw, 403, "Permission Denied", "Invalid Account")
@@ -635,7 +653,25 @@ func (p *OAuthProxy) CheckBasicAuth(req *http.Request) (*providers.SessionState,
 	}
 	if p.HtpasswdFile.Validate(pair[0], pair[1]) {
 		log.Printf("authenticated %q via basic auth", pair[0])
-		return &providers.SessionState{User: pair[0]}, nil
+		return &providers.SessionState{proto.SessionData{User: pair[0]}}, nil
 	}
 	return nil, fmt.Errorf("%s not in HtpasswdFile", pair[0])
+}
+
+func (p*OAuthProxy) MapToIdentity(session *providers.SessionState) *auth.IdentitySpec {
+	providerID := p.provider.Data().ProviderName
+
+	// TODO: Store all information from provider?
+	providerUserID := session.Email
+	if providerUserID == "" {
+		providerUserID = session.User
+	}
+
+	id := &auth.IdentitySpec{
+		ProviderID: providerID,
+		ID:         providerUserID,
+		Username:   providerUserID,
+	}
+
+	return id
 }

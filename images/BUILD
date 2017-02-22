@@ -35,19 +35,19 @@ docker_build(
 )
 
 docker_build(
-    name = "kauth-portal",
+    name = "auth-portal",
     base = ":busybox-ca-certificates",
-    cmd = ["/kauth-portal"],
+    cmd = ["/auth-portal"],
     files = [
-        "//cmd/kauth-portal",
+        "//cmd/auth-portal",
     ],
 )
 
 docker_build(
-    name = "kauth-internal",
+    name = "auth-internal",
     base = ":busybox-libc",
-    cmd = ["/kauth-internal"],
+    cmd = ["/auth-internal"],
     files = [
-        "//cmd/kauth-internal",
+        "//cmd/auth-internal",
     ],
 )

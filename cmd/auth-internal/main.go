@@ -1,25 +1,24 @@
 package main
 
 import (
-	"github.com/kopeio/kauth/pkg/k8sauth"
-	"net/http"
-	"fmt"
 	"flag"
-	"os"
-	"github.com/kopeio/kauth/pkg/tokenstore"
+	"fmt"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"kope.io/auth/pkg/apis/auth"
+	"kope.io/auth/pkg/k8sauth"
+	"kope.io/auth/pkg/tokenstore"
+	"net/http"
+	"os"
 )
 
 func main() {
 	var o Options
 	o.Listen = ":8080"
-	o.Namespace = os.Getenv("NAMESPACE")
 
 	flag.Set("logtostderr", "true")
 
 	flag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
-	flag.StringVar(&o.Namespace, "namespace", o.Namespace, "kubernetes namespace in which to store secrets")
 
 	flag.Parse()
 
@@ -31,27 +30,32 @@ func main() {
 }
 
 type Options struct {
-	Listen    string
-	Namespace string
+	Listen string
 }
 
 func run(o *Options) error {
-	if o.Namespace == "" {
-		return fmt.Errorf("Namespace must be specified (either through the NAMESPACE env var or -namespace flag")
-	}
-
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return fmt.Errorf("error building kubernetes configuration: %v", err)
 	}
 	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	k8sClient, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return fmt.Errorf("error building kubernetes client: %v", err)
 	}
+	if err := auth.RegisterResource(k8sClient); err != nil {
+		return fmt.Errorf("error registering third party resource: %v", err)
+	}
 
-	tokenStore := tokenstore.NewSecrets(clientset, o.Namespace)
+	authClient, err := auth.NewForConfig(config)
+	if err != nil {
+		return fmt.Errorf("error building auth client: %v", err)
+	}
+	tokenStore := tokenstore.NewThirdPartyStorage(authClient)
+
+	stopCh := make(chan struct{})
+	go  tokenStore.Run(stopCh)
 
 	w := &k8sauth.Webhook{
 		Tokenstore: tokenStore,
@@ -77,11 +81,10 @@ func run(o *Options) error {
 	//	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	//}
 
-
 	mux.Handle("/hooks/authn", w)
 
 	server := &http.Server{
-		Addr:   o.Listen,
+		Addr:    o.Listen,
 		Handler: mux,
 	}
 	return server.ListenAndServe()

@@ -10,9 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
+	"kope.io/auth/pkg/providers"
 	"github.com/18F/hmacauth"
-	"github.com/bitly/oauth2_proxy/providers"
 )
 
 // Configuration Options that can be set by Command Line Flag, or Config File
@@ -228,10 +227,10 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 
 	o.provider = providers.New(o.Provider, p)
 	switch p := o.provider.(type) {
-	case *providers.AzureProvider:
-		p.Configure(o.AzureTenant)
-	case *providers.GitHubProvider:
-		p.SetOrgTeam(o.GitHubOrg, o.GitHubTeam)
+	//case *providers.AzureProvider:
+	//	p.Configure(o.AzureTenant)
+	//case *providers.GitHubProvider:
+	//	p.SetOrgTeam(o.GitHubOrg, o.GitHubTeam)
 	case *providers.GoogleProvider:
 		if o.GoogleServiceAccountJSON != "" {
 			file, err := os.Open(o.GoogleServiceAccountJSON)
