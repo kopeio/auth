@@ -1,9 +1,9 @@
 package assert
 
 import (
-	"testing"
-	"runtime"
 	"reflect"
+	"runtime"
+	"testing"
 )
 
 func assert(t *testing.T, result bool, f func(), cd int) {
@@ -14,7 +14,6 @@ func assert(t *testing.T, result bool, f func(), cd int) {
 		t.FailNow()
 	}
 }
-
 
 func Equal(t *testing.T, expected interface{}, actual interface{}) {
 	if !reflect.DeepEqual(expected, actual) {

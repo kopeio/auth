@@ -21,9 +21,9 @@ type UserSpec struct {
 }
 
 type TokenSpec struct {
-	ID     string `json:"id,omitempty"`
+	ID           string `json:"id,omitempty"`
 	HashedSecret []byte `json:"hashedSecret,omitempty"`
-	RawSecret []byte `json:"rawSecret,omitempty"`
+	RawSecret    []byte `json:"rawSecret,omitempty"`
 }
 
 type IdentitySpec struct {
@@ -35,7 +35,7 @@ type IdentitySpec struct {
 
 type User struct {
 	metav1.TypeMeta `json:",inline"`
-	Metadata             metav1.ObjectMeta `json:"metadata"`
+	Metadata        metav1.ObjectMeta `json:"metadata"`
 
 	Spec UserSpec `json:"spec"`
 }

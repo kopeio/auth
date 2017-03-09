@@ -2,11 +2,11 @@ package providers
 
 import (
 	"fmt"
+	"kope.io/auth/pkg/cookie"
+	"kope.io/auth/pkg/cookie/proto"
 	"strconv"
 	"strings"
 	"time"
-	"kope.io/auth/pkg/cookie"
-	"kope.io/auth/pkg/cookie/proto"
 )
 
 type SessionState struct {

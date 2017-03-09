@@ -2,22 +2,22 @@ package tokenstore
 
 import (
 	crypto_rand "crypto/rand"
+	"crypto/subtle"
 	"encoding/base32"
 	"encoding/base64"
 	"fmt"
 	"github.com/golang/glog"
 	"golang.org/x/crypto/bcrypt"
-	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
+	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
 	"kope.io/auth/pkg/apis/auth"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"crypto/subtle"
 )
 
 const objectNamespace = "kopeio-auth"
@@ -29,8 +29,8 @@ type ThirdPartyStorage struct {
 	client auth.Interface
 	//namespace  string
 
-	mutex  sync.Mutex
-	users  map[types.UID]*auth.User
+	mutex sync.Mutex
+	users map[types.UID]*auth.User
 }
 
 var _ Interface = &ThirdPartyStorage{}
@@ -312,7 +312,7 @@ func (c *ThirdPartyStorage) Run(stopCh <-chan struct{}) {
 
 // Run starts the secretsWatcher.
 func (c *ThirdPartyStorage) RunPolling(stopCh <-chan struct{}) {
-	runOnce := func() (error) {
+	runOnce := func() error {
 		var listOpts metav1.ListOptions
 
 		// TODO: Filters?

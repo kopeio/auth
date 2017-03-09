@@ -3,24 +3,24 @@ package auth
 import (
 	"fmt"
 	"github.com/golang/glog"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/rest"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	SchemaGroup       = "auth.kope.io"
+	SchemaGroup = "auth.kope.io"
 	//SchemaName        = "auth." + SchemaGroup
 	//APIResources   = "user"
 	//SchemaDescription = "Auth schema"
-	SchemaVersion     = "v1alpha1"
+	SchemaVersion = "v1alpha1"
 
 	//UserResourceName = "user." + SchemaGroup
 
@@ -48,7 +48,7 @@ func (c *AuthClientset) Users(namespace string) UserInterface {
 
 func RegisterResource(k8sClient *kubernetes.Clientset) error {
 	// initialize third party resource if it does not exist
-	_, err := k8sClient.Extensions().ThirdPartyResources().Get("user." + SchemaGroup, metav1.GetOptions{})
+	_, err := k8sClient.Extensions().ThirdPartyResources().Get("user."+SchemaGroup, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			tpr := &v1beta1.ThirdPartyResource{
@@ -61,15 +61,15 @@ func RegisterResource(k8sClient *kubernetes.Clientset) error {
 
 			_, err := k8sClient.Extensions().ThirdPartyResources().Create(tpr)
 			if err != nil {
-				return fmt.Errorf("unable to register %q ThirdPartyResource: %v", "user." + SchemaGroup, err)
+				return fmt.Errorf("unable to register %q ThirdPartyResource: %v", "user."+SchemaGroup, err)
 			}
-			glog.Infof("Created %q ThirdPartyResource", "user." + SchemaGroup)
+			glog.Infof("Created %q ThirdPartyResource", "user."+SchemaGroup)
 		} else {
-			return fmt.Errorf("error querying for %q ThirdPartyResource", "user." + SchemaGroup, err)
+			return fmt.Errorf("error querying for %q ThirdPartyResource", "user."+SchemaGroup, err)
 		}
 	} else {
 		// TODO: Update versions?
-		glog.Infof("Found %q ThirdPartyResource", "user." + SchemaGroup)
+		glog.Infof("Found %q ThirdPartyResource", "user."+SchemaGroup)
 	}
 
 	return nil

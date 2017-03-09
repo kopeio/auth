@@ -14,13 +14,13 @@ import (
 	"strings"
 	"time"
 
-	"kope.io/auth/pkg/apis/auth"
-	"kope.io/auth/pkg/tokenstore"
+	"github.com/18F/hmacauth"
 	"github.com/golang/glog"
-	"kope.io/auth/pkg/providers"
+	"kope.io/auth/pkg/apis/auth"
 	"kope.io/auth/pkg/cookie"
 	"kope.io/auth/pkg/cookie/proto"
-	"github.com/18F/hmacauth"
+	"kope.io/auth/pkg/providers"
+	"kope.io/auth/pkg/tokenstore"
 )
 
 const SignatureHeader = "GAP-Signature"
@@ -464,26 +464,22 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 	http.Redirect(rw, req, p.provider.GetLoginURL(redirectURI, redirect), 302)
 }
 
-func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request, tokenStore tokenstore.Interface) {
+func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request, tokenStore tokenstore.Interface) (int, error) {
 	remoteAddr := getRemoteAddr(req)
 
 	// finish the oauth cycle
 	err := req.ParseForm()
 	if err != nil {
-		p.ErrorPage(rw, 500, "Internal Error", err.Error())
-		return
+		return 0, err
 	}
 	errorString := req.Form.Get("error")
 	if errorString != "" {
-		p.ErrorPage(rw, 403, "Permission Denied", errorString)
-		return
+		return 403, fmt.Errorf("permission denied: %v", errorString)
 	}
 
 	session, err := p.redeemCode(req.Host, req.Form.Get("code"))
 	if err != nil {
-		log.Printf("%s error redeeming code %s", remoteAddr, err)
-		p.ErrorPage(rw, 500, "Internal Error", "Internal Error")
-		return
+		return 0, fmt.Errorf("error redeeming code: %v", err)
 	}
 
 	redirect := req.Form.Get("state")
@@ -499,23 +495,21 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request, to
 
 		_, err := tokenStore.MapToUser(id, true)
 		if err != nil {
-			log.Printf("%s error mapping to user: %s", remoteAddr, err)
-			p.ErrorPage(rw, 500, "Internal Error", "Internal Error")
-			return
+			glog.Infof("%s error mapping to user: %s", remoteAddr, err)
+			return 0, err
 		}
 
 		//session.User = string(user.Metadata.UID)
 		//session.Email = ""
 		err = p.SaveSession(rw, req, session)
 		if err != nil {
-			log.Printf("%s %s", remoteAddr, err)
-			p.ErrorPage(rw, 500, "Internal Error", "Internal Error")
-			return
+			return 0, err
 		}
-		return
+		http.Redirect(rw, req, redirect, 302)
+		return 0, nil
 	} else {
-		log.Printf("%s Permission Denied: %q is unauthorized", remoteAddr, session.Email)
-		p.ErrorPage(rw, 403, "Permission Denied", "Invalid Account")
+		glog.Infof("%s Permission Denied: %q is unauthorized", remoteAddr, session.Email)
+		return 403, nil
 	}
 }
 
@@ -658,7 +652,7 @@ func (p *OAuthProxy) CheckBasicAuth(req *http.Request) (*providers.SessionState,
 	return nil, fmt.Errorf("%s not in HtpasswdFile", pair[0])
 }
 
-func (p*OAuthProxy) MapToIdentity(session *providers.SessionState) *auth.IdentitySpec {
+func (p *OAuthProxy) MapToIdentity(session *providers.SessionState) *auth.IdentitySpec {
 	providerID := p.provider.Data().ProviderName
 
 	// TODO: Store all information from provider?

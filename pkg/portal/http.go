@@ -47,7 +47,6 @@ func NewHTTPServer(o *Options) (*HTTPServer, error) {
 	// Refresh cookies every hour
 	b.CookieRefresh = time.Hour
 
-
 	// Dummy values to pass validation
 	b.Upstreams = []string{"http://127.0.0.1:8888"}
 
@@ -75,12 +74,21 @@ func (s *HTTPServer) ListenAndServe() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/oauth2/start", s.OAuthProxy.OAuthStart)
-	mux.HandleFunc("/oauth2/callback", func(rw http.ResponseWriter, req *http.Request) { s.OAuthProxy.OAuthCallback(rw, req, s.Tokenstore) })
+	mux.HandleFunc("/oauth2/callback", s.oauthCallback)
+	mux.HandleFunc("/oauth2/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
+
 	mux.HandleFunc("/api/whoami", s.apiWhoAmI)
 	mux.HandleFunc("/api/tokens", s.apiTokens)
 	mux.HandleFunc("/api/kubeconfig", s.apiKubeconfig)
+	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
 
-	mux.Handle("/", http.FileServer(http.Dir(s.options.StaticDir)))
+	mux.HandleFunc("/portal/actions/login", s.portalActionLogin)
+	mux.HandleFunc("/portal/actions/logout", s.portalActionLogout)
+	mux.HandleFunc("/portal/actions/kubeconfig", s.portalActionKubeconfig)
+	mux.HandleFunc("/portal/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
+
+	mux.HandleFunc("/", s.portalIndex)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(s.options.StaticDir))))
 
 	server := &http.Server{
 		Addr:    s.options.Listen,

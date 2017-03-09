@@ -14,10 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/glog"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/admin/directory/v1"
-	"github.com/golang/glog"
 	"kope.io/auth/pkg/cookie/proto"
 )
 

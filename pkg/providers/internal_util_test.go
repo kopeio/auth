@@ -2,11 +2,11 @@ package providers
 
 import (
 	"errors"
+	"kope.io/auth/pkg/assert"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
-	"kope.io/auth/pkg/assert"
 )
 
 type ValidateSessionStateTestProvider struct {
@@ -43,7 +43,7 @@ func NewValidateSessionStateTest() *ValidateSessionStateTest {
 			if token_param == "" {
 				missing := false
 				received_headers := r.Header
-				for k, _ := range vt_test.header {
+				for k := range vt_test.header {
 					received := received_headers.Get(k)
 					expected := vt_test.header.Get(k)
 					if received == "" || received != expected {

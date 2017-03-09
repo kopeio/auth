@@ -55,7 +55,7 @@ func run(o *Options) error {
 	tokenStore := tokenstore.NewThirdPartyStorage(authClient)
 
 	stopCh := make(chan struct{})
-	go  tokenStore.Run(stopCh)
+	go tokenStore.Run(stopCh)
 
 	w := &k8sauth.Webhook{
 		Tokenstore: tokenStore,

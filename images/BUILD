@@ -35,13 +35,21 @@ docker_build(
 )
 
 docker_build(
-    name = "auth-portal",
+    name = "auth-portal-assets",
     base = ":busybox-ca-certificates",
+    directory = "/webapp",
+    files = [
+        "//webapp/portal:public/bundle.js",
+        "//webapp/portal:public/bundle.js.gz",
+    ],
+)
+
+docker_build(
+    name = "auth-portal",
+    base = ":auth-portal-assets",
     cmd = ["/auth-portal"],
     files = [
         "//cmd/auth-portal",
-        "//webapp/portal:public/bundle.js",
-        "//webapp/portal:public/bundle.js.gz",
     ],
 )
 

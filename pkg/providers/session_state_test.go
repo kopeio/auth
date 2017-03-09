@@ -1,12 +1,12 @@
 package providers
 
 import (
+	"kope.io/auth/pkg/assert"
+	"kope.io/auth/pkg/cookie"
+	"kope.io/auth/pkg/cookie/proto"
 	"strings"
 	"testing"
 	"time"
-	"kope.io/auth/pkg/cookie"
-	"kope.io/auth/pkg/cookie/proto"
-	"kope.io/auth/pkg/assert"
 )
 
 const secret = "0123456789abcdefghijklmnopqrstuv"

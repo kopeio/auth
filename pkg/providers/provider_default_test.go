@@ -1,10 +1,10 @@
 package providers
 
 import (
-	"testing"
-	"time"
 	"kope.io/auth/pkg/assert"
 	"kope.io/auth/pkg/cookie/proto"
+	"testing"
+	"time"
 )
 
 func TestRefresh(t *testing.T) {

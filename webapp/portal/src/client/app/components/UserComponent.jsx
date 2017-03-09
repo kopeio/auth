@@ -22,12 +22,12 @@ class UserComponent extends React.Component {
 
         return (
             <Card>>
-                <CardTitle title="Logged in" subtitle={this.props.user.name}/>
+                <CardTitle title="Logged in" subtitle={this.props.user.username}/>
                 <CardActions>
                     <RaisedButton
                         label="Download kubecfg file"
                         primary={true}
-                        href="/portal/actions/kubecfg"
+                        href="/portal/actions/kubeconfig"
                     />
                     <RaisedButton
                         label="Logout"

@@ -4,14 +4,14 @@ import (
 	"crypto"
 	"encoding/base64"
 	"fmt"
+	"github.com/18F/hmacauth"
+	"kope.io/auth/pkg/providers"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
 	"strings"
 	"time"
-	"kope.io/auth/pkg/providers"
-	"github.com/18F/hmacauth"
 )
 
 // Configuration Options that can be set by Command Line Flag, or Config File

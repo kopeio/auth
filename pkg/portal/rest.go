@@ -4,17 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang/glog"
+	"kope.io/auth/pkg/apis/auth"
 	"kope.io/auth/pkg/tokenstore"
 	"net/http"
-	"kope.io/auth/pkg/apis/auth"
 )
 
-type WhoAmIResponse struct {
+type UserInfo struct {
 	ID       string `json:"id,omitempty"`
 	Username string `json:"username,omitempty"`
 }
 
-func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
+func (s *HTTPServer) authenticate(rw http.ResponseWriter, req *http.Request) (*auth.User, error) {
+	// TODO: Cache in context ?
 	session, status := s.OAuthProxy.Authenticate(rw, req)
 	if status == http.StatusAccepted {
 		id := s.OAuthProxy.MapToIdentity(session)
@@ -23,35 +24,52 @@ func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
 
 		u, err := s.Tokenstore.MapToUser(id, false)
 		if err != nil {
-			glog.Infof("error finding user: %v", err)
-			s.internalError(rw, req, err)
-			return
+			return nil, fmt.Errorf("error finding user: %v", err)
 		}
 		if u == nil {
 			glog.Infof("user not found %q", id.Username)
-			http.NotFound(rw, req)
-			return
+			return nil, nil
 		}
 
-		response := &WhoAmIResponse{
-			ID: u.Metadata.Name,
-			Username: u.Spec.Username,
-		}
-		responseJson, err := json.Marshal(response)
-		if err != nil {
-			http.Error(rw, fmt.Sprintf("internal error: %v", err), http.StatusInternalServerError)
-		} else {
-			rw.Write(responseJson)
-		}
+		return u, nil
 	} else {
-		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
+		return nil, nil
 	}
+}
+
+func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
+	auth, err := s.authenticate(rw, req)
+	if err != nil {
+		s.internalError(rw, req, err)
+		return
+	}
+
+	if auth == nil {
+		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
+		return
+	}
+
+	response := &UserInfo{
+		ID:       auth.Metadata.Name,
+		Username: auth.Spec.Username,
+	}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		s.internalError(rw, req, err)
+		return
+	}
+
+	rw.Write(responseJson)
 }
 
 func (s *HTTPServer) internalError(rw http.ResponseWriter, req *http.Request, err error) {
 	glog.Warningf("internal error processing %s %s: %v", req.Method, req.URL, err)
 
 	http.Error(rw, "internal error", http.StatusInternalServerError)
+}
+
+func (s *HTTPServer) methodNotAllowed(rw http.ResponseWriter, req *http.Request) {
+	http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
 }
 
 func (s *HTTPServer) sendJson(rw http.ResponseWriter, req *http.Request, response interface{}) {
@@ -135,68 +153,5 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
-}
-
-func (s *HTTPServer) apiKubeconfig(rw http.ResponseWriter, req *http.Request) {
-	session, status := s.OAuthProxy.Authenticate(rw, req)
-	if status != http.StatusAccepted {
-		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
-		return
-	}
-
-	id := s.OAuthProxy.MapToIdentity(session)
-
-	glog.Infof("looking up identity %q", id)
-
-	u, err := s.Tokenstore.MapToUser(id, false)
-	if err != nil {
-		glog.Infof("error finding user: %v", err)
-		s.internalError(rw, req, err)
-		return
-	}
-	if u == nil {
-		glog.Infof("user not found %q", id.Username)
-		http.NotFound(rw, req)
-		return
-	}
-
-	// strings.Replace(session.Email, "@", "-", -1)
-
-	if req.Method == "GET" {
-		var bestToken *auth.TokenSpec
-
-		for _, t := range u.Spec.Tokens {
-			// TODO: Pick best token
-			bestToken = t
-		}
-
-		if bestToken == nil {
-			hashed := false // really hard to use
-			tokenSpec, err := s.Tokenstore.CreateToken(u, hashed)
-			if err != nil {
-				s.internalError(rw, req, err)
-				return
-			}
-			bestToken = tokenSpec
-		}
-
-		if bestToken == nil {
-			glog.Infof("user not found %q", id.Username)
-			http.NotFound(rw, req)
-			return
-		}
-
-		tokenInfo := &tokenstore.TokenInfo{
-			UserID:  string(u.Metadata.UID),
-			TokenID: bestToken.ID,
-			Secret:  bestToken.RawSecret,
-		}
-
-		response := tokenInfo.Encode()
-		s.writeResponse(rw, req, []byte(response))
-		return
-	}
-
-	http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
+	s.methodNotAllowed(rw, req)
 }

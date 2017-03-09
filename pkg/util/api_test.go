@@ -2,10 +2,10 @@ package util
 
 import (
 	"io/ioutil"
+	"kope.io/auth/pkg/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"kope.io/auth/pkg/assert"
 )
 
 func testBackend(response_code int, payload string) *httptest.Server {
