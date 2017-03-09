@@ -40,6 +40,8 @@ docker_build(
     cmd = ["/auth-portal"],
     files = [
         "//cmd/auth-portal",
+        "//webapp/portal:public/bundle.js",
+        "//webapp/portal:public/bundle.js.gz",
     ],
 )
 

@@ -1,8 +1,7 @@
 git_repository(
     name = "io_bazel_rules_go",
     remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.3.0",
-    #commit = "e0b19317b39357823b26c7e266596c8066e8f8e6",
+    tag = "0.4.1",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
@@ -129,7 +128,7 @@ new_go_repository(
 new_go_repository(
     name = "org_golang_x_net",
     importpath = "golang.org/x/net",
-    commit = "fca93ed71fff8fa71efeaf6501adc8921a6da7bc",
+    commit = "d4c55e66d8c3a2f3382d264b08e3e3454a66355a",
 )
 
 new_go_repository(
