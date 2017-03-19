@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto;
+package pb;
 
 message SessionData {
     string access_token = 1;

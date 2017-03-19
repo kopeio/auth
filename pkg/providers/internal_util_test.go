@@ -2,11 +2,12 @@ package providers
 
 import (
 	"errors"
-	"kope.io/auth/pkg/assert"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"kope.io/auth/pkg/assert"
 )
 
 type ValidateSessionStateTestProvider struct {

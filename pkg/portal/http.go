@@ -2,22 +2,33 @@ package portal
 
 import (
 	"fmt"
-	"k8s.io/client-go/rest"
-	"kope.io/auth/pkg/apis/auth"
-	oauth2proxy "kope.io/auth/pkg/oauth2proxy"
-	"kope.io/auth/pkg/tokenstore"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/golang/glog"
+
+	"encoding/base64"
+
+	"k8s.io/client-go/rest"
+	authclient "kope.io/auth/pkg/apis/auth/v1alpha1/client"
+	"kope.io/auth/pkg/apis/componentconfig"
+	"kope.io/auth/pkg/keystore"
+	oauth2proxy "kope.io/auth/pkg/oauth2proxy"
+	"kope.io/auth/pkg/tokenstore"
 )
 
 type HTTPServer struct {
-	options    *Options
+	options *componentconfig.AuthConfiguration
+
+	listen    string
+	staticDir string
+
 	OAuthProxy *oauth2proxy.OAuthProxy
 	Tokenstore tokenstore.Interface
 }
 
-func NewHTTPServer(o *Options) (*HTTPServer, error) {
+func NewHTTPServer(o *componentconfig.AuthConfiguration, listen string, staticDir string, cookieSecret keystore.SharedSecretSet) (*HTTPServer, error) {
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -28,7 +39,7 @@ func NewHTTPServer(o *Options) (*HTTPServer, error) {
 	//if err != nil {
 	//	return nil, fmt.Errorf("error building kubernetes client: %v", err)
 	//}
-	authClient, err := auth.NewForConfig(config)
+	authClient, err := authclient.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("error building auth client: %v", err)
 	}
@@ -36,13 +47,39 @@ func NewHTTPServer(o *Options) (*HTTPServer, error) {
 	tokenStore := tokenstore.NewThirdPartyStorage(authClient)
 
 	b := oauth2proxy.NewOptions()
-	b.EmailDomains = o.EmailDomains
-	b.HttpAddress = o.Listen
+	b.HttpAddress = listen
 	b.CookieName = "_auth_portal"
 
-	b.CookieSecret = o.CookieSecret
-	b.ClientID = o.ClientID
-	b.ClientSecret = o.ClientSecret
+	if len(o.Spec.AuthProviders) == 0 {
+		return nil, fmt.Errorf("AuthProvider must be configured")
+	}
+	if len(o.Spec.AuthProviders) != 1 {
+		return nil, fmt.Errorf("Only a single AuthProvider is currently supported")
+	}
+
+	var validator func(string) bool
+
+	for _, authProvider := range o.Spec.AuthProviders {
+		if authProvider.OAuthConfig == nil {
+			return nil, fmt.Errorf("OAuthConfig not set for %q", authProvider.ID)
+		}
+		glog.Warningf("Using static cookie secret")
+		// TODO: Implement rotation etc ...pass it down...
+		sharedSecret, err := cookieSecret.EnsureSharedSecret()
+		if err != nil {
+			return nil, fmt.Errorf("error building shared secret: %v", err)
+		}
+		b.CookieSecret = base64.URLEncoding.EncodeToString(sharedSecret.SecretData())
+
+		b.ClientID = authProvider.OAuthConfig.ClientID
+		b.ClientSecret = authProvider.OAuthConfig.ClientSecret
+
+		validator, err = buildValidator(authProvider.PermitEmails)
+		if err != nil {
+			return nil, fmt.Errorf("error building validator: %v", err)
+		}
+		b.EmailDomains = authProvider.PermitEmails
+	}
 
 	// Refresh cookies every hour
 	b.CookieRefresh = time.Hour
@@ -54,12 +91,14 @@ func NewHTTPServer(o *Options) (*HTTPServer, error) {
 		return nil, fmt.Errorf("Configuration error: %v", err)
 	}
 
-	validator := buildValidator(o.EmailDomains)
-
 	proxy := oauth2proxy.NewOAuthProxy(b, validator)
 
 	s := &HTTPServer{
-		options:    o,
+		options: o,
+
+		listen:    listen,
+		staticDir: staticDir,
+
 		OAuthProxy: proxy,
 		Tokenstore: tokenStore,
 	}
@@ -75,53 +114,79 @@ func (s *HTTPServer) ListenAndServe() error {
 
 	mux.HandleFunc("/oauth2/start", s.OAuthProxy.OAuthStart)
 	mux.HandleFunc("/oauth2/callback", s.oauthCallback)
-	mux.HandleFunc("/oauth2/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
+	mux.HandleFunc("/oauth2/", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 
 	mux.HandleFunc("/api/whoami", s.apiWhoAmI)
 	mux.HandleFunc("/api/tokens", s.apiTokens)
 	mux.HandleFunc("/api/kubeconfig", s.apiKubeconfig)
-	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
+	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 
 	mux.HandleFunc("/portal/actions/login", s.portalActionLogin)
 	mux.HandleFunc("/portal/actions/logout", s.portalActionLogout)
 	mux.HandleFunc("/portal/actions/kubeconfig", s.portalActionKubeconfig)
-	mux.HandleFunc("/portal/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
+	mux.HandleFunc("/portal/", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 
 	mux.HandleFunc("/", s.portalIndex)
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(s.options.StaticDir))))
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(s.staticDir))))
 
 	server := &http.Server{
-		Addr:    s.options.Listen,
+		Addr:    s.listen,
 		Handler: mux,
 	}
 	return server.ListenAndServe()
 }
 
-func buildValidator(domains []string) func(string) bool {
+func buildValidator(permitEmails []string) (func(string) bool, error) {
 	var allowAll bool
-	for i, domain := range domains {
-		if domain == "*" {
-			allowAll = true
-			continue
+	var exact []string
+	var suffixes []string
+	for _, permitEmail := range permitEmails {
+		wildcardCount := strings.Count(permitEmail, "*")
+		if wildcardCount == 0 {
+			if permitEmail == "" {
+				// TODO: Move to validation?
+				// TODO: Maybe ignore invalid rules?
+				return nil, fmt.Errorf("empty permitEmail not allowed")
+			}
+			exact = append(exact, permitEmail)
+		} else if wildcardCount == 1 && strings.HasPrefix(permitEmail, "*") {
+			if permitEmail == "*" {
+				allowAll = true
+			} else {
+				// TODO: Block dangerous things i.e. require *@ or *. ?
+				suffixes = append(suffixes, permitEmail[1:])
+			}
+		} else {
+			return nil, fmt.Errorf("Cannot parse permitEmail rule: %q", permitEmail)
 		}
-		domains[i] = fmt.Sprintf("@%s", strings.ToLower(domain))
 	}
 
-	validator := func(email string) (valid bool) {
+	validator := func(email string) bool {
 		if email == "" {
-			return
+			return false
 		}
-		email = strings.ToLower(email)
-		for _, domain := range domains {
-			valid = valid || strings.HasSuffix(email, domain)
-		}
-		//if !valid {
-		//	valid = validUsers.IsValid(email)
-		//}
+		email = strings.TrimSpace(strings.ToLower(email))
 		if allowAll {
-			valid = true
+			return true
 		}
-		return valid
+		for _, s := range exact {
+			if s == email {
+				return true
+			}
+		}
+		for _, suffix := range suffixes {
+			if strings.HasSuffix(email, suffix) {
+				return true
+			}
+		}
+
+		return false
 	}
-	return validator
+	return validator, nil
 }

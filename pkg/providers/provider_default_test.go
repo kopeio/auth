@@ -1,16 +1,17 @@
 package providers
 
 import (
-	"kope.io/auth/pkg/assert"
-	"kope.io/auth/pkg/cookie/proto"
 	"testing"
 	"time"
+
+	"kope.io/auth/pkg/assert"
+	"kope.io/auth/pkg/cookie/pb"
 )
 
 func TestRefresh(t *testing.T) {
 	p := &ProviderData{}
 	refreshed, err := p.RefreshSessionIfNeeded(&SessionState{
-		proto.SessionData{
+		pb.SessionData{
 			ExpiresOn: time.Now().Unix() - (11 * 60),
 		},
 	})

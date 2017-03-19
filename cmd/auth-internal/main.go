@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"kope.io/auth/pkg/apis/auth"
-	"kope.io/auth/pkg/k8sauth"
-	"kope.io/auth/pkg/tokenstore"
 	"net/http"
 	"os"
+
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	authclient "kope.io/auth/pkg/apis/auth/v1alpha1/client"
+	"kope.io/auth/pkg/k8sauth"
+	"kope.io/auth/pkg/tokenstore"
 )
 
 func main() {
@@ -44,11 +45,11 @@ func run(o *Options) error {
 	if err != nil {
 		return fmt.Errorf("error building kubernetes client: %v", err)
 	}
-	if err := auth.RegisterResource(k8sClient); err != nil {
+	if err := authclient.RegisterResource(k8sClient); err != nil {
 		return fmt.Errorf("error registering third party resource: %v", err)
 	}
 
-	authClient, err := auth.NewForConfig(config)
+	authClient, err := authclient.NewForConfig(config)
 	if err != nil {
 		return fmt.Errorf("error building auth client: %v", err)
 	}

@@ -1,7 +1,8 @@
-package auth
+package client
 
 import (
 	"fmt"
+
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,6 +14,8 @@ import (
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/rest"
+	"kope.io/auth/pkg/apis/auth"
+	"kope.io/auth/pkg/apis/auth/v1alpha1"
 )
 
 const (
@@ -46,9 +49,9 @@ func (c *AuthClientset) Users(namespace string) UserInterface {
 	return &userInterface{c.client, namespace}
 }
 
-func RegisterResource(k8sClient *kubernetes.Clientset) error {
+func RegisterResource(k8sClient kubernetes.Interface) error {
 	// initialize third party resource if it does not exist
-	_, err := k8sClient.Extensions().ThirdPartyResources().Get("user."+SchemaGroup, metav1.GetOptions{})
+	_, err := k8sClient.ExtensionsV1beta1().ThirdPartyResources().Get("user."+SchemaGroup, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			tpr := &v1beta1.ThirdPartyResource{
@@ -92,8 +95,8 @@ func NewForConfig(config *rest.Config) (*AuthClientset, error) {
 		func(scheme *runtime.Scheme) error {
 			scheme.AddKnownTypes(
 				groupversion,
-				&User{},
-				&UserList{},
+				&auth.User{},
+				&auth.UserList{},
 				&metav1.ListOptions{},
 				&metav1.DeleteOptions{},
 			)
@@ -113,12 +116,12 @@ func NewForConfig(config *rest.Config) (*AuthClientset, error) {
 }
 
 type UserInterface interface {
-	Create(*User) (*User, error)
-	Update(*User) (*User, error)
+	Create(*v1alpha1.User) (*v1alpha1.User, error)
+	Update(*v1alpha1.User) (*v1alpha1.User, error)
 	//Delete(name string, options *v1.DeleteOptions) error
 	//DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string) (*User, error)
-	List(opts metav1.ListOptions) (*UserList, error)
+	Get(name string) (*v1alpha1.User, error)
+	List(opts metav1.ListOptions) (*v1alpha1.UserList, error)
 	Watch(opts metav1.ListOptions) (watch.Interface, error)
 	//Patch(name string, pt api.PatchType, data []byte, subresources ...string) (result *v1.ComponentStatus, err error)
 	//ComponentStatusExpansion
@@ -131,8 +134,8 @@ type userInterface struct {
 
 var _ UserInterface = &userInterface{}
 
-func (c *userInterface) Get(name string) (*User, error) {
-	u := &User{}
+func (c *userInterface) Get(name string) (*v1alpha1.User, error) {
+	u := &v1alpha1.User{}
 	err := c.client.Get().Resource("users").Namespace(c.namespace).Name(name).Do().Into(u)
 	if err != nil {
 		return nil, err
@@ -140,8 +143,8 @@ func (c *userInterface) Get(name string) (*User, error) {
 	return u, nil
 }
 
-func (c *userInterface) List(opts metav1.ListOptions) (*UserList, error) {
-	l := &UserList{}
+func (c *userInterface) List(opts metav1.ListOptions) (*v1alpha1.UserList, error) {
+	l := &v1alpha1.UserList{}
 	err := c.client.Get().Resource("users").Namespace(c.namespace).VersionedParams(&opts, api.ParameterCodec).Do().Into(l)
 	if err != nil {
 		return nil, err
@@ -157,14 +160,14 @@ func (c *userInterface) Watch(opts metav1.ListOptions) (watch.Interface, error) 
 	return watch, nil
 }
 
-func (c *userInterface) Create(u *User) (*User, error) {
+func (c *userInterface) Create(u *v1alpha1.User) (*v1alpha1.User, error) {
 	if u.Metadata.Namespace == "" {
 		return nil, fmt.Errorf("Namespace not specified")
 	}
 	if u.Metadata.Name == "" {
 		return nil, fmt.Errorf("Name not specified")
 	}
-	result := &User{}
+	result := &v1alpha1.User{}
 	err := c.client.Post().
 		Resource("users").
 		Namespace(u.Metadata.Namespace).
@@ -177,14 +180,14 @@ func (c *userInterface) Create(u *User) (*User, error) {
 	return result, nil
 }
 
-func (c *userInterface) Update(u *User) (*User, error) {
+func (c *userInterface) Update(u *v1alpha1.User) (*v1alpha1.User, error) {
 	if u.Metadata.Namespace == "" {
 		return nil, fmt.Errorf("Namespace not specified")
 	}
 	if u.Metadata.Name == "" {
 		return nil, fmt.Errorf("Name not specified")
 	}
-	result := &User{}
+	result := &v1alpha1.User{}
 	err := c.client.Put().
 		Resource("users").
 		Namespace(u.Metadata.Namespace).

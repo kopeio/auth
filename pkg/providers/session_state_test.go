@@ -1,12 +1,13 @@
 package providers
 
 import (
-	"kope.io/auth/pkg/assert"
-	"kope.io/auth/pkg/cookie"
-	"kope.io/auth/pkg/cookie/proto"
 	"strings"
 	"testing"
 	"time"
+
+	"kope.io/auth/pkg/assert"
+	"kope.io/auth/pkg/cookie"
+	"kope.io/auth/pkg/cookie/pb"
 )
 
 const secret = "0123456789abcdefghijklmnopqrstuv"
@@ -18,7 +19,7 @@ func TestSessionStateSerialization(t *testing.T) {
 	c2, err := cookie.NewCipher([]byte(altSecret))
 	assert.Equal(t, nil, err)
 	s := &SessionState{
-		proto.SessionData{
+		pb.SessionData{
 			Email:        "user@domain.com",
 			AccessToken:  "token1234",
 			ExpiresOn:    time.Now().Unix() + 3600,
@@ -50,7 +51,7 @@ func TestSessionStateSerialization(t *testing.T) {
 func TestSessionStateSerializationNoCipher(t *testing.T) {
 
 	s := &SessionState{
-		proto.SessionData{
+		pb.SessionData{
 			Email:        "user@domain.com",
 			AccessToken:  "token1234",
 			ExpiresOn:    time.Now().Unix() + 3600,
@@ -72,7 +73,7 @@ func TestSessionStateSerializationNoCipher(t *testing.T) {
 func TestSessionStateUserOrEmail(t *testing.T) {
 
 	s := &SessionState{
-		proto.SessionData{
+		pb.SessionData{
 			Email: "user@domain.com",
 			User:  "just-user",
 		},
@@ -83,10 +84,10 @@ func TestSessionStateUserOrEmail(t *testing.T) {
 }
 
 func TestExpired(t *testing.T) {
-	s := &SessionState{proto.SessionData{ExpiresOn: time.Now().Unix() - 60}}
+	s := &SessionState{pb.SessionData{ExpiresOn: time.Now().Unix() - 60}}
 	assert.Equal(t, true, s.IsExpired())
 
-	s = &SessionState{proto.SessionData{ExpiresOn: time.Now().Unix() + 60}}
+	s = &SessionState{pb.SessionData{ExpiresOn: time.Now().Unix() + 60}}
 	assert.Equal(t, false, s.IsExpired())
 
 	s = &SessionState{}

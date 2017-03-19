@@ -3,10 +3,11 @@ package portal
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/golang/glog"
-	"kope.io/auth/pkg/apis/auth"
-	"kope.io/auth/pkg/tokenstore"
 	"net/http"
+
+	"github.com/golang/glog"
+	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
+	"kope.io/auth/pkg/tokenstore"
 )
 
 type UserInfo struct {

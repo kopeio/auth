@@ -6,18 +6,20 @@ import (
 	"encoding/base32"
 	"encoding/base64"
 	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/golang/glog"
 	"golang.org/x/crypto/bcrypt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
-	"kope.io/auth/pkg/apis/auth"
-	"math/rand"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
+	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
+	client "kope.io/auth/pkg/apis/auth/v1alpha1/client"
 )
 
 const objectNamespace = "kopeio-auth"
@@ -25,8 +27,7 @@ const objectNamespace = "kopeio-auth"
 const bcryptCost = bcrypt.DefaultCost
 
 type ThirdPartyStorage struct {
-	//kubeClient *kubernetes.Clientset
-	client auth.Interface
+	client client.Interface
 	//namespace  string
 
 	mutex sync.Mutex
@@ -35,7 +36,7 @@ type ThirdPartyStorage struct {
 
 var _ Interface = &ThirdPartyStorage{}
 
-func NewThirdPartyStorage(client auth.Interface) *ThirdPartyStorage {
+func NewThirdPartyStorage(client client.Interface) *ThirdPartyStorage {
 	s := &ThirdPartyStorage{
 		client: client,
 		users:  make(map[types.UID]*auth.User),

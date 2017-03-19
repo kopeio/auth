@@ -20,7 +20,7 @@ go_library(
     ],
     deps = [
         "//pkg/cookie:go_default_library",
-        "//pkg/cookie/proto:go_default_library",
+        "//pkg/cookie/pb:go_default_library",
         "//pkg/util:go_default_library",
         "@com_github_golang_glog//:go_default_library",
         "@org_golang_google_api//admin/directory/v1:go_default_library",
@@ -45,6 +45,6 @@ go_test(
     deps = [
         "//pkg/assert:go_default_library",
         "//pkg/cookie:go_default_library",
-        "//pkg/cookie/proto:go_default_library",
+        "//pkg/cookie/pb:go_default_library",
     ],
 )

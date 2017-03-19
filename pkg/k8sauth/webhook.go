@@ -3,10 +3,11 @@ package k8sauth
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/golang/glog"
 	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
 	"kope.io/auth/pkg/tokenstore"
-	"net/http"
 )
 
 type Webhook struct {

@@ -12,9 +12,9 @@ go_library(
         "version.go",
     ],
     deps = [
-        "//pkg/apis/auth:go_default_library",
+        "//pkg/apis/auth/v1alpha1:go_default_library",
         "//pkg/cookie:go_default_library",
-        "//pkg/cookie/proto:go_default_library",
+        "//pkg/cookie/pb:go_default_library",
         "//pkg/providers:go_default_library",
         "//pkg/tokenstore:go_default_library",
         "@com_github_18F_hmacauth//:go_default_library",

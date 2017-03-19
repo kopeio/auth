@@ -2,15 +2,16 @@ package portal
 
 import (
 	"fmt"
-	"github.com/ghodss/yaml"
-	"github.com/golang/glog"
 	"io/ioutil"
-	"kope.io/auth/pkg/apis/auth"
-	"kope.io/auth/pkg/tokenstore"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/ghodss/yaml"
+	"github.com/golang/glog"
+	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
+	"kope.io/auth/pkg/tokenstore"
 )
 
 type KubeConfig struct {
@@ -80,8 +81,12 @@ func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Re
 			return
 		}
 
-		name := s.options.Kubeconfig.Name
-		apiEndpoint := s.options.Kubeconfig.Server
+		name := ""
+		apiEndpoint := ""
+		if s.options.Spec.GenerateKubeconfig != nil {
+			name = s.options.Spec.GenerateKubeconfig.Name
+			apiEndpoint = s.options.Spec.GenerateKubeconfig.Server
+		}
 
 		if apiEndpoint == "" && name != "" {
 			// Try to infer the apiEndpoint from the name (follow the kops convention)

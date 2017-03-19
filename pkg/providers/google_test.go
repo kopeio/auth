@@ -3,11 +3,12 @@ package providers
 import (
 	"encoding/base64"
 	"encoding/json"
-	"kope.io/auth/pkg/assert"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"kope.io/auth/pkg/assert"
 )
 
 func newRedeemServer(body []byte) (*url.URL, *httptest.Server) {

@@ -1,0 +1,34 @@
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+load(
+    "@io_bazel_rules_go//go:def.bzl",
+    "go_library",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["install.go"],
+    tags = ["automanaged"],
+    deps = [
+        "//pkg/apis/auth:go_default_library",
+        "//pkg/apis/auth/v1alpha1:go_default_library",
+        "@io_k8s_apimachinery//pkg/apimachinery/announced:go_default_library",
+        "@io_k8s_apimachinery//pkg/apimachinery/registered:go_default_library",
+        "@io_k8s_apimachinery//pkg/runtime:go_default_library",
+    ],
+)
+
+filegroup(
+    name = "package-srcs",
+    srcs = glob(["**"]),
+    tags = ["automanaged"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all-srcs",
+    srcs = [":package-srcs"],
+    tags = ["automanaged"],
+)

@@ -16,9 +16,9 @@ import (
 
 	"github.com/18F/hmacauth"
 	"github.com/golang/glog"
-	"kope.io/auth/pkg/apis/auth"
+	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	"kope.io/auth/pkg/cookie"
-	"kope.io/auth/pkg/cookie/proto"
+	"kope.io/auth/pkg/cookie/pb"
 	"kope.io/auth/pkg/providers"
 	"kope.io/auth/pkg/tokenstore"
 )
@@ -446,7 +446,7 @@ func (p *OAuthProxy) SignIn(rw http.ResponseWriter, req *http.Request) {
 
 	user, ok := p.ManualSignIn(rw, req)
 	if ok {
-		session := &providers.SessionState{proto.SessionData{User: user}}
+		session := &providers.SessionState{pb.SessionData{User: user}}
 		p.SaveSession(rw, req, session)
 		http.Redirect(rw, req, redirect, 302)
 	} else {
@@ -647,7 +647,7 @@ func (p *OAuthProxy) CheckBasicAuth(req *http.Request) (*providers.SessionState,
 	}
 	if p.HtpasswdFile.Validate(pair[0], pair[1]) {
 		log.Printf("authenticated %q via basic auth", pair[0])
-		return &providers.SessionState{proto.SessionData{User: pair[0]}}, nil
+		return &providers.SessionState{pb.SessionData{User: pair[0]}}, nil
 	}
 	return nil, fmt.Errorf("%s not in HtpasswdFile", pair[0])
 }

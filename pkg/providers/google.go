@@ -18,7 +18,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/admin/directory/v1"
-	"kope.io/auth/pkg/cookie/proto"
+	"kope.io/auth/pkg/cookie/pb"
 )
 
 type GoogleProvider struct {
@@ -153,7 +153,7 @@ func (p *GoogleProvider) Redeem(redirectURL, code string) (s *SessionState, err 
 		return
 	}
 	s = &SessionState{
-		proto.SessionData{
+		pb.SessionData{
 			AccessToken:  jsonResponse.AccessToken,
 			ExpiresOn:    time.Now().Unix() + jsonResponse.ExpiresIn,
 			RefreshToken: jsonResponse.RefreshToken,

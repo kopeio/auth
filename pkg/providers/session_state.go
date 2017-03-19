@@ -2,15 +2,16 @@ package providers
 
 import (
 	"fmt"
-	"kope.io/auth/pkg/cookie"
-	"kope.io/auth/pkg/cookie/proto"
 	"strconv"
 	"strings"
 	"time"
+
+	"kope.io/auth/pkg/cookie"
+	"kope.io/auth/pkg/cookie/pb"
 )
 
 type SessionState struct {
-	proto.SessionData
+	pb.SessionData
 
 	//AccessToken  string
 	//ExpiresOn    time.Time
