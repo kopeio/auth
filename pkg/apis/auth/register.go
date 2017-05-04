@@ -46,6 +46,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	// TODO this will get cleaned up with the scheme types are fixed
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&User{},
+		&UserList{},
 	)
 	return nil
 }

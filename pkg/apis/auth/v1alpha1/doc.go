@@ -16,7 +16,6 @@ limitations under the License.
 
 // +k8s:deepcopy-gen=package,register
 // +k8s:conversion-gen=kope.io/auth/pkg/apis/auth
-// +k8s:openapi-gen=true
-// +k8s:defaulter-gen=TypeMeta
 
+// +groupName=auth.kope.io
 package v1alpha1 // import "kope.io/auth/pkg/apis/auth/v1alpha1"

@@ -229,7 +229,7 @@ func (s *HTTPServer) createToken(user *auth.User) (*tokenstore.TokenInfo, error)
 	}
 
 	tokenInfo := &tokenstore.TokenInfo{
-		UserID:  string(user.Metadata.UID),
+		UserID:  string(user.UID),
 		TokenID: bestToken.ID,
 		Secret:  bestToken.RawSecret,
 	}

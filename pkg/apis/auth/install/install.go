@@ -18,7 +18,7 @@ func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *r
 		&announced.GroupMetaFactoryArgs{
 			GroupName:                  auth.GroupName,
 			VersionPreferenceOrder:     []string{v1alpha1.SchemeGroupVersion.Version},
-			ImportPrefix:               "kope.io/auth/pkg/apis/componentconfig",
+			ImportPrefix:               "kope.io/auth/pkg/apis/auth",
 			AddInternalObjectsToScheme: auth.AddToScheme,
 		},
 		announced.VersionToSchemeFunc{

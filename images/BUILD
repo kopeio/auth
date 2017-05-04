@@ -5,7 +5,7 @@ load("@bazel_tools//tools/build_defs/docker:docker.bzl", "docker_build")
 docker_build(
     name = "busybox",
     debs = [
-        "@busybox_deb//file",
+        "@deb_busybox//file",
     ],
     symlinks = {
         "/bin/sh": "/bin/busybox",
@@ -19,7 +19,7 @@ docker_build(
     name = "busybox-libc",
     base = ":busybox",
     debs = [
-        "@libc_deb//file",
+        "@deb_libc//file",
     ],
 )
 

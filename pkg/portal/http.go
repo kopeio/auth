@@ -11,8 +11,8 @@ import (
 	"encoding/base64"
 
 	"k8s.io/client-go/rest"
-	authclient "kope.io/auth/pkg/apis/auth/v1alpha1/client"
 	"kope.io/auth/pkg/apis/componentconfig"
+	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/keystore"
 	oauth2proxy "kope.io/auth/pkg/oauth2proxy"
 	"kope.io/auth/pkg/tokenstore"
@@ -44,7 +44,7 @@ func NewHTTPServer(o *componentconfig.AuthConfiguration, listen string, staticDi
 		return nil, fmt.Errorf("error building auth client: %v", err)
 	}
 
-	tokenStore := tokenstore.NewThirdPartyStorage(authClient)
+	tokenStore := tokenstore.NewAPITokenStore(authClient)
 
 	b := oauth2proxy.NewOptions()
 	b.HttpAddress = listen

@@ -12,10 +12,9 @@ go_library(
     srcs = ["main.go"],
     visibility = ["//visibility:private"],
     deps = [
-        "//pkg/apis/auth/v1alpha1/client:go_default_library",
+        "//pkg/client/clientset_generated/clientset:go_default_library",
         "//pkg/k8sauth:go_default_library",
         "//pkg/tokenstore:go_default_library",
-        "@io_k8s_client_go//kubernetes:go_default_library",
         "@io_k8s_client_go//rest:go_default_library",
     ],
 )

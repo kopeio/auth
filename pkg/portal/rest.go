@@ -51,7 +51,7 @@ func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	response := &UserInfo{
-		ID:       auth.Metadata.Name,
+		ID:       auth.Name,
 		Username: auth.Spec.Username,
 	}
 	responseJson, err := json.Marshal(response)
@@ -127,7 +127,7 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 			return
 		}
 		tokenInfo := &tokenstore.TokenInfo{
-			UserID:  string(u.Metadata.UID),
+			UserID:  string(u.UID),
 			TokenID: tokenSpec.ID,
 			Secret:  tokenSpec.RawSecret,
 		}
@@ -142,7 +142,7 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 		response := []*TokenResponse{}
 		for _, t := range u.Spec.Tokens {
 			tokenInfo := &tokenstore.TokenInfo{
-				UserID:  string(u.Metadata.UID),
+				UserID:  string(u.UID),
 				TokenID: t.ID,
 				Secret:  t.RawSecret,
 			}

@@ -29,9 +29,11 @@ type IdentitySpec struct {
 	Username string `json:"username,omitempty"`
 }
 
+// +genclient=true
+
 type User struct {
-	metav1.TypeMeta `json:",inline"`
-	Metadata        metav1.ObjectMeta `json:"metadata"`
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
 	Spec UserSpec `json:"spec"`
 }

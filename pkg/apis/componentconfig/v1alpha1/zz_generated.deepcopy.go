@@ -21,11 +21,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	reflect "reflect"
-
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+	reflect "reflect"
 )
 
 func init() {
@@ -49,10 +48,10 @@ func DeepCopy_v1alpha1_AuthConfiguration(in interface{}, out interface{}, c *con
 		in := in.(*AuthConfiguration)
 		out := out.(*AuthConfiguration)
 		*out = *in
-		if newVal, err := c.DeepCopy(&in.Metadata); err != nil {
+		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
 			return err
 		} else {
-			out.Metadata = *newVal.(*v1.ObjectMeta)
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
 		}
 		if err := DeepCopy_v1alpha1_AuthConfigurationSpec(&in.Spec, &out.Spec, c); err != nil {
 			return err

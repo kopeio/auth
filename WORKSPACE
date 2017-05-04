@@ -1,7 +1,7 @@
 git_repository(
     name = "io_bazel_rules_go",
     remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.4.1",
+    tag = "0.4.3",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
@@ -25,17 +25,17 @@ go_proto_repositories()
 # for building docker base images
 debs = (
     (
-        "busybox_deb",
-        "f262cc9cf893740bb70c3dd01da9429b858c94be696badd4a702e0a8c7f6f80b",
-        "http://ftp.us.debian.org/debian/pool/main/b/busybox/busybox-static_1.22.0-19+b1_amd64.deb",
+        "deb_busybox",
+        "83d809a22d765e52390c0bc352fe30e9d1ac7c82fd509e0d779d8289bfc8a53d",
+        "http://ftp.us.debian.org/debian/pool/main/b/busybox/busybox-static_1.22.0-9+deb8u1_amd64.deb",
     ),
     (
-        "libc_deb",
+        "deb_libc",
         "2d8de90c084a26c266fa8efa91564f99b2373a7949caa9a1db83460918e6e832",
         "http://ftp.us.debian.org/debian/pool/main/g/glibc/libc6_2.19-18+deb8u7_amd64.deb",
     ),
     (
-        "ca_certificates_deb",
+        "deb_ca_certificates",
         "f58d646045855277c87f532ea5c18df319e91d9892437880c9a0169b834f1bd8",
         "http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20141019+deb8u1_all.deb",
     ),

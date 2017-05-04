@@ -6,9 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	authclient "kope.io/auth/pkg/apis/auth/v1alpha1/client"
+	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/k8sauth"
 	"kope.io/auth/pkg/tokenstore"
 )
@@ -41,19 +40,19 @@ func run(o *Options) error {
 		return fmt.Errorf("error building kubernetes configuration: %v", err)
 	}
 	// creates the clientset
-	k8sClient, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return fmt.Errorf("error building kubernetes client: %v", err)
-	}
-	if err := authclient.RegisterResource(k8sClient); err != nil {
-		return fmt.Errorf("error registering third party resource: %v", err)
-	}
+	//k8sClient, err := kubernetes.NewForConfig(config)
+	//if err != nil {
+	//	return fmt.Errorf("error building kubernetes client: %v", err)
+	//}
+	//if err := authclient.RegisterResource(k8sClient); err != nil {
+	//	return fmt.Errorf("error registering third party resource: %v", err)
+	//}
 
 	authClient, err := authclient.NewForConfig(config)
 	if err != nil {
 		return fmt.Errorf("error building auth client: %v", err)
 	}
-	tokenStore := tokenstore.NewThirdPartyStorage(authClient)
+	tokenStore := tokenstore.NewAPITokenStore(authClient)
 
 	stopCh := make(chan struct{})
 	go tokenStore.Run(stopCh)

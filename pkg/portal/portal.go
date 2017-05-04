@@ -60,7 +60,7 @@ func (s *HTTPServer) status(rw http.ResponseWriter, req *http.Request) (*PortalS
 
 	if auth != nil {
 		status.User = &UserInfo{
-			ID:       auth.Metadata.Name,
+			ID:       auth.Name,
 			Username: auth.Spec.Username,
 		}
 	}

@@ -23,8 +23,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // TODO(componentconfig-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
-	metav1.TypeMeta `json:",inline"`
-	Metadata        metav1.ObjectMeta `json:"metadata"`
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
 
 	// TODO(componentconfig-q): Spec or no Spec?
 	Spec AuthConfigurationSpec `json:"spec"`

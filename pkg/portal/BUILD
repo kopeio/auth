@@ -16,8 +16,8 @@ go_library(
     ],
     deps = [
         "//pkg/apis/auth/v1alpha1:go_default_library",
-        "//pkg/apis/auth/v1alpha1/client:go_default_library",
         "//pkg/apis/componentconfig:go_default_library",
+        "//pkg/client/clientset_generated/clientset:go_default_library",
         "//pkg/keystore:go_default_library",
         "//pkg/oauth2proxy:go_default_library",
         "//pkg/tokenstore:go_default_library",

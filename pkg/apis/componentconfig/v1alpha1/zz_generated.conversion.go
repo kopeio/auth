@@ -49,7 +49,7 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 
 func autoConvert_v1alpha1_AuthConfiguration_To_componentconfig_AuthConfiguration(in *AuthConfiguration, out *componentconfig.AuthConfiguration, s conversion.Scope) error {
 	out.TypeMeta = in.TypeMeta
-	out.Metadata = in.Metadata
+	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_v1alpha1_AuthConfigurationSpec_To_componentconfig_AuthConfigurationSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func Convert_v1alpha1_AuthConfiguration_To_componentconfig_AuthConfiguration(in 
 
 func autoConvert_componentconfig_AuthConfiguration_To_v1alpha1_AuthConfiguration(in *componentconfig.AuthConfiguration, out *AuthConfiguration, s conversion.Scope) error {
 	out.TypeMeta = in.TypeMeta
-	out.Metadata = in.Metadata
+	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_componentconfig_AuthConfigurationSpec_To_v1alpha1_AuthConfigurationSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
