@@ -36,6 +36,7 @@ func init() {
 func RegisterDeepCopies(scheme *runtime.Scheme) error {
 	return scheme.AddGeneratedDeepCopyFuncs(
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfiguration, InType: reflect.TypeOf(&AuthConfiguration{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationList, InType: reflect.TypeOf(&AuthConfigurationList{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationSpec, InType: reflect.TypeOf(&AuthConfigurationSpec{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProviderSpec, InType: reflect.TypeOf(&AuthProviderSpec{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_GenerateKubeconfig, InType: reflect.TypeOf(&GenerateKubeconfig{})},
@@ -55,6 +56,24 @@ func DeepCopy_v1alpha1_AuthConfiguration(in interface{}, out interface{}, c *con
 		}
 		if err := DeepCopy_v1alpha1_AuthConfigurationSpec(&in.Spec, &out.Spec, c); err != nil {
 			return err
+		}
+		return nil
+	}
+}
+
+func DeepCopy_v1alpha1_AuthConfigurationList(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*AuthConfigurationList)
+		out := out.(*AuthConfigurationList)
+		*out = *in
+		if in.Items != nil {
+			in, out := &in.Items, &out.Items
+			*out = make([]AuthConfiguration, len(*in))
+			for i := range *in {
+				if err := DeepCopy_v1alpha1_AuthConfiguration(&(*in)[i], &(*out)[i], c); err != nil {
+					return err
+				}
+			}
 		}
 		return nil
 	}

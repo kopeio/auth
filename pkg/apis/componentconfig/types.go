@@ -21,6 +21,10 @@ package componentconfig
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+
+// +genclient=true
+// +nonNamespaced=true
+
 // TODO(componentconfig-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -64,4 +68,12 @@ type OAuthConfig struct {
 type GenerateKubeconfig struct {
 	Server string `json:"server,omitempty"`
 	Name   string `json:"name,omitempty"`
+}
+
+
+type AuthConfigurationList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []AuthConfiguration `json:"items"`
 }

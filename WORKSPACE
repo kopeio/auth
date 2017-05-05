@@ -52,8 +52,20 @@ debs = (
 
 new_go_repository(
     name = "io_k8s_client_go",
-    commit = "d04a6004ffb19ecd067120ca99aee0176f1de810",
+    commit = "66e13efc6b3a1c285db15ee3a702270f5dc090a1",
     importpath = "k8s.io/client-go",
+)
+
+new_go_repository(
+    name = "io_k8s_apiserver",
+    commit = "e573b5e015e119d2f4907012501f99c49e408a13",
+    importpath = "k8s.io/apiserver",
+)
+
+new_go_repository(
+    name = "io_k8s_apimachinery",
+    commit = "bd3049bf8da9c381539035332a12c033c33271e2",
+    importpath = "k8s.io/apimachinery",
 )
 
 new_go_repository(
@@ -237,12 +249,6 @@ new_go_repository(
 )
 
 new_go_repository(
-    name = "io_k8s_apimachinery",
-    commit = "d90aa2c8531f13b0ca734845934c10dcb6a56ca7",
-    importpath = "k8s.io/apimachinery",
-)
-
-new_go_repository(
     name = "org_golang_google_appengine",
     commit = "4f7eeb5305a4ba1966344836ba4af9996b7b4e05",
     importpath = "google.golang.org/appengine",
@@ -345,4 +351,100 @@ new_go_repository(
     name = "com_github_googleapis_gax_go",
     commit = "8c5154c0fe5bf18cf649634d4c6df50897a32751",
     importpath = "github.com/googleapis/gax-go",
+)
+
+new_go_repository(
+    name = "com_github_coreos_etcd",
+    commit = "cc198e22d3b8fd7ec98304c95e68ee375be54589",
+    importpath = "github.com/coreos/etcd",
+)
+
+new_go_repository(
+    name = "com_github_pborman_uuid",
+    commit = "ca53cad383cad2479bbba7f7a1a05797ec1386e4",
+    importpath = "github.com/pborman/uuid",
+)
+
+new_go_repository(
+    name = "com_github_prometheus_client_golang",
+    commit = "e51041b3fa41cece0dca035740ba6411905be473",
+    importpath = "github.com/prometheus/client_golang",
+)
+
+new_go_repository(
+    name = "com_github_prometheus_client_model",
+    commit = "fa8ad6fec33561be4280a8f0514318c79d7f6cb6",
+    importpath = "github.com/prometheus/client_model",
+)
+
+new_go_repository(
+    name = "com_github_prometheus_common",
+    commit = "ffe929a3f4c4faeaa10f2b9535c2b1be3ad15650",
+    importpath = "github.com/prometheus/common",
+)
+
+new_go_repository(
+    name = "com_github_prometheus_procfs",
+    commit = "454a56f35412459b5e684fd5ec0f9211b94f002a",
+    importpath = "github.com/prometheus/procfs",
+)
+
+new_go_repository(
+    name = "com_github_beorn7_perks",
+    commit = "3ac7bf7a47d159a033b107610db8a1b6575507a4",
+    importpath = "github.com/beorn7/perks",
+)
+
+new_go_repository(
+    name = "org_bitbucket_ww_goautoneg",
+    commit = "75cd24fc2f2c2a2088577d12123ddee5f54e0675",
+    importpath = "bitbucket.org/ww/goautoneg",
+)
+
+new_go_repository(
+    name = "com_github_matttproud_golang_protobuf_extensions",
+    commit = "c12348ce28de40eed0136aa2b644d0ee0650e56c",
+    importpath = "github.com/matttproud/golang_protobuf_extensions",
+)
+
+new_go_repository(
+    name = "com_github_grpc_ecosystem_grpc_gateway",
+    commit = "f52d055dc48aec25854ed7d31862f78913cf17d1",
+    importpath = "github.com/grpc-ecosystem/grpc-gateway",
+)
+
+new_go_repository(
+    name = "com_github_coreos_go_systemd",
+    commit = "4484981625c1a6a2ecb40a390fcb6a9bcfee76e3",
+    importpath = "github.com/coreos/go-systemd",
+)
+
+new_go_repository(
+    name = "com_github_pkg_errors",
+    commit = "a22138067af1c4942683050411a841ade67fe1eb",
+    importpath = "github.com/pkg/errors",
+)
+
+new_go_repository(
+    name = "in_gopkg_natefinch_lumberjack_v2",
+    commit = "20b71e5b60d756d3d2f80def009790325acc2b23",
+    importpath = "gopkg.in/natefinch/lumberjack.v2",
+)
+
+new_go_repository(
+    name = "com_github_elazarl_go_bindata_assetfs",
+    commit = "3dcc96556217539f50599357fb481ac0dc7439b9",
+    importpath = "github.com/elazarl/go-bindata-assetfs",
+)
+
+new_go_repository(
+    name = "com_github_evanphx_json_patch",
+    commit = "ba18e35c5c1b36ef6334cad706eb681153d2d379",
+    importpath = "github.com/evanphx/json-patch",
+)
+
+new_go_repository(
+    name = "org_golang_google_grpc",
+    commit = "231b4cfea0e79843053a33f5fe90bd4d84b23cd3",
+    importpath = "google.golang.org/grpc",
 )

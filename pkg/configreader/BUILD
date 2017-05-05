@@ -20,9 +20,8 @@ go_test(
     srcs = ["reader_test.go"],
     library = ":go_default_library",
     deps = [
-        "//pkg/api:go_default_library",
+        "//pkg/api/apiserver:go_default_library",
         "//pkg/apis/componentconfig:go_default_library",
-        "//pkg/apis/componentconfig/install:go_default_library",
         "//pkg/apis/componentconfig/v1alpha1:go_default_library",
         "@io_k8s_client_go//pkg/api/v1:go_default_library",
     ],

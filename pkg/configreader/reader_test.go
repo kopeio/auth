@@ -7,22 +7,21 @@ import (
 
 	"reflect"
 
-	"kope.io/auth/pkg/api"
 	"kope.io/auth/pkg/apis/componentconfig"
-	componentconfiginstall "kope.io/auth/pkg/apis/componentconfig/install"
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+	"kope.io/auth/pkg/api/apiserver"
 )
 
 func TestReadConfigMap(t *testing.T) {
-	apiContext, err := api.NewAPIContext("")
-	if err != nil {
-		t.Fatalf("error creating API context: %v", err)
-	}
-
-	componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
+	//apiContext, err := api.NewAPIContext("")
+	//if err != nil {
+	//	t.Fatalf("error creating API context: %v", err)
+	//}
+	//
+	//componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
 
 	mc := &ManagedConfiguration{
-		Decoder: apiContext.Codecs.UniversalDecoder(),
+		Decoder: apiserver.Codecs.UniversalDecoder(),
 	}
 	configMap := &v1.ConfigMap{}
 	configMap.Data = make(map[string]string)
@@ -64,8 +63,8 @@ spec:
 	}
 
 	if !reflect.DeepEqual(expected, obj) {
-		t.Logf("Expected: %s", apiContext.MustToYAML(v1alpha1.SchemeGroupVersion, expected))
-		t.Logf("Actual: %v", apiContext.MustToYAML(v1alpha1.SchemeGroupVersion, obj))
+		t.Logf("Expected: %s", apiserver.MustToYAML(v1alpha1.SchemeGroupVersion, expected))
+		t.Logf("Actual: %v", apiserver.MustToYAML(v1alpha1.SchemeGroupVersion, obj))
 		t.Fatalf("Unexpected value")
 	}
 }

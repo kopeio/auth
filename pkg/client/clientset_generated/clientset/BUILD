@@ -9,6 +9,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/client/clientset_generated/clientset/typed/auth/v1alpha1:go_default_library",
+        "//pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1:go_default_library",
         "@com_github_golang_glog//:go_default_library",
         "@io_k8s_client_go//discovery:go_default_library",
         "@io_k8s_client_go//rest:go_default_library",

@@ -16,4 +16,6 @@ limitations under the License.
 
 // +k8s:deepcopy-gen=package,register
 
+// +groupName=auth.kope.io
 package componentconfig // import "kope.io/auth/pkg/apis/componentconfig"
+

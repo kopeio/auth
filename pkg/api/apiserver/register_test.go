@@ -1,4 +1,4 @@
-package install
+package apiserver
 
 import (
 	"testing"
@@ -7,24 +7,25 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"kope.io/auth/pkg/api"
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+
+	"kope.io/auth/pkg/api/apiserver"
 )
 
 func TestDefaultSchema(t *testing.T) {
-	apiContext, err := api.NewAPIContext("")
-	if err != nil {
-		t.Fatalf("error creating API context: %v", err)
-	}
+	//apiContext, err := api.NewAPIContext("")
+	//if err != nil {
+	//	t.Fatalf("error creating API context: %v", err)
+	//}
+	//
+	//Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
 
-	Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
-
-	yaml, ok := runtime.SerializerInfoForMediaType(apiContext.Codecs.SupportedMediaTypes(), "application/yaml")
+	yaml, ok := runtime.SerializerInfoForMediaType(apiserver.Codecs.SupportedMediaTypes(), "application/yaml")
 	if !ok {
 		t.Fatalf("no YAML serializer registered")
 	}
 	gv := v1alpha1.SchemeGroupVersion
-	encoder := apiContext.Codecs.EncoderForVersion(yaml.Serializer, gv)
+	encoder := Codecs.EncoderForVersion(yaml.Serializer, gv)
 
 	obj := &v1alpha1.AuthConfiguration{
 		Spec: v1alpha1.AuthConfigurationSpec{
@@ -45,7 +46,7 @@ func TestDefaultSchema(t *testing.T) {
 		},
 	}
 	var w bytes.Buffer
-	if err = encoder.Encode(obj, &w); err != nil {
+	if err := encoder.Encode(obj, &w); err != nil {
 		t.Fatalf("error encoding object")
 	}
 

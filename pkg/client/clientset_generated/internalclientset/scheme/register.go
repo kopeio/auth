@@ -24,6 +24,7 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	auth "kope.io/auth/pkg/apis/auth/install"
+	componentconfig "kope.io/auth/pkg/apis/componentconfig/install"
 	os "os"
 )
 
@@ -42,5 +43,6 @@ func init() {
 // Install registers the API group and adds types to a scheme
 func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *registered.APIRegistrationManager, scheme *runtime.Scheme) {
 	auth.Install(groupFactoryRegistry, registry, scheme)
+	componentconfig.Install(groupFactoryRegistry, registry, scheme)
 
 }

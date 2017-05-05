@@ -25,6 +25,8 @@ import (
 	clientset "kope.io/auth/pkg/client/clientset_generated/clientset"
 	authv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/auth/v1alpha1"
 	fakeauthv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/auth/v1alpha1/fake"
+	componentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1"
+	fakecomponentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -68,4 +70,14 @@ func (c *Clientset) AuthV1alpha1() authv1alpha1.AuthV1alpha1Interface {
 // Auth retrieves the AuthV1alpha1Client
 func (c *Clientset) Auth() authv1alpha1.AuthV1alpha1Interface {
 	return &fakeauthv1alpha1.FakeAuthV1alpha1{Fake: &c.Fake}
+}
+
+// ComponentconfigV1alpha1 retrieves the ComponentconfigV1alpha1Client
+func (c *Clientset) ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
+	return &fakecomponentconfigv1alpha1.FakeComponentconfigV1alpha1{Fake: &c.Fake}
+}
+
+// Componentconfig retrieves the ComponentconfigV1alpha1Client
+func (c *Clientset) Componentconfig() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
+	return &fakecomponentconfigv1alpha1.FakeComponentconfigV1alpha1{Fake: &c.Fake}
 }

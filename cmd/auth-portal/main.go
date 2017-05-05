@@ -7,22 +7,16 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
 	"github.com/golang/glog"
-
-	"kope.io/auth/pkg/apis/componentconfig"
-	"kope.io/auth/pkg/configreader"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kope.io/auth/pkg/keystore"
 	"kope.io/auth/pkg/portal"
-
+	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	cryptorand "crypto/rand"
 	"encoding/binary"
 	"io/ioutil"
 	mathrand "math/rand"
-
-	"kope.io/auth/pkg/api"
-
-	componentconfiginstall "kope.io/auth/pkg/apis/componentconfig/install"
 )
 
 const CookieSigningSecretLength = 24
@@ -53,10 +47,33 @@ func main() {
 }
 
 func run(listen string, staticDir string) error {
-	k8sClient, err := buildK8sClient()
+	// creates the in-cluster config
+	restConfig, err := rest.InClusterConfig()
 	if err != nil {
-		return err
+		return fmt.Errorf("error building kubernetes client configuration: %v", err)
 	}
+
+	// creates the clientset
+	k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return fmt.Errorf("error building kubernetes client: %v", err)
+	}
+
+	authClient, err := authclient.NewForConfig(restConfig)
+	if err != nil {
+		return fmt.Errorf("error building auth client: %v", err)
+	}
+
+	componentconfigName := "auth"
+	config, err := authClient.ComponentconfigV1alpha1().AuthConfigurations().Get(componentconfigName, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			glog.Infof("configuration %q not found", componentconfigName)
+		} else {
+			return fmt.Errorf("error reading componentconfig from API: %v", err)
+		}
+	}
+
 
 	name := "auth"
 
@@ -66,18 +83,18 @@ func run(listen string, staticDir string) error {
 	}
 	namespace := string(namespaceBytes)
 
-	apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
-	if err != nil {
-		return fmt.Errorf("error initializing API: %v", err)
-	}
+	//apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
+	//if err != nil {
+	//	return fmt.Errorf("error initializing API: %v", err)
+	//}
+	//
+	//componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
 
-	componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
-
-	configDecoder := apiContext.Codecs.UniversalDecoder()
-
-	configReader := &configreader.ManagedConfiguration{
-		Decoder: configDecoder,
-	}
+	//configDecoder := apiserver.Codecs.UniversalDecoder()
+	//
+	//configReader := &configreader.ManagedConfiguration{
+	//	Decoder: configDecoder,
+	//}
 
 	//configFile := os.Getenv("CONFIG")
 	//if configFile != "" {
@@ -87,14 +104,14 @@ func run(listen string, staticDir string) error {
 	//	}
 	//}
 
-	configObj, err := configReader.ReadFromKubernetes(k8sClient, namespace, name)
-	if err != nil {
-		return fmt.Errorf("error reading configuration: %v", err)
-	}
+	//configObj, err := configReader.ReadFromKubernetes(k8sClient, namespace, name)
+	//if err != nil {
+	//	return fmt.Errorf("error reading configuration: %v", err)
+	//}
 
-	// TODO(componentconfig-q): Should we deal with v1alpha1 or unversioned when we own the API?
-	// (I guess the same question with our User objects)
-	config := configObj.(*componentconfig.AuthConfiguration)
+	//// TODO(componentconfig-q): Should we deal with v1alpha1 or unversioned when we own the API?
+	//// (I guess the same question with our User objects)
+	//config := configObj.(*componentconfig.AuthConfiguration)
 
 	secretStore, err := keystore.NewKubernetesKeyStore(k8sClient, namespace, name)
 	if err != nil {
@@ -137,18 +154,4 @@ func cryptoSeed() {
 	}
 	seed := binary.BigEndian.Uint64(data)
 	mathrand.Seed(int64(seed))
-}
-
-func buildK8sClient() (kubernetes.Interface, error) {
-	// creates the in-cluster config
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, fmt.Errorf("error building kubernetes client configuration: %v", err)
-	}
-	// creates the clientset
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("error building kubernetes client: %v", err)
-	}
-	return client, err
 }

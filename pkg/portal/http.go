@@ -11,7 +11,7 @@ import (
 	"encoding/base64"
 
 	"k8s.io/client-go/rest"
-	"kope.io/auth/pkg/apis/componentconfig"
+	componentconfig "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
 	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/keystore"
 	oauth2proxy "kope.io/auth/pkg/oauth2proxy"

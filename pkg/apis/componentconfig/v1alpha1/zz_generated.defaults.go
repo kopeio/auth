@@ -28,10 +28,5 @@ import (
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
 func RegisterDefaults(scheme *runtime.Scheme) error {
-	scheme.AddTypeDefaultingFunc(&AuthConfiguration{}, func(obj interface{}) { SetObjectDefaults_AuthConfiguration(obj.(*AuthConfiguration)) })
 	return nil
-}
-
-func SetObjectDefaults_AuthConfiguration(in *AuthConfiguration) {
-	SetDefaults_AuthConfiguration(in)
 }

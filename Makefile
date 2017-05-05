@@ -38,5 +38,5 @@ apimachinery:
 	#cd pkg/apis/kops/v1alpha2/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
 	#cd pkg/apis/kops/v1alpha1/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
 	#cd pkg/apis/kops/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
-	${GOPATH}/bin/client-gen  --input-base kope.io/auth/pkg/apis --input="auth/,auth/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
-	${GOPATH}/bin/client-gen  --clientset-name="clientset" --input-base kope.io/auth/pkg/apis --input="auth/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
+	${GOPATH}/bin/client-gen  --input-base kope.io/auth/pkg/apis --input="auth/,auth/v1alpha1,componentconfig/,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
+	${GOPATH}/bin/client-gen  --clientset-name="clientset" --input-base kope.io/auth/pkg/apis --input="auth/v1alpha1,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
