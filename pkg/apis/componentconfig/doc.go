@@ -18,4 +18,3 @@ limitations under the License.
 
 // +groupName=auth.kope.io
 package componentconfig // import "kope.io/auth/pkg/apis/componentconfig"
-

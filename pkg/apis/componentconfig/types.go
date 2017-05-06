@@ -21,7 +21,6 @@ package componentconfig
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-
 // +genclient=true
 // +nonNamespaced=true
 
@@ -69,7 +68,6 @@ type GenerateKubeconfig struct {
 	Server string `json:"server,omitempty"`
 	Name   string `json:"name,omitempty"`
 }
-
 
 type AuthConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`

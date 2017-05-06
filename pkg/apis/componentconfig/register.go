@@ -29,7 +29,7 @@ var (
 // GroupName is the group name use in this package
 // TODO(componentconfig-q): does the componentconfig live in the GroupName?
 // Should it actually just be in the same go packages?
-const GroupName = "auth.kope.io"
+const GroupName = "config.auth.kope.io"
 
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: runtime.APIVersionInternal}

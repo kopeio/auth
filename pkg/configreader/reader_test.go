@@ -7,9 +7,9 @@ import (
 
 	"reflect"
 
+	"kope.io/auth/pkg/api/apiserver"
 	"kope.io/auth/pkg/apis/componentconfig"
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
-	"kope.io/auth/pkg/api/apiserver"
 )
 
 func TestReadConfigMap(t *testing.T) {

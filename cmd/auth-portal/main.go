@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"os"
 
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"github.com/golang/glog"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"kope.io/auth/pkg/keystore"
-	"kope.io/auth/pkg/portal"
-	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	cryptorand "crypto/rand"
 	"encoding/binary"
+	"github.com/golang/glog"
 	"io/ioutil"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
+	"kope.io/auth/pkg/keystore"
+	"kope.io/auth/pkg/portal"
 	mathrand "math/rand"
 )
 
@@ -73,7 +73,6 @@ func run(listen string, staticDir string) error {
 			return fmt.Errorf("error reading componentconfig from API: %v", err)
 		}
 	}
-
 
 	name := "auth"
 

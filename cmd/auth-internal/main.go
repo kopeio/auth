@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
-	"os"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
+	"kope.io/auth/pkg/api/apiserver"
 	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/k8sauth"
 	"kope.io/auth/pkg/tokenstore"
-	"kope.io/auth/pkg/api/apiserver"
-	"k8s.io/apimachinery/pkg/util/wait"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -45,7 +45,6 @@ func run(o *Options) error {
 	if err != nil {
 		return fmt.Errorf("error building auth client: %v", err)
 	}
-
 
 	// creates the clientset
 	//k8sClient, err := kubernetes.NewForConfig(config)
