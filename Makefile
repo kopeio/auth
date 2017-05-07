@@ -2,7 +2,7 @@
 .PHONY: images
 
 DOCKER_REGISTRY?=kopeio
-DOCKER_TAG=1.0.20170318
+DOCKER_TAG=1.0.20170506
 
 all: images
 
@@ -14,12 +14,22 @@ portal:
 	cd webapp/portal; npm run build
 	gzip --force --keep --best webapp/portal/public/bundle.js
 
-push: images
-	docker push ${DOCKER_REGISTRY}/auth-internal:${DOCKER_TAG}
+portal-push:
+	bazel run //images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 	docker push ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 
+api-push:
+	bazel run //images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+	docker push ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+
+api-bounce:
+	kubectl delete pod -n kopeio-auth -l app=auth-api
+
+push: portal-push api-push
+	echo "pushed images"
+
 images: portal
-	bazel run //images:auth-internal ${DOCKER_REGISTRY}/auth-internal:${DOCKER_TAG}
+	bazel run //images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
 	bazel run //images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 
 # -----------------------------------------------------

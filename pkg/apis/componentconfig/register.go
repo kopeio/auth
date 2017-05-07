@@ -27,7 +27,7 @@ var (
 )
 
 // GroupName is the group name use in this package
-// TODO(componentconfig-q): does the componentconfig live in the GroupName?
+// TODO(authprovider-q): does the authprovider live in the GroupName?
 // Should it actually just be in the same go packages?
 const GroupName = "config.auth.kope.io"
 
@@ -48,8 +48,13 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	// TODO this will get cleaned up with the scheme types are fixed
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&AuthConfiguration{},
+		&AuthConfigurationList{},
+		&AuthProvider{},
+		&AuthProviderList{},
 	)
 	return nil
 }
 
 func (obj *AuthConfiguration) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }
+
+func (obj *AuthProvider) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }

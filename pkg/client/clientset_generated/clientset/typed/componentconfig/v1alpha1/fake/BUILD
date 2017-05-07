@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "doc.go",
         "fake_authconfiguration.go",
+        "fake_authprovider.go",
         "fake_componentconfig_client.go",
     ],
     visibility = ["//visibility:public"],

@@ -30,14 +30,14 @@ package tokenstore
 //	namespace  string
 //
 //	mutex      sync.Mutex
-//	users      map[string]*auth.User
+//	users      map[string]*user.User
 //}
 //
 //func NewSecrets(kubeClient *kubernetes.Clientset, namespace string) (*Secrets) {
 //	s := &Secrets{
 //		kubeClient: kubeClient,
 //		namespace:namespace,
-//		users: make(map[string]*auth.User),
+//		users: make(map[string]*user.User),
 //	}
 //	return s
 //}

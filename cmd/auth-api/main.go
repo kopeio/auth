@@ -11,17 +11,34 @@ import (
 	"kope.io/auth/pkg/tokenstore"
 	"net/http"
 	"os"
+	"github.com/spf13/pflag"
+	"net/url"
+	"github.com/golang/glog"
 )
 
 func main() {
 	var o Options
 	o.Listen = ":8080"
+	o.Server = "http://127.0.0.1:8080"
 
-	flag.Set("logtostderr", "true")
+	pflag.Set("logtostderr", "true")
+	flag.CommandLine.Parse([]string{"--logtostderr=true"})
 
-	flag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
+	o.AuthServer = apiserver.NewAuthServerOptions(os.Stdout, os.Stderr)
 
-	flag.Parse()
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+
+	pflag.StringVar(&o.Server, "server", o.Server, "url on which to connect to server")
+	pflag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
+
+	o.AuthServer.AddFlags(pflag.CommandLine)
+
+	pflag.Parse()
+
+	// HACK: Create /tmp, so we don't need to create it in the base image
+	if err := os.MkdirAll("/tmp", 0777 | os.ModeTemporary); err != nil {
+		glog.Warning("failed to mkdir /tmp: %v", err)
+	}
 
 	err := run(&o)
 	if err != nil {
@@ -31,21 +48,12 @@ func main() {
 }
 
 type Options struct {
-	Listen string
+	Listen     string
+	Server     string
+	AuthServer *apiserver.AuthServerOptions
 }
 
 func run(o *Options) error {
-	// creates the in-cluster config
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return fmt.Errorf("error building kubernetes configuration: %v", err)
-	}
-
-	authClient, err := authclient.NewForConfig(config)
-	if err != nil {
-		return fmt.Errorf("error building auth client: %v", err)
-	}
-
 	// creates the clientset
 	//k8sClient, err := kubernetes.NewForConfig(config)
 	//if err != nil {
@@ -56,16 +64,35 @@ func run(o *Options) error {
 	//}
 
 	{
-		o := apiserver.NewAuthServerOptions(os.Stdout, os.Stderr)
-		if err := o.Complete(); err != nil {
+		if err := o.AuthServer.Complete(); err != nil {
 			return err
 		}
-		if err := o.Validate(nil); err != nil {
+		if err := o.AuthServer.Validate(nil); err != nil {
 			return err
 		}
-		if err := o.RunAuthServer(wait.NeverStop); err != nil {
+		if err := o.AuthServer.RunAuthServer(wait.NeverStop); err != nil {
 			return err
 		}
+	}
+
+	// creates the in-cluster config
+	//config, err := rest.InClusterConfig()
+	//if err != nil {
+	//	return fmt.Errorf("error building kubernetes configuration: %v", err)
+	//}
+
+	u, err := url.Parse(o.Server)
+	if err != nil {
+		return fmt.Errorf("Invalid server flag: %q", o.Server)
+	}
+
+	config := &rest.Config{
+		Host: u.Host,
+	}
+
+	authClient, err := authclient.NewForConfig(config)
+	if err != nil {
+		return fmt.Errorf("error building user client: %v", err)
 	}
 
 	tokenStore := tokenstore.NewAPITokenStore(authClient)

@@ -147,7 +147,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		}
 	}
 	for _, u := range opts.CompiledRegex {
-		log.Printf("compiled skip-auth-regex => %q", u)
+		log.Printf("compiled skip-user-regex => %q", u)
 	}
 
 	redirectURL := opts.redirectURL
@@ -189,7 +189,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		SignInPath:        fmt.Sprintf("%s/sign_in", opts.ProxyPrefix),
 		OAuthStartPath:    fmt.Sprintf("%s/start", opts.ProxyPrefix),
 		OAuthCallbackPath: fmt.Sprintf("%s/callback", opts.ProxyPrefix),
-		AuthOnlyPath:      fmt.Sprintf("%s/auth", opts.ProxyPrefix),
+		AuthOnlyPath:      fmt.Sprintf("%s/user", opts.ProxyPrefix),
 
 		ProxyPrefix:        opts.ProxyPrefix,
 		provider:           opts.provider,
@@ -374,7 +374,7 @@ func (p *OAuthProxy) ManualSignIn(rw http.ResponseWriter, req *http.Request) (st
 	if user == "" {
 		return "", false
 	}
-	// check auth
+	// check user
 	if p.HtpasswdFile.Validate(user, passwd) {
 		log.Printf("authenticated %q via HtpasswdFile", user)
 		return user, true
@@ -646,7 +646,7 @@ func (p *OAuthProxy) CheckBasicAuth(req *http.Request) (*providers.SessionState,
 		return nil, fmt.Errorf("invalid format %s", b)
 	}
 	if p.HtpasswdFile.Validate(pair[0], pair[1]) {
-		log.Printf("authenticated %q via basic auth", pair[0])
+		log.Printf("authenticated %q via basic user", pair[0])
 		return &providers.SessionState{pb.SessionData{User: pair[0]}}, nil
 	}
 	return nil, fmt.Errorf("%s not in HtpasswdFile", pair[0])

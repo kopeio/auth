@@ -16,7 +16,7 @@ limitations under the License.
 
 package componentconfig
 
-// TODO(componentconfig-q): Should these be in pkg/apis/componentconfig?
+// TODO(authprovider-q): Should these be in pkg/apis/authprovider?
 // or pkg/apis/auth or pkg/apis/authconfig or ???
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,22 +24,25 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +genclient=true
 // +nonNamespaced=true
 
-// TODO(componentconfig-q): Is the Auth in AuthConfiguration redundant?
+// TODO(authprovider-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	// TODO(componentconfig-q): Spec or no Spec?
+	// TODO(authprovider-q): Spec or no Spec?
 	Spec AuthConfigurationSpec `json:"spec"`
 }
 
 type AuthConfigurationSpec struct {
-	AuthProviders []AuthProviderSpec `json:"authProviders,omitempty""`
-
 	GenerateKubeconfig *GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
 }
 
-type AuthProviderSpec struct {
+// +genclient=true
+
+type AuthProvider struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+
 	// ID is a system-friendly identifier
 	ID string `json:"id,omitempty"`
 
@@ -55,7 +58,7 @@ type AuthProviderSpec struct {
 type OAuthConfig struct {
 	ClientID string `json:"clientID,omitempty"`
 
-	// TODO(componentconfig-q): What do we do about secrets?  We presumably don't want this secret
+	// TODO(authprovider-q): What do we do about secrets?  We presumably don't want this secret
 	// in the configmap, because that might have a fairly permissive RBAC role.  But do we want to
 	// do a layerable configuration?  Keep the secret in a second configuration object?  Have the
 	// name of the secret here, and just runtime error until the secret is loaded?
@@ -74,4 +77,11 @@ type AuthConfigurationList struct {
 	metav1.ListMeta `json:"metadata"`
 
 	Items []AuthConfiguration `json:"items"`
+}
+
+type AuthProviderList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []AuthProvider `json:"items"`
 }

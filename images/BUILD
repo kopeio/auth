@@ -47,17 +47,17 @@ docker_build(
 docker_build(
     name = "auth-portal",
     base = ":auth-portal-assets",
-    cmd = ["/auth-portal"],
+    cmd = ["/user-portal"],
     files = [
         "//cmd/auth-portal",
     ],
 )
 
 docker_build(
-    name = "auth-internal",
+    name = "auth-api",
     base = ":busybox-libc",
-    cmd = ["/auth-internal"],
+    cmd = ["/user-api"],
     files = [
-        "//cmd/auth-internal",
+        "//cmd/auth-api",
     ],
 )

@@ -19,11 +19,11 @@ package tokenstore
 //	"k8s.io/apimachinery/pkg/types"
 //	"k8s.io/apimachinery/pkg/watch"
 //	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
-//	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
+//	user "kope.io/auth/pkg/apis/auth/v1alpha1"
 //	client "kope.io/auth/pkg/apis/auth/v1alpha1/client"
 //)
 //
-//const objectNamespace = "kopeio-auth"
+//const objectNamespace = "kopeio-user"
 //
 //const bcryptCost = bcrypt.DefaultCost
 //
@@ -32,7 +32,7 @@ package tokenstore
 //	//namespace  string
 //
 //	mutex sync.Mutex
-//	users map[types.UID]*auth.User
+//	users map[types.UID]*user.User
 //}
 //
 //var _ Interface = &ThirdPartyStorage{}
@@ -40,7 +40,7 @@ package tokenstore
 //func NewThirdPartyStorage(client client.Interface) *ThirdPartyStorage {
 //	s := &ThirdPartyStorage{
 //		client: client,
-//		users:  make(map[types.UID]*auth.User),
+//		users:  make(map[types.UID]*user.User),
 //	}
 //	return s
 //}
@@ -68,7 +68,7 @@ package tokenstore
 //	//TODO: token expiry?
 //	//TODO: token reuse?
 //
-//	var token *auth.TokenSpec
+//	var token *user.TokenSpec
 //	for _, t := range user.Spec.Tokens {
 //		if t.ID == items[1] {
 //			token = t
@@ -103,10 +103,10 @@ package tokenstore
 //	return userInfo, nil
 //}
 //
-//func (s *ThirdPartyStorage) CreateToken(u *auth.User, hashSecret bool) (*auth.TokenSpec, error) {
+//func (s *ThirdPartyStorage) CreateToken(u *user.User, hashSecret bool) (*user.TokenSpec, error) {
 //	objectName := u.Metadata.Name
 //
-//	t := &auth.TokenSpec{}
+//	t := &user.TokenSpec{}
 //	t.ID = strconv.FormatInt(rand.Int63(), 32)
 //
 //	// TODO: Check that doesn't already exist?
@@ -137,7 +137,7 @@ package tokenstore
 //
 //	//create := false
 //	//if u == nil {
-//	//	u = &auth.User{}
+//	//	u = &user.User{}
 //	//	u.Metadata.Name = uid
 //	//	u.Metadata.Namespace = objectNamespace
 //	//
@@ -163,7 +163,7 @@ package tokenstore
 //	return t, nil
 //}
 //
-//func (s *ThirdPartyStorage) MapToUser(identity *auth.IdentitySpec, create bool) (*auth.User, error) {
+//func (s *ThirdPartyStorage) MapToUser(identity *user.IdentitySpec, create bool) (*user.User, error) {
 //	// TODO: Check that doesn't already exist?
 //
 //	u := s.findUserByProviderInfo(identity)
@@ -174,7 +174,7 @@ package tokenstore
 //			return nil, fmt.Errorf("error generating random uid: %v", err)
 //		}
 //
-//		u = &auth.User{}
+//		u = &user.User{}
 //		// TODO: Include a prefix based on the username?
 //		name := base32.HexEncoding.EncodeToString(uidBytes)
 //		name = strings.Replace(name, "=", "", -1)
@@ -183,7 +183,7 @@ package tokenstore
 //
 //		u.Spec.Username = identity.Username
 //
-//		u.Spec.Identities = []auth.IdentitySpec{*identity}
+//		u.Spec.Identities = []user.IdentitySpec{*identity}
 //		_, err = s.client.Users(objectNamespace).Create(u)
 //		if err != nil {
 //			return nil, fmt.Errorf("error creating user %s/%s: %v", objectNamespace, u.Metadata.Name, err)
@@ -196,7 +196,7 @@ package tokenstore
 //	return u, nil
 //}
 //
-//func (s *ThirdPartyStorage) FindUserByUID(uid string) (*auth.User, error) {
+//func (s *ThirdPartyStorage) FindUserByUID(uid string) (*user.User, error) {
 //	user := s.findUserByUid(types.UID(uid))
 //	if user == nil {
 //		return nil, nil
@@ -204,7 +204,7 @@ package tokenstore
 //	return user, nil
 //}
 //
-//func (s *ThirdPartyStorage) findUserByUid(uid types.UID) *auth.User {
+//func (s *ThirdPartyStorage) findUserByUid(uid types.UID) *user.User {
 //	s.mutex.Lock()
 //	defer s.mutex.Unlock()
 //
@@ -212,7 +212,7 @@ package tokenstore
 //	return user
 //}
 //
-//func (s *ThirdPartyStorage) findUserByProviderInfo(identity *auth.IdentitySpec) *auth.User {
+//func (s *ThirdPartyStorage) findUserByProviderInfo(identity *user.IdentitySpec) *user.User {
 //	s.mutex.Lock()
 //	defer s.mutex.Unlock()
 //
@@ -230,14 +230,14 @@ package tokenstore
 //}
 //
 //// updateUser processes an update notification for a user
-//func (c *ThirdPartyStorage) processUserUpdate(u *auth.User) {
+//func (c *ThirdPartyStorage) processUserUpdate(u *user.User) {
 //	c.mutex.Lock()
 //	defer c.mutex.Unlock()
 //
 //	c.users[u.Metadata.UID] = u
 //}
 //
-//func (c *ThirdPartyStorage) processUserDelete(u *auth.User) {
+//func (c *ThirdPartyStorage) processUserDelete(u *user.User) {
 //	c.mutex.Lock()
 //	defer c.mutex.Unlock()
 //
@@ -279,7 +279,7 @@ package tokenstore
 //					return false, nil
 //				}
 //
-//				u := event.Object.(*auth.User)
+//				u := event.Object.(*user.User)
 //				glog.V(4).Infof("user changed: %s %v", event.Type, u.Spec.Username)
 //
 //				switch event.Type {

@@ -31,7 +31,9 @@ type FakeAuthConfigurations struct {
 	Fake *FakeComponentconfig
 }
 
-var authconfigurationsResource = schema.GroupVersionResource{Group: "auth.kope.io", Version: "", Resource: "authconfigurations"}
+var authconfigurationsResource = schema.GroupVersionResource{Group: "config.auth.kope.io", Version: "", Resource: "authconfigurations"}
+
+var authconfigurationsKind = schema.GroupVersionKind{Group: "config.auth.kope.io", Version: "", Kind: "AuthConfiguration"}
 
 func (c *FakeAuthConfigurations) Create(authConfiguration *componentconfig.AuthConfiguration) (result *componentconfig.AuthConfiguration, err error) {
 	obj, err := c.Fake.
@@ -75,7 +77,7 @@ func (c *FakeAuthConfigurations) Get(name string, options v1.GetOptions) (result
 
 func (c *FakeAuthConfigurations) List(opts v1.ListOptions) (result *componentconfig.AuthConfigurationList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(authconfigurationsResource, opts), &componentconfig.AuthConfigurationList{})
+		Invokes(testing.NewRootListAction(authconfigurationsResource, authconfigurationsKind, opts), &componentconfig.AuthConfigurationList{})
 	if obj == nil {
 		return nil, err
 	}

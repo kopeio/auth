@@ -30,6 +30,10 @@ func (c *FakeComponentconfig) AuthConfigurations() internalversion.AuthConfigura
 	return &FakeAuthConfigurations{c}
 }
 
+func (c *FakeComponentconfig) AuthProviders(namespace string) internalversion.AuthProviderInterface {
+	return &FakeAuthProviders{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeComponentconfig) RESTClient() rest.Interface {

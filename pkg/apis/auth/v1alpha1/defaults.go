@@ -44,10 +44,7 @@ import kruntime "k8s.io/apimachinery/pkg/runtime"
 //)
 
 func addDefaultingFuncs(scheme *kruntime.Scheme) error {
-	RegisterDefaults(scheme)
-	return scheme.AddDefaultingFuncs(
-		SetDefaults_User,
-	)
+	return RegisterDefaults(scheme)
 }
 
 func SetDefaults_User(obj *User) {

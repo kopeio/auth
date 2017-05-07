@@ -38,7 +38,8 @@ func RegisterDeepCopies(scheme *runtime.Scheme) error {
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfiguration, InType: reflect.TypeOf(&AuthConfiguration{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationList, InType: reflect.TypeOf(&AuthConfigurationList{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationSpec, InType: reflect.TypeOf(&AuthConfigurationSpec{})},
-		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProviderSpec, InType: reflect.TypeOf(&AuthProviderSpec{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProvider, InType: reflect.TypeOf(&AuthProvider{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProviderList, InType: reflect.TypeOf(&AuthProviderList{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_GenerateKubeconfig, InType: reflect.TypeOf(&GenerateKubeconfig{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_OAuthConfig, InType: reflect.TypeOf(&OAuthConfig{})},
 	)
@@ -84,15 +85,6 @@ func DeepCopy_v1alpha1_AuthConfigurationSpec(in interface{}, out interface{}, c 
 		in := in.(*AuthConfigurationSpec)
 		out := out.(*AuthConfigurationSpec)
 		*out = *in
-		if in.AuthProviders != nil {
-			in, out := &in.AuthProviders, &out.AuthProviders
-			*out = make([]AuthProviderSpec, len(*in))
-			for i := range *in {
-				if err := DeepCopy_v1alpha1_AuthProviderSpec(&(*in)[i], &(*out)[i], c); err != nil {
-					return err
-				}
-			}
-		}
 		if in.GenerateKubeconfig != nil {
 			in, out := &in.GenerateKubeconfig, &out.GenerateKubeconfig
 			*out = new(GenerateKubeconfig)
@@ -102,11 +94,16 @@ func DeepCopy_v1alpha1_AuthConfigurationSpec(in interface{}, out interface{}, c 
 	}
 }
 
-func DeepCopy_v1alpha1_AuthProviderSpec(in interface{}, out interface{}, c *conversion.Cloner) error {
+func DeepCopy_v1alpha1_AuthProvider(in interface{}, out interface{}, c *conversion.Cloner) error {
 	{
-		in := in.(*AuthProviderSpec)
-		out := out.(*AuthProviderSpec)
+		in := in.(*AuthProvider)
+		out := out.(*AuthProvider)
 		*out = *in
+		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
+			return err
+		} else {
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
+		}
 		if in.OAuthConfig != nil {
 			in, out := &in.OAuthConfig, &out.OAuthConfig
 			*out = new(OAuthConfig)
@@ -116,6 +113,24 @@ func DeepCopy_v1alpha1_AuthProviderSpec(in interface{}, out interface{}, c *conv
 			in, out := &in.PermitEmails, &out.PermitEmails
 			*out = make([]string, len(*in))
 			copy(*out, *in)
+		}
+		return nil
+	}
+}
+
+func DeepCopy_v1alpha1_AuthProviderList(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*AuthProviderList)
+		out := out.(*AuthProviderList)
+		*out = *in
+		if in.Items != nil {
+			in, out := &in.Items, &out.Items
+			*out = make([]AuthProvider, len(*in))
+			for i := range *in {
+				if err := DeepCopy_v1alpha1_AuthProvider(&(*in)[i], &(*out)[i], c); err != nil {
+					return err
+				}
+			}
 		}
 		return nil
 	}

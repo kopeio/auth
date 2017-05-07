@@ -24,15 +24,20 @@ import (
 type ComponentconfigInterface interface {
 	RESTClient() rest.Interface
 	AuthConfigurationsGetter
+	AuthProvidersGetter
 }
 
-// ComponentconfigClient is used to interact with features provided by the auth.kope.io group.
+// ComponentconfigClient is used to interact with features provided by the config.auth.kope.io group.
 type ComponentconfigClient struct {
 	restClient rest.Interface
 }
 
 func (c *ComponentconfigClient) AuthConfigurations() AuthConfigurationInterface {
 	return newAuthConfigurations(c)
+}
+
+func (c *ComponentconfigClient) AuthProviders(namespace string) AuthProviderInterface {
+	return newAuthProviders(c, namespace)
 }
 
 // NewForConfig creates a new ComponentconfigClient for the given config.
@@ -64,7 +69,7 @@ func New(c rest.Interface) *ComponentconfigClient {
 }
 
 func setConfigDefaults(config *rest.Config) error {
-	g, err := scheme.Registry.Group("auth.kope.io")
+	g, err := scheme.Registry.Group("config.auth.kope.io")
 	if err != nil {
 		return err
 	}

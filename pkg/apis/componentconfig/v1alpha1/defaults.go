@@ -44,10 +44,7 @@ import kruntime "k8s.io/apimachinery/pkg/runtime"
 //)
 
 func addDefaultingFuncs(scheme *kruntime.Scheme) error {
-	RegisterDefaults(scheme)
-	return scheme.AddDefaultingFuncs(
-		SetDefaults_AuthConfiguration,
-	)
+	return RegisterDefaults(scheme)
 }
 
 func SetDefaults_AuthConfiguration(obj *AuthConfiguration) {
@@ -116,9 +113,9 @@ func SetDefaults_AuthConfiguration(obj *AuthConfiguration) {
 	//}
 }
 
-func boolVar(b bool) *bool {
-	return &b
-}
+//func boolVar(b bool) *bool {
+//	return &b
+//}
 
 //var (
 //	defaultCfg = KubeletConfiguration{}

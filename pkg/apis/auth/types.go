@@ -2,6 +2,16 @@ package auth
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+
+// +genclient=true
+
+type User struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+
+	Spec UserSpec `json:"spec"`
+}
+
 type UserSpec struct {
 	// The name that uniquely identifies this user among all active users.
 	// +optional
@@ -27,15 +37,6 @@ type IdentitySpec struct {
 	ProviderID string `json:"provider,omitempty"`
 
 	Username string `json:"username,omitempty"`
-}
-
-// +genclient=true
-
-type User struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-
-	Spec UserSpec `json:"spec"`
 }
 
 type UserList struct {

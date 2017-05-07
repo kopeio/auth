@@ -17,3 +17,5 @@ limitations under the License.
 package internalversion
 
 type AuthConfigurationExpansion interface{}
+
+type AuthProviderExpansion interface{}

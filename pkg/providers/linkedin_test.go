@@ -64,7 +64,7 @@ package providers
 //			LoginURL: &url.URL{
 //				Scheme: "https",
 //				Host:   "example.com",
-//				Path:   "/oauth/auth"},
+//				Path:   "/oauth/user"},
 //			RedeemURL: &url.URL{
 //				Scheme: "https",
 //				Host:   "example.com",

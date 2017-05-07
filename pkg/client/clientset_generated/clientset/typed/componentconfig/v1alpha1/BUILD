@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "authconfiguration.go",
+        "authprovider.go",
         "componentconfig_client.go",
         "doc.go",
         "generated_expansion.go",

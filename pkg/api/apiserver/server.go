@@ -11,11 +11,15 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	authstorage "kope.io/auth/pkg/api/registry/auth"
+	registry_user "kope.io/auth/pkg/api/registry/user"
+	registry_authconfiguration "kope.io/auth/pkg/api/registry/authconfiguration"
+	registry_authprovider "kope.io/auth/pkg/api/registry/authprovider"
 	"kope.io/auth/pkg/apis/auth"
 	authinstall "kope.io/auth/pkg/apis/auth/install"
-	"kope.io/auth/pkg/apis/auth/v1alpha1"
+	authv1alpha1 "kope.io/auth/pkg/apis/auth/v1alpha1"
 	componentconfiginstall "kope.io/auth/pkg/apis/componentconfig/install"
+	componentconfigv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+	"kope.io/auth/pkg/apis/componentconfig"
 )
 
 var (
@@ -41,6 +45,7 @@ func init() {
 		&metav1.APIGroupList{},
 		&metav1.APIGroup{},
 		&metav1.APIResourceList{},
+		&metav1.WatchEvent{},
 	)
 }
 
@@ -85,15 +90,32 @@ func (c completedConfig) New() (*AuthServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auth.GroupName, registry, Scheme, metav1.ParameterCodec, Codecs)
-	apiGroupInfo.GroupMeta.GroupVersion = v1alpha1.SchemeGroupVersion
-	v1alpha1storage := map[string]rest.Storage{}
-	v1alpha1storage["flunders"] = authstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
-	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auth.GroupName, registry, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo.GroupMeta.GroupVersion = authv1alpha1.SchemeGroupVersion
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage["users"] = registry_user.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
-	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-		return nil, err
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
 	}
+
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(componentconfig.GroupName, registry, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo.GroupMeta.GroupVersion = componentconfigv1alpha1.SchemeGroupVersion
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage["authconfigurations"] = registry_authconfiguration.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+		v1alpha1storage["authproviders"] = registry_authprovider.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+
 
 	return s, nil
 }

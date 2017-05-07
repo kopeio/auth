@@ -45,7 +45,7 @@ func (c *ManagedConfiguration) ReadFromKubernetes(k8sClient kubernetes.Interface
 	configMap, err := k8sClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			// TODO(componentconfig-q): Create?  Probably not as it would interfere with a manager (race condition)
+			// TODO(authprovider-q): Create?  Probably not as it would interfere with a manager (race condition)
 			glog.Infof("Config map not found %s/%s", namespace, name)
 			return nil, nil
 		}
@@ -67,7 +67,7 @@ func (c *ManagedConfiguration) decodeConfigMap(configMap *v1.ConfigMap, name str
 		return nil, fmt.Errorf("error decoding config map %s: %v", name, err)
 	}
 
-	// TODO(componentconfig-q): So how do changes work?  Do we dynamically load, or rely on k8s reloading?
+	// TODO(authprovider-q): So how do changes work?  Do we dynamically load, or rely on k8s reloading?
 	// Presumably we rely on k8s reloading for control, but then e.g. configmaps aren't versioned...
 
 	return obj, nil

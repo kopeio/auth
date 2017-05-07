@@ -41,7 +41,7 @@ func NewHTTPServer(o *componentconfig.AuthConfiguration, listen string, staticDi
 	//}
 	authClient, err := authclient.NewForConfig(config)
 	if err != nil {
-		return nil, fmt.Errorf("error building auth client: %v", err)
+		return nil, fmt.Errorf("error building user client: %v", err)
 	}
 
 	tokenStore := tokenstore.NewAPITokenStore(authClient)

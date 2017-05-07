@@ -52,19 +52,19 @@ debs = (
 
 new_go_repository(
     name = "io_k8s_client_go",
-    commit = "66e13efc6b3a1c285db15ee3a702270f5dc090a1",
+    commit = "0389c75147549613c776c45d2de9511339b0c072",
     importpath = "k8s.io/client-go",
 )
 
 new_go_repository(
     name = "io_k8s_apiserver",
-    commit = "e573b5e015e119d2f4907012501f99c49e408a13",
+    commit = "f0eaebe542e55a09c7301fb1da38694f433d9b72",
     importpath = "k8s.io/apiserver",
 )
 
 new_go_repository(
     name = "io_k8s_apimachinery",
-    commit = "bd3049bf8da9c381539035332a12c033c33271e2",
+    commit = "84c15da65eb86243c295d566203d7689cc6ac04b",
     importpath = "k8s.io/apimachinery",
 )
 
@@ -123,9 +123,21 @@ new_go_repository(
 )
 
 new_go_repository(
+    name = "com_github_go_openapi_analysis",
+    commit = "b44dc874b601d9e4e2f6e19140e794ba24bead3b",
+    importpath = "github.com/go-openapi/analysis",
+)
+
+new_go_repository(
     name = "com_github_go_openapi_jsonreference",
     commit = "13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272",
     importpath = "github.com/go-openapi/jsonreference",
+)
+
+new_go_repository(
+    name = "com_github_go_openapi_loads",
+    commit = "18441dfa706d924a39a030ee2c3b1d8d81917b38",
+    importpath = "github.com/go-openapi/loads",
 )
 
 new_go_repository(
@@ -142,7 +154,7 @@ new_go_repository(
 
 new_go_repository(
     name = "com_github_gogo_protobuf",
-    commit = "e18d7aa8f8c624c915db340349aad4c49b10d173",
+    commit = "c0656edd0d9eab7c66d1eb0c568f9039345796f7",
     importpath = "github.com/gogo/protobuf",
 )
 
@@ -415,7 +427,7 @@ new_go_repository(
 
 new_go_repository(
     name = "com_github_coreos_go_systemd",
-    commit = "4484981625c1a6a2ecb40a390fcb6a9bcfee76e3",
+    commit = "48702e0da86bd25e76cfef347e2adeb434a0d0a6",
     importpath = "github.com/coreos/go-systemd",
 )
 

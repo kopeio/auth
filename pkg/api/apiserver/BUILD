@@ -9,12 +9,17 @@ go_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/registry/auth:go_default_library",
+        "//pkg/api/registry/authconfiguration:go_default_library",
+        "//pkg/api/registry/authprovider:go_default_library",
+        "//pkg/api/registry/user:go_default_library",
         "//pkg/apis/auth:go_default_library",
         "//pkg/apis/auth/install:go_default_library",
         "//pkg/apis/auth/v1alpha1:go_default_library",
+        "//pkg/apis/componentconfig:go_default_library",
         "//pkg/apis/componentconfig/install:go_default_library",
+        "//pkg/apis/componentconfig/v1alpha1:go_default_library",
         "@com_github_golang_glog//:go_default_library",
+        "@com_github_spf13_pflag//:go_default_library",
         "@io_k8s_apimachinery//pkg/apimachinery/announced:go_default_library",
         "@io_k8s_apimachinery//pkg/apimachinery/registered:go_default_library",
         "@io_k8s_apimachinery//pkg/apis/meta/v1:go_default_library",
@@ -25,6 +30,7 @@ go_library(
         "@io_k8s_apiserver//pkg/registry/rest:go_default_library",
         "@io_k8s_apiserver//pkg/server:go_default_library",
         "@io_k8s_apiserver//pkg/server/options:go_default_library",
+        "@io_k8s_apiserver//pkg/storage/storagebackend:go_default_library",
     ],
 )
 

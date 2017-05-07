@@ -26,15 +26,20 @@ import (
 type ComponentconfigV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AuthConfigurationsGetter
+	AuthProvidersGetter
 }
 
-// ComponentconfigV1alpha1Client is used to interact with features provided by the auth.kope.io group.
+// ComponentconfigV1alpha1Client is used to interact with features provided by the config.auth.kope.io group.
 type ComponentconfigV1alpha1Client struct {
 	restClient rest.Interface
 }
 
 func (c *ComponentconfigV1alpha1Client) AuthConfigurations() AuthConfigurationInterface {
 	return newAuthConfigurations(c)
+}
+
+func (c *ComponentconfigV1alpha1Client) AuthProviders(namespace string) AuthProviderInterface {
+	return newAuthProviders(c, namespace)
 }
 
 // NewForConfig creates a new ComponentconfigV1alpha1Client for the given config.

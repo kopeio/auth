@@ -12,7 +12,7 @@ import (
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/names"
 
-	"kope.io/auth/pkg/apis/auth"
+	"kope.io/auth/pkg/apis/componentconfig"
 )
 
 type apiServerStrategy struct {
@@ -25,7 +25,7 @@ func NewStrategy(typer runtime.ObjectTyper) apiServerStrategy {
 }
 
 func (apiServerStrategy) NamespaceScoped() bool {
-	return false
+	return true
 }
 
 func (apiServerStrategy) PrepareForCreate(ctx genericapirequest.Context, obj runtime.Object) {
@@ -56,16 +56,14 @@ func (apiServerStrategy) ValidateUpdate(ctx genericapirequest.Context, obj, old 
 }
 
 func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
-	apiserver, ok := obj.(*auth.User)
+	o, ok := obj.(*componentconfig.AuthConfiguration)
 	if !ok {
-		return nil, nil, fmt.Errorf("given object is not a User.")
+		return nil, nil, fmt.Errorf("given object is not a AuthConfiguration.")
 	}
-	return labels.Set(apiserver.ObjectMeta.Labels), UserToSelectableFields(apiserver), nil
+	return labels.Set(o.ObjectMeta.Labels), AuthConfigurationToSelectableFields(o), nil
 }
 
-// MatchUser is the filter used by the generic etcd backend to watch events
-// from etcd to clients of the apiserver only interested in specific labels/fields.
-func MatchUser(label labels.Selector, field fields.Selector) storage.SelectionPredicate {
+func MatchAuthConfiguration(label labels.Selector, field fields.Selector) storage.SelectionPredicate {
 	return storage.SelectionPredicate{
 		Label:    label,
 		Field:    field,
@@ -73,7 +71,6 @@ func MatchUser(label labels.Selector, field fields.Selector) storage.SelectionPr
 	}
 }
 
-// UserToSelectableFields returns a field set that represents the object.
-func UserToSelectableFields(obj *auth.User) fields.Set {
+func AuthConfigurationToSelectableFields(obj *componentconfig.AuthConfiguration) fields.Set {
 	return generic.ObjectMetaFieldsSet(&obj.ObjectMeta, true)
 }

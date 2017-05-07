@@ -22,7 +22,7 @@ import (
 	client "kope.io/auth/pkg/client/clientset_generated/clientset"
 )
 
-const objectNamespace = "kopeio-auth"
+const objectNamespace = "kopeio-user"
 
 const bcryptCost = bcrypt.DefaultCost
 
@@ -136,7 +136,7 @@ func (s *APITokenStore) CreateToken(u *auth.User, hashSecret bool) (*auth.TokenS
 
 	//create := false
 	//if u == nil {
-	//	u = &auth.User{}
+	//	u = &user.User{}
 	//	u.Metadata.Name = uid
 	//	u.Metadata.Namespace = objectNamespace
 	//

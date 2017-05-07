@@ -34,6 +34,8 @@ type FakeUsers struct {
 
 var usersResource = schema.GroupVersionResource{Group: "auth.kope.io", Version: "v1alpha1", Resource: "users"}
 
+var usersKind = schema.GroupVersionKind{Group: "auth.kope.io", Version: "v1alpha1", Kind: "User"}
+
 func (c *FakeUsers) Create(user *v1alpha1.User) (result *v1alpha1.User, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(usersResource, c.ns, user), &v1alpha1.User{})
@@ -80,7 +82,7 @@ func (c *FakeUsers) Get(name string, options v1.GetOptions) (result *v1alpha1.Us
 
 func (c *FakeUsers) List(opts v1.ListOptions) (result *v1alpha1.UserList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(usersResource, c.ns, opts), &v1alpha1.UserList{})
+		Invokes(testing.NewListAction(usersResource, usersKind, c.ns, opts), &v1alpha1.UserList{})
 
 	if obj == nil {
 		return nil, err

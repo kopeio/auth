@@ -26,7 +26,7 @@ func main() {
 
 	flag.Set("logtostderr", "true")
 
-	// TODO(componentconfig-q): Some parameters we don't really want configurable, because
+	// TODO(authprovider-q): Some parameters we don't really want configurable, because
 	// we expect to be running in a container.  But maybe they would be useful for people
 	// that want to run the code differently, so they probably warrant a flag or an env var.
 	// Thoughts?
@@ -61,20 +61,20 @@ func run(listen string, staticDir string) error {
 
 	authClient, err := authclient.NewForConfig(restConfig)
 	if err != nil {
-		return fmt.Errorf("error building auth client: %v", err)
+		return fmt.Errorf("error building user client: %v", err)
 	}
 
-	componentconfigName := "auth"
+	componentconfigName := "user"
 	config, err := authClient.ComponentconfigV1alpha1().AuthConfigurations().Get(componentconfigName, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			glog.Infof("configuration %q not found", componentconfigName)
 		} else {
-			return fmt.Errorf("error reading componentconfig from API: %v", err)
+			return fmt.Errorf("error reading authprovider from API: %v", err)
 		}
 	}
 
-	name := "auth"
+	name := "user"
 
 	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	if err != nil {
@@ -108,9 +108,9 @@ func run(listen string, staticDir string) error {
 	//	return fmt.Errorf("error reading configuration: %v", err)
 	//}
 
-	//// TODO(componentconfig-q): Should we deal with v1alpha1 or unversioned when we own the API?
+	//// TODO(authprovider-q): Should we deal with v1alpha1 or unversioned when we own the API?
 	//// (I guess the same question with our User objects)
-	//config := configObj.(*componentconfig.AuthConfiguration)
+	//config := configObj.(*authprovider.AuthConfiguration)
 
 	secretStore, err := keystore.NewKubernetesKeyStore(k8sClient, namespace, name)
 	if err != nil {

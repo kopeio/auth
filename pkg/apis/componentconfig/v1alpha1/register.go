@@ -35,8 +35,13 @@ var (
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&AuthConfiguration{},
+		&AuthConfigurationList{},
+		&AuthProvider{},
+		&AuthProviderList{},
 	)
 	return nil
 }
 
 func (obj *AuthConfiguration) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }
+
+func (obj *AuthProvider) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }

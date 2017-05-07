@@ -29,12 +29,16 @@ type AuthConfiguration struct {
 }
 
 type AuthConfigurationSpec struct {
-	AuthProviders []AuthProviderSpec `json:"authProviders,omitempty""`
-
 	GenerateKubeconfig *GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
 }
 
-type AuthProviderSpec struct {
+
+// +genclient=true
+
+type AuthProvider struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+
 	// ID is a system-friendly identifier
 	ID string `json:"id,omitempty"`
 
@@ -50,7 +54,7 @@ type AuthProviderSpec struct {
 type OAuthConfig struct {
 	ClientID string `json:"clientID"`
 
-	// TODO(componentconfig-q): What do we do about secrets?  We presumably don't want this secret
+	// TODO(authprovider-q): What do we do about secrets?  We presumably don't want this secret
 	// in the configmap, because that might have a fairly permissive RBAC role.  But do we want to
 	// do a layerable configuration?  Keep the secret in a second configuration object?  Have the
 	// name of the secret here, and just runtime error until the secret is loaded?
@@ -70,3 +74,12 @@ type AuthConfigurationList struct {
 
 	Items []AuthConfiguration `json:"items"`
 }
+
+
+type AuthProviderList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []AuthProvider `json:"items"`
+}
+

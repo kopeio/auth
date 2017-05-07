@@ -34,7 +34,7 @@ func TestGoogleProviderDefaults(t *testing.T) {
 	p := newGoogleProvider()
 	assert.NotEqual(t, nil, p)
 	assert.Equal(t, "Google", p.Data().ProviderName)
-	assert.Equal(t, "https://accounts.google.com/o/oauth2/auth?access_type=offline",
+	assert.Equal(t, "https://accounts.google.com/o/oauth2/user?access_type=offline",
 		p.Data().LoginURL.String())
 	assert.Equal(t, "https://www.googleapis.com/oauth2/v3/token",
 		p.Data().RedeemURL.String())
@@ -50,7 +50,7 @@ func TestGoogleProviderOverrides(t *testing.T) {
 			LoginURL: &url.URL{
 				Scheme: "https",
 				Host:   "example.com",
-				Path:   "/oauth/auth"},
+				Path:   "/oauth/user"},
 			RedeemURL: &url.URL{
 				Scheme: "https",
 				Host:   "example.com",
@@ -66,7 +66,7 @@ func TestGoogleProviderOverrides(t *testing.T) {
 			Scope: "profile"})
 	assert.NotEqual(t, nil, p)
 	assert.Equal(t, "Google", p.Data().ProviderName)
-	assert.Equal(t, "https://example.com/oauth/auth",
+	assert.Equal(t, "https://example.com/oauth/user",
 		p.Data().LoginURL.String())
 	assert.Equal(t, "https://example.com/oauth/token",
 		p.Data().RedeemURL.String())
