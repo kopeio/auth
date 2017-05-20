@@ -2,6 +2,7 @@ apiVersion: config.auth.kope.io/v1alpha1
 kind: AuthProvider
 metadata:
   name: default
+  namespace: kopeio-auth
 description: "Google Auth"
 oAuthConfig:
   clientID: myid

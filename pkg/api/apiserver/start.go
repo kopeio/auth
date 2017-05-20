@@ -113,6 +113,8 @@ func (o AuthServerOptions) Config() (*Config, error) {
 	//	return nil, err
 	//}
 
+	serverConfig.CorsAllowedOriginList = []string{ ".*" }
+
 	if err := o.Etcd.ApplyTo(serverConfig); err != nil {
 		return nil, err
 	}

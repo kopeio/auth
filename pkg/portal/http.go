@@ -28,7 +28,7 @@ type HTTPServer struct {
 	Tokenstore tokenstore.Interface
 }
 
-func NewHTTPServer(o *componentconfig.AuthConfiguration, listen string, staticDir string, cookieSecret keystore.SharedSecretSet) (*HTTPServer, error) {
+func NewHTTPServer(o *componentconfig.AuthConfiguration, authProviders []componentconfig.AuthProvider, listen string, staticDir string, cookieSecret keystore.SharedSecretSet) (*HTTPServer, error) {
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -50,18 +50,21 @@ func NewHTTPServer(o *componentconfig.AuthConfiguration, listen string, staticDi
 	b.HttpAddress = listen
 	b.CookieName = "_auth_portal"
 
-	if len(o.Spec.AuthProviders) == 0 {
+	if len(authProviders) == 0 {
 		return nil, fmt.Errorf("AuthProvider must be configured")
 	}
-	if len(o.Spec.AuthProviders) != 1 {
+	if len(authProviders) != 1 {
 		return nil, fmt.Errorf("Only a single AuthProvider is currently supported")
 	}
 
 	var validator func(string) bool
 
-	for _, authProvider := range o.Spec.AuthProviders {
-		if authProvider.OAuthConfig == nil {
-			return nil, fmt.Errorf("OAuthConfig not set for %q", authProvider.ID)
+	for _, authProvider := range authProviders {
+		if authProvider.OAuthConfig.ClientID == "" {
+			return nil, fmt.Errorf("OAuthConfig ClientID not set for %q", authProvider.Name)
+		}
+		if authProvider.OAuthConfig.ClientSecret == "" {
+			return nil, fmt.Errorf("OAuthConfig ClientSecret not set for %q", authProvider.Name)
 		}
 		glog.Warningf("Using static cookie secret")
 		// TODO: Implement rotation etc ...pass it down...

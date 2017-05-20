@@ -64,23 +64,30 @@ func run(listen string, staticDir string) error {
 		return fmt.Errorf("error building user client: %v", err)
 	}
 
+	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
+	}
+	namespace := string(namespaceBytes)
+
+
 	componentconfigName := "user"
 	config, err := authClient.ComponentconfigV1alpha1().AuthConfigurations().Get(componentconfigName, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			glog.Infof("configuration %q not found", componentconfigName)
 		} else {
-			return fmt.Errorf("error reading authprovider from API: %v", err)
+			return fmt.Errorf("error reading AuthConfigurations from API: %v", err)
 		}
+	}
+
+	authProviderList, err := authClient.ComponentconfigV1alpha1().AuthProviders(namespace).List(metav1.ListOptions{})
+	if err != nil {
+			return fmt.Errorf("error reading AuthProviders from API: %v", err)
 	}
 
 	name := "user"
 
-	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	if err != nil {
-		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
-	}
-	namespace := string(namespaceBytes)
 
 	//apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
 	//if err != nil {
@@ -128,7 +135,7 @@ func run(listen string, staticDir string) error {
 	//o.ClientSecret = os.Getenv("OAUTH2_CLIENT_SECRET")
 	//o.CookieSecret = os.Getenv("OAUTH2_COOKIE_SECRET")
 
-	p, err := portal.NewHTTPServer(config, listen, staticDir, sharedSecretSet)
+	p, err := portal.NewHTTPServer(config, authProviderList.Items, listen, staticDir, sharedSecretSet)
 	if err != nil {
 		return err
 	}

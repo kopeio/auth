@@ -29,12 +29,19 @@ type AuthConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	// TODO(authprovider-q): Spec or no Spec?
-	Spec AuthConfigurationSpec `json:"spec"`
+	GenerateKubeconfig GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
 }
 
-type AuthConfigurationSpec struct {
-	GenerateKubeconfig *GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
+type GenerateKubeconfig struct {
+	Server string `json:"server,omitempty"`
+	Name   string `json:"name,omitempty"`
+}
+
+type AuthConfigurationList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []AuthConfiguration `json:"items"`
 }
 
 // +genclient=true
@@ -43,13 +50,10 @@ type AuthProvider struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	// ID is a system-friendly identifier
-	ID string `json:"id,omitempty"`
+	// Description is a human-friendly name
+	Description string `json:"description,omitempty"`
 
-	// Name is a human-friendly name
-	Name string `json:"name,omitempty"`
-
-	OAuthConfig *OAuthConfig `json:"oAuthConfig,omitempty"`
+	OAuthConfig OAuthConfig `json:"oAuthConfig,omitempty"`
 
 	// Email addresses that are allowed to register using this provider
 	PermitEmails []string `json:"permitEmails,omitempty"`
@@ -65,18 +69,6 @@ type OAuthConfig struct {
 
 	// ClientSecret is the OAuth secret
 	ClientSecret string `json:"clientSecret,omitempty"`
-}
-
-type GenerateKubeconfig struct {
-	Server string `json:"server,omitempty"`
-	Name   string `json:"name,omitempty"`
-}
-
-type AuthConfigurationList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []AuthConfiguration `json:"items"`
 }
 
 type AuthProviderList struct {

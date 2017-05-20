@@ -21,46 +21,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +genclient=true
 // +nonNamespaced=true
 
+// TODO(authprovider-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	Spec AuthConfigurationSpec `json:"spec"`
-}
-
-type AuthConfigurationSpec struct {
-	GenerateKubeconfig *GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
-}
-
-
-// +genclient=true
-
-type AuthProvider struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-
-	// ID is a system-friendly identifier
-	ID string `json:"id,omitempty"`
-
-	// Name is a human-friendly name
-	Name string `json:"name,omitempty"`
-
-	OAuthConfig *OAuthConfig `json:"oAuthConfig,omitempty"`
-
-	// Email addresses that are allowed to register using this provider
-	PermitEmails []string `json:"permitEmails,omitempty"`
-}
-
-type OAuthConfig struct {
-	ClientID string `json:"clientID"`
-
-	// TODO(authprovider-q): What do we do about secrets?  We presumably don't want this secret
-	// in the configmap, because that might have a fairly permissive RBAC role.  But do we want to
-	// do a layerable configuration?  Keep the secret in a second configuration object?  Have the
-	// name of the secret here, and just runtime error until the secret is loaded?
-
-	// ClientSecret is the OAuth secret
-	ClientSecret string `json:"clientSecret,omitempty"`
+	GenerateKubeconfig GenerateKubeconfig `json:"generateKubeconfig,omitempty"`
 }
 
 type GenerateKubeconfig struct {
@@ -75,6 +41,32 @@ type AuthConfigurationList struct {
 	Items []AuthConfiguration `json:"items"`
 }
 
+// +genclient=true
+
+type AuthProvider struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+
+	// Description is a human-friendly name
+	Description string `json:"description,omitempty"`
+
+	OAuthConfig OAuthConfig `json:"oAuthConfig,omitempty"`
+
+	// Email addresses that are allowed to register using this provider
+	PermitEmails []string `json:"permitEmails,omitempty"`
+}
+
+type OAuthConfig struct {
+	ClientID string `json:"clientID,omitempty"`
+
+	// TODO(authprovider-q): What do we do about secrets?  We presumably don't want this secret
+	// in the configmap, because that might have a fairly permissive RBAC role.  But do we want to
+	// do a layerable configuration?  Keep the secret in a second configuration object?  Have the
+	// name of the secret here, and just runtime error until the secret is loaded?
+
+	// ClientSecret is the OAuth secret
+	ClientSecret string `json:"clientSecret,omitempty"`
+}
 
 type AuthProviderList struct {
 	metav1.TypeMeta `json:",inline"`
@@ -82,4 +74,3 @@ type AuthProviderList struct {
 
 	Items []AuthProvider `json:"items"`
 }
-

@@ -81,12 +81,8 @@ func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Re
 			return
 		}
 
-		name := ""
-		apiEndpoint := ""
-		if s.options.Spec.GenerateKubeconfig != nil {
-			name = s.options.Spec.GenerateKubeconfig.Name
-			apiEndpoint = s.options.Spec.GenerateKubeconfig.Server
-		}
+		name := s.options.GenerateKubeconfig.Name
+		apiEndpoint := s.options.GenerateKubeconfig.Server
 
 		if apiEndpoint == "" && name != "" {
 			// Try to infer the apiEndpoint from the name (follow the kops convention)
