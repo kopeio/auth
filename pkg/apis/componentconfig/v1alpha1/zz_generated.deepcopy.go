@@ -37,7 +37,6 @@ func RegisterDeepCopies(scheme *runtime.Scheme) error {
 	return scheme.AddGeneratedDeepCopyFuncs(
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfiguration, InType: reflect.TypeOf(&AuthConfiguration{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationList, InType: reflect.TypeOf(&AuthConfigurationList{})},
-		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthConfigurationSpec, InType: reflect.TypeOf(&AuthConfigurationSpec{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProvider, InType: reflect.TypeOf(&AuthProvider{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_AuthProviderList, InType: reflect.TypeOf(&AuthProviderList{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1alpha1_GenerateKubeconfig, InType: reflect.TypeOf(&GenerateKubeconfig{})},
@@ -54,9 +53,6 @@ func DeepCopy_v1alpha1_AuthConfiguration(in interface{}, out interface{}, c *con
 			return err
 		} else {
 			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
-		}
-		if err := DeepCopy_v1alpha1_AuthConfigurationSpec(&in.Spec, &out.Spec, c); err != nil {
-			return err
 		}
 		return nil
 	}
@@ -80,20 +76,6 @@ func DeepCopy_v1alpha1_AuthConfigurationList(in interface{}, out interface{}, c 
 	}
 }
 
-func DeepCopy_v1alpha1_AuthConfigurationSpec(in interface{}, out interface{}, c *conversion.Cloner) error {
-	{
-		in := in.(*AuthConfigurationSpec)
-		out := out.(*AuthConfigurationSpec)
-		*out = *in
-		if in.GenerateKubeconfig != nil {
-			in, out := &in.GenerateKubeconfig, &out.GenerateKubeconfig
-			*out = new(GenerateKubeconfig)
-			**out = **in
-		}
-		return nil
-	}
-}
-
 func DeepCopy_v1alpha1_AuthProvider(in interface{}, out interface{}, c *conversion.Cloner) error {
 	{
 		in := in.(*AuthProvider)
@@ -103,11 +85,6 @@ func DeepCopy_v1alpha1_AuthProvider(in interface{}, out interface{}, c *conversi
 			return err
 		} else {
 			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
-		}
-		if in.OAuthConfig != nil {
-			in, out := &in.OAuthConfig, &out.OAuthConfig
-			*out = new(OAuthConfig)
-			**out = **in
 		}
 		if in.PermitEmails != nil {
 			in, out := &in.PermitEmails, &out.PermitEmails

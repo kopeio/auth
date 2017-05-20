@@ -34,8 +34,6 @@ type FakeAuthProviders struct {
 
 var authprovidersResource = schema.GroupVersionResource{Group: "config.auth.kope.io", Version: "v1alpha1", Resource: "authproviders"}
 
-var authprovidersKind = schema.GroupVersionKind{Group: "config.auth.kope.io", Version: "v1alpha1", Kind: "AuthProvider"}
-
 func (c *FakeAuthProviders) Create(authProvider *v1alpha1.AuthProvider) (result *v1alpha1.AuthProvider, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(authprovidersResource, c.ns, authProvider), &v1alpha1.AuthProvider{})
@@ -82,7 +80,7 @@ func (c *FakeAuthProviders) Get(name string, options v1.GetOptions) (result *v1a
 
 func (c *FakeAuthProviders) List(opts v1.ListOptions) (result *v1alpha1.AuthProviderList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(authprovidersResource, authprovidersKind, c.ns, opts), &v1alpha1.AuthProviderList{})
+		Invokes(testing.NewListAction(authprovidersResource, c.ns, opts), &v1alpha1.AuthProviderList{})
 
 	if obj == nil {
 		return nil, err
