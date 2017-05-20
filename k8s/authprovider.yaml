@@ -1,0 +1,5 @@
+apiVersion: config.auth.kope.io/v1alpha1
+kind: AuthConfiguration
+metadata:
+  name: default
+
