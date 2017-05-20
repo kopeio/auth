@@ -4,7 +4,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import {TextField} from "material-ui";
 import AuthProviders from "../api/AuthProviders";
 import FormComponent from "./FormComponent.jsx";
-import AuthProviderListComponent from "./AuthProviderListComponent.jsx";
 
 class AuthProviderEditComponent extends FormComponent {
 
@@ -76,8 +75,6 @@ class AuthProviderEditComponent extends FormComponent {
 
             </div>
           </form>
-
-          <AuthProviderListComponent />
         </CardText>
         <CardActions>
           <RaisedButton

@@ -2,7 +2,6 @@ import React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import {TextField} from "material-ui";
-import AuthProviderListComponent from "./AuthProviderListComponent.jsx";
 import AuthConfigurations from "../api/AuthConfigurations";
 import FormComponent from "./FormComponent.jsx";
 
@@ -55,8 +54,6 @@ class AuthConfigurationEditComponent extends FormComponent {
               </div>
             }
           </form>
-
-          <AuthProviderListComponent />
         </CardText>
         <CardActions>
           <RaisedButton

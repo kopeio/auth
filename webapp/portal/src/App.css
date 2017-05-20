@@ -1,0 +1,11 @@
+.App-main {
+  display: flex;
+}
+
+
+.App-sidebar {
+  min-width: 10em;
+}
+
+.App-body {
+}

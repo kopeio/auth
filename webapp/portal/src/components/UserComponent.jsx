@@ -2,12 +2,13 @@ import React from 'react';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Link} from "react-router-dom";
+import './UserComponent.css';
 
 class UserComponent extends React.Component {
   render() {
     if (this.props.user == null) {
       return (
-        <Card>
+        <Card className="UserComponent">
           <CardTitle title="Not logged in"/>
           <CardActions>
             <RaisedButton
