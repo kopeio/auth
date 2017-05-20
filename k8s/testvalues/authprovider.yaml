@@ -1,0 +1,11 @@
+apiVersion: config.auth.kope.io/v1alpha1
+kind: AuthProvider
+metadata:
+  name: default
+description: "Google Auth"
+oAuthConfig:
+  clientID: myid
+  clientSecret: shush
+permitEmails:
+  - a@example.com
+  - b@example.com
