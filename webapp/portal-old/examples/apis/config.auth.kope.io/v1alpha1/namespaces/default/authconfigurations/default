@@ -1,0 +1,16 @@
+{
+  "kind": "AuthConfiguration",
+  "apiVersion": "config.auth.kope.io/v1alpha1",
+  "metadata": {
+    "name": "default",
+    "namespace": "default",
+    "selfLink": "/apis/config.auth.kope.io/v1alpha1/namespaces/default/authconfigurations/default",
+    "uid": "df24c4a1-332b-11e7-b812-0ab208f29b64",
+    "resourceVersion": "11580397",
+    "creationTimestamp": "2017-05-07T13:48:37Z"
+  },
+  "generateKubeconfig": {
+    "server": "https://api.example.com",
+    "name": "mycluster"
+  }
+}
