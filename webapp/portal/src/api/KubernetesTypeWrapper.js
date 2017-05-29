@@ -35,7 +35,28 @@ class KubernetesTypeWrapper {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data)
+    }).then(response => response.json());
+  };
+
+  delete(name: string) {
+    return fetch(this._url(name), {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
+  };
+
+  post(data) {
+    return fetch(this._url(), {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    }).then(response => response.json());
   };
 }
 

@@ -26,6 +26,8 @@ class AuthProviderListComponent extends React.Component {
       return <div>Loading</div>;
     }
 
+    let props = this.props;
+
     return (
       <div>
         <List>
@@ -37,6 +39,7 @@ class AuthProviderListComponent extends React.Component {
             this.state.data.items.map(function (o, i) {
               return <ListItem primaryText={o.metadata.name}
                                key={i}
+                               onClick={props.onClick}
                                containerElement={<Link to={`config/authproviders/${o.metadata.name}`}/>}/>;
             })
           }

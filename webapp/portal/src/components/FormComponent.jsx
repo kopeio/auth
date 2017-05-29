@@ -44,12 +44,21 @@ class FormComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.client.get(this.name)
-      .then(json => {
-        this.setState({
-          data: json,
-        });
+    if (!this.name) {
+      this.setState({
+        isNew: true,
+        data: {
+          metadata: {},
+        },
       });
+    } else {
+      this.client.get(this.name)
+        .then(json => {
+          this.setState({
+            data: json,
+          });
+        });
+    }
   }
 
   handleFormSubmit(e) {
@@ -57,9 +66,16 @@ class FormComponent extends React.Component {
 
     const formPayload = this.state.data;
 
-    console.log('PUT :', formPayload);
-
-    this.client.put(this.name, formPayload);
+    if (this.state.isNew) {
+      this.client.post(formPayload).then((json) => {
+        this.setState({
+          isNew: false,
+          data: json,
+        });
+      });
+    } else {
+      this.client.put(this.name, formPayload);
+    }
   }
 
   errorText(path) {

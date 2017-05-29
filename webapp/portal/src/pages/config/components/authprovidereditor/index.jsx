@@ -1,9 +1,8 @@
 import React from 'react';
-import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import {TextField} from "material-ui";
-import AuthProviders from "../api/AuthProviders";
-import FormComponent from "./FormComponent.jsx";
+import AuthProviders from "../../../../api/AuthProviders";
+import FormComponent from "../../../../components/FormComponent.jsx";
 
 class AuthProviderEditComponent extends FormComponent {
 
@@ -19,18 +18,31 @@ class AuthProviderEditComponent extends FormComponent {
     if (!this.state.data.oAuthConfig) {
       this.state.data.oAuthConfig = {};
     }
+    if (!this.state.data.metadata) {
+      this.state.data.metadata = {};
+    }
+
+    var isNew = this.state.isNew;
 
     return (
-      <Card>
-        <CardHeader
-          title="Settings"
-        />
-        <CardText>
+
           <form className="container" onSubmit={this.handleFormSubmit}>
 
-            <div>{this.state.data.metadata.name}</div>
-
             <div>
+              { !isNew ?
+                <div>{this.state.data.metadata.name}</div>
+                : <TextField
+                    name="data.metadata.name"
+                    hintText="Name"
+                    errorText={this.errorText('data.metadata.name')}
+                    floatingLabelText="Name"
+                    floatingLabelFixed={true}
+                    onChange={this.handleInputChange}
+                    value={this.state.data.metadata.name}
+                    />
+              }
+              <br/>
+
               <TextField
                 name="data.description"
                 hintText="Human-readable description"
@@ -74,16 +86,15 @@ class AuthProviderEditComponent extends FormComponent {
               /><br />
 
             </div>
+
+            <RaisedButton
+              label="Save"
+              primary={true}
+              onClick={this.handleFormSubmit}
+            />
+
           </form>
-        </CardText>
-        <CardActions>
-          <RaisedButton
-            label="Save"
-            primary={true}
-            onClick={this.handleFormSubmit}
-          />
-        </CardActions>
-      </Card>
+
     );
   }
 }

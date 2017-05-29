@@ -1,17 +1,28 @@
 import React, {Component} from 'react';
 import UserComponent from "./components/UserComponent";
 import {MuiThemeProvider} from "material-ui/styles";
-import {BrowserRouter, Link, Route} from "react-router-dom";
+import {BrowserRouter, Route} from "react-router-dom";
 
 import './App.css';
-import AuthConfigurationEditComponent from "./components/AuthConfigurationEditComponent";
-import AuthProviderEditComponent from "./components/AuthProviderEditComponent";
-import {Divider, ListItem} from "material-ui";
-import {ActionHome, ActionSettings} from "material-ui/svg-icons/index";
-import AuthProviderListComponent from "./components/AuthProviderListComponent";
+import Header from "./app/components/header/index";
+import Sidebar from "./app/components/sidebar/index";
+import Config from "./pages/config/index";
 
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {showSidebar: false};
+  };
+
+  openSidebar() {
+    this.setState({showSidebar: true});
+  };
+
+  closeSidebar() {
+    this.setState({showSidebar: false});
+  };
+
   render() {
     return (
       <BrowserRouter>
@@ -19,20 +30,14 @@ class App extends Component {
           <MuiThemeProvider>
             <div>
 
+              <Header openSidebar={() => {this.openSidebar()}}/>
 
               <div className="App-main">
-                <div className="App-sidebar">
-                  <ListItem primaryText="Home" leftIcon={<ActionHome />} containerElement={<Link to="/">A</Link>} />
-                  <Divider />
-                  <ListItem primaryText="Settings" leftIcon={<ActionSettings />} containerElement={<Link to="/config">B</Link>} />
-                  <AuthProviderListComponent />
-                </div>
+                <Sidebar open={this.state.showSidebar} closeSidebar={() => {this.closeSidebar()}} />
 
                 <div className="App-body">
                   <Route exact path="/" render={ () => <UserComponent /> }/>
-                  <Route path="/config" exact={true} render={ () => <AuthConfigurationEditComponent /> }/>
-                  <Route path="/config/authproviders/:name"
-                         render={ ({match}) => <AuthProviderEditComponent name={match.params.name}/> }/>
+                  <Route path="/config" exact={true} render={ () => <Config /> }/>
                 </div>
               </div>
             </div>

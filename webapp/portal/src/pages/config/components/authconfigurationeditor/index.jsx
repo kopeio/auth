@@ -1,9 +1,10 @@
+
 import React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import {TextField} from "material-ui";
-import AuthConfigurations from "../api/AuthConfigurations";
-import FormComponent from "./FormComponent.jsx";
+import AuthConfigurations from "../../../../api/AuthConfigurations";
+import FormComponent from "../../../../components/FormComponent.jsx";
 
 class AuthConfigurationEditComponent extends FormComponent {
 
@@ -19,7 +20,7 @@ class AuthConfigurationEditComponent extends FormComponent {
     return (
       <Card>
         <CardHeader
-          title="Settings"
+          title="General Settings"
         />
         <CardText>
           <form className="container" onSubmit={this.handleFormSubmit}>
