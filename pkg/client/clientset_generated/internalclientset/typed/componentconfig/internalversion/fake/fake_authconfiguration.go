@@ -29,13 +29,15 @@ import (
 // FakeAuthConfigurations implements AuthConfigurationInterface
 type FakeAuthConfigurations struct {
 	Fake *FakeComponentconfig
+	ns   string
 }
 
 var authconfigurationsResource = schema.GroupVersionResource{Group: "config.auth.kope.io", Version: "", Resource: "authconfigurations"}
 
 func (c *FakeAuthConfigurations) Create(authConfiguration *componentconfig.AuthConfiguration) (result *componentconfig.AuthConfiguration, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(authconfigurationsResource, authConfiguration), &componentconfig.AuthConfiguration{})
+		Invokes(testing.NewCreateAction(authconfigurationsResource, c.ns, authConfiguration), &componentconfig.AuthConfiguration{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -44,7 +46,8 @@ func (c *FakeAuthConfigurations) Create(authConfiguration *componentconfig.AuthC
 
 func (c *FakeAuthConfigurations) Update(authConfiguration *componentconfig.AuthConfiguration) (result *componentconfig.AuthConfiguration, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(authconfigurationsResource, authConfiguration), &componentconfig.AuthConfiguration{})
+		Invokes(testing.NewUpdateAction(authconfigurationsResource, c.ns, authConfiguration), &componentconfig.AuthConfiguration{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -53,12 +56,13 @@ func (c *FakeAuthConfigurations) Update(authConfiguration *componentconfig.AuthC
 
 func (c *FakeAuthConfigurations) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteAction(authconfigurationsResource, name), &componentconfig.AuthConfiguration{})
+		Invokes(testing.NewDeleteAction(authconfigurationsResource, c.ns, name), &componentconfig.AuthConfiguration{})
+
 	return err
 }
 
 func (c *FakeAuthConfigurations) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(authconfigurationsResource, listOptions)
+	action := testing.NewDeleteCollectionAction(authconfigurationsResource, c.ns, listOptions)
 
 	_, err := c.Fake.Invokes(action, &componentconfig.AuthConfigurationList{})
 	return err
@@ -66,7 +70,8 @@ func (c *FakeAuthConfigurations) DeleteCollection(options *v1.DeleteOptions, lis
 
 func (c *FakeAuthConfigurations) Get(name string, options v1.GetOptions) (result *componentconfig.AuthConfiguration, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(authconfigurationsResource, name), &componentconfig.AuthConfiguration{})
+		Invokes(testing.NewGetAction(authconfigurationsResource, c.ns, name), &componentconfig.AuthConfiguration{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -75,7 +80,8 @@ func (c *FakeAuthConfigurations) Get(name string, options v1.GetOptions) (result
 
 func (c *FakeAuthConfigurations) List(opts v1.ListOptions) (result *componentconfig.AuthConfigurationList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(authconfigurationsResource, opts), &componentconfig.AuthConfigurationList{})
+		Invokes(testing.NewListAction(authconfigurationsResource, c.ns, opts), &componentconfig.AuthConfigurationList{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -96,13 +102,15 @@ func (c *FakeAuthConfigurations) List(opts v1.ListOptions) (result *componentcon
 // Watch returns a watch.Interface that watches the requested authConfigurations.
 func (c *FakeAuthConfigurations) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(authconfigurationsResource, opts))
+		InvokesWatch(testing.NewWatchAction(authconfigurationsResource, c.ns, opts))
+
 }
 
 // Patch applies the patch and returns the patched authConfiguration.
 func (c *FakeAuthConfigurations) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *componentconfig.AuthConfiguration, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(authconfigurationsResource, name, data, subresources...), &componentconfig.AuthConfiguration{})
+		Invokes(testing.NewPatchSubresourceAction(authconfigurationsResource, c.ns, name, data, subresources...), &componentconfig.AuthConfiguration{})
+
 	if obj == nil {
 		return nil, err
 	}

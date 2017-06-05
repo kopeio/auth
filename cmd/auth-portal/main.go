@@ -9,17 +9,19 @@ import (
 	"encoding/binary"
 	"github.com/golang/glog"
 	"io/ioutil"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	//apierrors "k8s.io/apimachinery/pkg/api/errors"
+	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
+	"kope.io/auth/pkg/configreader"
 	"kope.io/auth/pkg/keystore"
 	"kope.io/auth/pkg/portal"
+	"kope.io/auth/pkg/tokenstore"
 	mathrand "math/rand"
 )
 
-const CookieSigningSecretLength = 24
+//const CookieSigningSecretLength = 24
 
 func main() {
 	cryptoSeed()
@@ -34,10 +36,14 @@ func main() {
 	flag.StringVar(&listen, "listen", listen, "host/port on which to listen")
 	staticDir := "/webapp"
 	flag.StringVar(&staticDir, "static-dir", staticDir, "location of static directory")
+	server := ""
+	flag.StringVar(&server, "server", server, "override API server location")
+	insecureServer := false
+	flag.BoolVar(&insecureServer, "insecure-skip-tls-verify", insecureServer, "skip verification of server certificate (this is insecure)")
 
 	flag.Parse()
 
-	err := run(listen, staticDir)
+	err := run(listen, staticDir, server, insecureServer)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "unexpected error: %v\n", err)
 		os.Exit(1)
@@ -46,7 +52,7 @@ func main() {
 	os.Exit(0)
 }
 
-func run(listen string, staticDir string) error {
+func run(listen string, staticDir string, server string, insecureServer bool) error {
 	// creates the in-cluster config
 	restConfig, err := rest.InClusterConfig()
 	if err != nil {
@@ -59,9 +65,24 @@ func run(listen string, staticDir string) error {
 		return fmt.Errorf("error building kubernetes client: %v", err)
 	}
 
-	authClient, err := authclient.NewForConfig(restConfig)
+	authRestConfig, err := rest.InClusterConfig()
 	if err != nil {
-		return fmt.Errorf("error building user client: %v", err)
+		return fmt.Errorf("error building kubernetes client configuration: %v", err)
+	}
+	if server != "" {
+		authRestConfig.Host = server
+	}
+	if insecureServer {
+		authRestConfig.Insecure = insecureServer
+
+		// Avoid "specifying a root certificates file with the insecure flag is not allowed"
+		authRestConfig.TLSClientConfig.CAData = nil
+		authRestConfig.TLSClientConfig.CAFile = ""
+	}
+
+	authClient, err := authclient.NewForConfig(authRestConfig)
+	if err != nil {
+		return fmt.Errorf("error building auth client: %v", err)
 	}
 
 	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
@@ -70,24 +91,17 @@ func run(listen string, staticDir string) error {
 	}
 	namespace := string(namespaceBytes)
 
+	//configs, err := authClient.ComponentconfigV1alpha1().AuthConfigurations(namespace).List(metav1.ListOptions{})
+	//if err != nil {
+	//		return fmt.Errorf("error reading AuthConfigurations from API: %v", err)
+	//}
+	//
+	//authProviderList, err := authClient.ComponentconfigV1alpha1().AuthProviders(namespace).List(metav1.ListOptions{})
+	//if err != nil {
+	//	return fmt.Errorf("error reading AuthProviders from API: %v", err)
+	//}
 
-	componentconfigName := "user"
-	config, err := authClient.ComponentconfigV1alpha1().AuthConfigurations().Get(componentconfigName, metav1.GetOptions{})
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			glog.Infof("configuration %q not found", componentconfigName)
-		} else {
-			return fmt.Errorf("error reading AuthConfigurations from API: %v", err)
-		}
-	}
-
-	authProviderList, err := authClient.ComponentconfigV1alpha1().AuthProviders(namespace).List(metav1.ListOptions{})
-	if err != nil {
-			return fmt.Errorf("error reading AuthProviders from API: %v", err)
-	}
-
-	name := "user"
-
+	stopCh := make(chan struct{})
 
 	//apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
 	//if err != nil {
@@ -101,6 +115,11 @@ func run(listen string, staticDir string) error {
 	//configReader := &configreader.ManagedConfiguration{
 	//	Decoder: configDecoder,
 	//}
+
+	configReader := configreader.New(authClient, namespace)
+	if err := configReader.StartWatches(stopCh); err != nil {
+		return fmt.Errorf("error starting configuration watches: %v", err)
+	}
 
 	//configFile := os.Getenv("CONFIG")
 	//if configFile != "" {
@@ -119,23 +138,25 @@ func run(listen string, staticDir string) error {
 	//// (I guess the same question with our User objects)
 	//config := configObj.(*authprovider.AuthConfiguration)
 
-	secretStore, err := keystore.NewKubernetesKeyStore(k8sClient, namespace, name)
+	keyStore, err := keystore.NewKubernetesKeyStore(k8sClient, namespace, "auth")
 	if err != nil {
 		return err
 	}
-	stopCh := make(chan struct{})
-	go secretStore.Run(stopCh)
+	go keyStore.Run(stopCh)
 
-	sharedSecretSet, err := secretStore.EnsureSharedSecretSet("cookie-signing", generateCookieSigningSecrets)
-	if err != nil {
-		return err
-	}
+	//sharedSecretSet, err := secretStore.EnsureSharedSecretSet("cookie-signing", generateCookieSigningSecrets)
+	//if err != nil {
+	//	return err
+	//}
 
 	//o.ClientID = os.Getenv("OAUTH2_CLIENT_ID")
 	//o.ClientSecret = os.Getenv("OAUTH2_CLIENT_SECRET")
 	//o.CookieSecret = os.Getenv("OAUTH2_COOKIE_SECRET")
 
-	p, err := portal.NewHTTPServer(config, authProviderList.Items, listen, staticDir, sharedSecretSet)
+	tokenStore := tokenstore.NewAPITokenStore(authClient, namespace)
+	go tokenStore.Run(stopCh)
+
+	p, err := portal.NewHTTPServer(configReader, listen, staticDir, keyStore, tokenStore)
 	if err != nil {
 		return err
 	}
@@ -143,14 +164,14 @@ func run(listen string, staticDir string) error {
 	return p.ListenAndServe()
 }
 
-func generateCookieSigningSecrets() ([]byte, error) {
-	data := make([]byte, CookieSigningSecretLength)
-	_, err := cryptorand.Read(data)
-	if err != nil {
-		return nil, fmt.Errorf("error generating cookie signing secret: %v", err)
-	}
-	return data, nil
-}
+//func generateCookieSigningSecrets() ([]byte, error) {
+//	data := make([]byte, CookieSigningSecretLength)
+//	_, err := cryptorand.Read(data)
+//	if err != nil {
+//		return nil, fmt.Errorf("error generating cookie signing secret: %v", err)
+//	}
+//	return data, nil
+//}
 
 func cryptoSeed() {
 	data := make([]byte, 8)

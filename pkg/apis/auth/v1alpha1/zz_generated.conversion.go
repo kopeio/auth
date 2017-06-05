@@ -100,7 +100,6 @@ func Convert_auth_TokenSpec_To_v1alpha1_TokenSpec(in *auth.TokenSpec, out *Token
 }
 
 func autoConvert_v1alpha1_User_To_auth_User(in *User, out *auth.User, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_v1alpha1_UserSpec_To_auth_UserSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
@@ -113,7 +112,6 @@ func Convert_v1alpha1_User_To_auth_User(in *User, out *auth.User, s conversion.S
 }
 
 func autoConvert_auth_User_To_v1alpha1_User(in *auth.User, out *User, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_auth_UserSpec_To_v1alpha1_UserSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
@@ -126,7 +124,6 @@ func Convert_auth_User_To_v1alpha1_User(in *auth.User, out *User, s conversion.S
 }
 
 func autoConvert_v1alpha1_UserList_To_auth_UserList(in *UserList, out *auth.UserList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
@@ -147,7 +144,6 @@ func Convert_v1alpha1_UserList_To_auth_UserList(in *UserList, out *auth.UserList
 }
 
 func autoConvert_auth_UserList_To_v1alpha1_UserList(in *auth.UserList, out *UserList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items

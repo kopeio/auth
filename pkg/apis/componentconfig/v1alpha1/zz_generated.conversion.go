@@ -50,7 +50,6 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 }
 
 func autoConvert_v1alpha1_AuthConfiguration_To_componentconfig_AuthConfiguration(in *AuthConfiguration, out *componentconfig.AuthConfiguration, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_v1alpha1_GenerateKubeconfig_To_componentconfig_GenerateKubeconfig(&in.GenerateKubeconfig, &out.GenerateKubeconfig, s); err != nil {
 		return err
@@ -63,7 +62,6 @@ func Convert_v1alpha1_AuthConfiguration_To_componentconfig_AuthConfiguration(in 
 }
 
 func autoConvert_componentconfig_AuthConfiguration_To_v1alpha1_AuthConfiguration(in *componentconfig.AuthConfiguration, out *AuthConfiguration, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	if err := Convert_componentconfig_GenerateKubeconfig_To_v1alpha1_GenerateKubeconfig(&in.GenerateKubeconfig, &out.GenerateKubeconfig, s); err != nil {
 		return err
@@ -76,7 +74,6 @@ func Convert_componentconfig_AuthConfiguration_To_v1alpha1_AuthConfiguration(in 
 }
 
 func autoConvert_v1alpha1_AuthConfigurationList_To_componentconfig_AuthConfigurationList(in *AuthConfigurationList, out *componentconfig.AuthConfigurationList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
@@ -97,7 +94,6 @@ func Convert_v1alpha1_AuthConfigurationList_To_componentconfig_AuthConfiguration
 }
 
 func autoConvert_componentconfig_AuthConfigurationList_To_v1alpha1_AuthConfigurationList(in *componentconfig.AuthConfigurationList, out *AuthConfigurationList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
@@ -118,7 +114,6 @@ func Convert_componentconfig_AuthConfigurationList_To_v1alpha1_AuthConfiguration
 }
 
 func autoConvert_v1alpha1_AuthProvider_To_componentconfig_AuthProvider(in *AuthProvider, out *componentconfig.AuthProvider, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	out.Description = in.Description
 	if err := Convert_v1alpha1_OAuthConfig_To_componentconfig_OAuthConfig(&in.OAuthConfig, &out.OAuthConfig, s); err != nil {
@@ -133,7 +128,6 @@ func Convert_v1alpha1_AuthProvider_To_componentconfig_AuthProvider(in *AuthProvi
 }
 
 func autoConvert_componentconfig_AuthProvider_To_v1alpha1_AuthProvider(in *componentconfig.AuthProvider, out *AuthProvider, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ObjectMeta = in.ObjectMeta
 	out.Description = in.Description
 	if err := Convert_componentconfig_OAuthConfig_To_v1alpha1_OAuthConfig(&in.OAuthConfig, &out.OAuthConfig, s); err != nil {
@@ -148,7 +142,6 @@ func Convert_componentconfig_AuthProvider_To_v1alpha1_AuthProvider(in *component
 }
 
 func autoConvert_v1alpha1_AuthProviderList_To_componentconfig_AuthProviderList(in *AuthProviderList, out *componentconfig.AuthProviderList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
@@ -169,7 +162,6 @@ func Convert_v1alpha1_AuthProviderList_To_componentconfig_AuthProviderList(in *A
 }
 
 func autoConvert_componentconfig_AuthProviderList_To_v1alpha1_AuthProviderList(in *componentconfig.AuthProviderList, out *AuthProviderList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items

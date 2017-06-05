@@ -12,7 +12,11 @@ import Config from "./pages/config/index";
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {showSidebar: false};
+    let user = window.User;
+    this.state = {
+      showSidebar: false,
+      user: user,
+    };
   };
 
   openSidebar() {
@@ -36,7 +40,7 @@ class App extends Component {
                 <Sidebar open={this.state.showSidebar} closeSidebar={() => {this.closeSidebar()}} />
 
                 <div className="App-body">
-                  <Route exact path="/" render={ () => <UserComponent /> }/>
+                  <Route exact path="/" render={ () => <UserComponent user={this.state.user} /> }/>
                   <Route path="/config" exact={true} render={ () => <Config /> }/>
                 </div>
               </div>

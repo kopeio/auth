@@ -13,11 +13,11 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//pkg/client/clientset_generated/clientset:go_default_library",
+        "//pkg/configreader:go_default_library",
         "//pkg/keystore:go_default_library",
         "//pkg/portal:go_default_library",
+        "//pkg/tokenstore:go_default_library",
         "@com_github_golang_glog//:go_default_library",
-        "@io_k8s_apimachinery//pkg/api/errors:go_default_library",
-        "@io_k8s_apimachinery//pkg/apis/meta/v1:go_default_library",
         "@io_k8s_client_go//kubernetes:go_default_library",
         "@io_k8s_client_go//rest:go_default_library",
     ],

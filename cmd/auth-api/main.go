@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/golang/glog"
+	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
 	"kope.io/auth/pkg/api/apiserver"
@@ -10,10 +12,8 @@ import (
 	"kope.io/auth/pkg/k8sauth"
 	"kope.io/auth/pkg/tokenstore"
 	"net/http"
-	"os"
-	"github.com/spf13/pflag"
 	"net/url"
-	"github.com/golang/glog"
+	"os"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	pflag.Parse()
 
 	// HACK: Create /tmp, so we don't need to create it in the base image
-	if err := os.MkdirAll("/tmp", 0777 | os.ModeTemporary); err != nil {
+	if err := os.MkdirAll("/tmp", 0777|os.ModeTemporary); err != nil {
 		glog.Warning("failed to mkdir /tmp: %v", err)
 	}
 

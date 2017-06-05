@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb;
+
+message SessionData {
+    string provider_id = 1;
+    string access_token = 2;
+    int64 expires_on = 3;
+    string refresh_token = 4;
+    int64 timestamp = 5;
+
+    string kubernetes_uid = 6;
+}
+
+
+message StateData {
+  string provider_id = 1;
+  string redirect = 2;
+}

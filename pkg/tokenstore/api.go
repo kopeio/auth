@@ -20,15 +20,14 @@ import (
 	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	client "kope.io/auth/pkg/client/clientset_generated/clientset"
+	"kope.io/auth/pkg/oauth/session"
 )
-
-const objectNamespace = "kopeio-user"
 
 const bcryptCost = bcrypt.DefaultCost
 
 type APITokenStore struct {
-	client client.Interface
-	//namespace  string
+	client    client.Interface
+	namespace string
 
 	mutex sync.Mutex
 	users map[types.UID]*auth.User
@@ -36,10 +35,11 @@ type APITokenStore struct {
 
 var _ Interface = &APITokenStore{}
 
-func NewAPITokenStore(client client.Interface) *APITokenStore {
+func NewAPITokenStore(client client.Interface, namespace string) *APITokenStore {
 	s := &APITokenStore{
-		client: client,
-		users:  make(map[types.UID]*auth.User),
+		client:    client,
+		namespace: namespace,
+		users:     make(map[types.UID]*auth.User),
 	}
 	return s
 }
@@ -152,9 +152,9 @@ func (s *APITokenStore) CreateToken(u *auth.User, hashSecret bool) (*auth.TokenS
 	//	}
 	//	// TODO: Update directly (vs going through watch)?
 	//} else {
-	_, err = s.client.AuthV1alpha1().Users(objectNamespace).Update(u)
+	_, err = s.client.AuthV1alpha1().Users(s.namespace).Update(u)
 	if err != nil {
-		return nil, fmt.Errorf("error updating user %s/%s: %v", objectNamespace, objectName, err)
+		return nil, fmt.Errorf("error updating user %s/%s: %v", s.namespace, objectName, err)
 	}
 	// TODO: Update directly (vs going through watch)?
 	//}
@@ -162,8 +162,18 @@ func (s *APITokenStore) CreateToken(u *auth.User, hashSecret bool) (*auth.TokenS
 	return t, nil
 }
 
-func (s *APITokenStore) MapToUser(identity *auth.IdentitySpec, create bool) (*auth.User, error) {
+func (s *APITokenStore) FindExistingUser(identity *auth.IdentitySpec) (*auth.User, error) {
+	u := s.findUserByProviderInfo(identity)
+	return u, nil
+}
+
+func (s *APITokenStore) MapToUser(userInfo *session.UserInfo, create bool) (*auth.User, error) {
 	// TODO: Check that doesn't already exist?
+
+	identity := &auth.IdentitySpec{
+		ProviderID: userInfo.ProviderID,
+		ID:         userInfo.ProviderUserID,
+	}
 
 	u := s.findUserByProviderInfo(identity)
 	if u == nil && create {
@@ -178,14 +188,14 @@ func (s *APITokenStore) MapToUser(identity *auth.IdentitySpec, create bool) (*au
 		name := base32.HexEncoding.EncodeToString(uidBytes)
 		name = strings.Replace(name, "=", "", -1)
 		u.Name = strings.ToLower(name)
-		u.Namespace = objectNamespace
+		u.Namespace = s.namespace
 
-		u.Spec.Username = identity.Username
+		u.Spec.Username = userInfo.Email
 
 		u.Spec.Identities = []auth.IdentitySpec{*identity}
-		_, err = s.client.AuthV1alpha1().Users(objectNamespace).Create(u)
+		u, err = s.client.AuthV1alpha1().Users(s.namespace).Create(u)
 		if err != nil {
-			return nil, fmt.Errorf("error creating user %s/%s: %v", objectNamespace, u.Name, err)
+			return nil, fmt.Errorf("error creating user %s/%s: %v", s.namespace, u.Name, err)
 		}
 		// TODO: Update directly (vs going through watch)?
 	}
@@ -211,7 +221,14 @@ func (s *APITokenStore) findUserByUid(uid types.UID) *auth.User {
 	return user
 }
 
-func (s *APITokenStore) findUserByProviderInfo(identity *auth.IdentitySpec) *auth.User {
+func (s *APITokenStore) findUserByProviderInfo(id *auth.IdentitySpec) *auth.User {
+	if id.ProviderID == "" {
+		glog.Fatalf("ProviderID not set")
+	}
+	if id.ID == "" {
+		glog.Fatalf("ID not set")
+	}
+
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -220,7 +237,7 @@ func (s *APITokenStore) findUserByProviderInfo(identity *auth.IdentitySpec) *aut
 	// TODO: Check for duplicates?
 	for _, u := range s.users {
 		for _, i := range u.Spec.Identities {
-			if identity.ProviderID == i.ProviderID && identity.ID == i.ID {
+			if id.ProviderID == i.ProviderID && id.ID == i.ID {
 				return u
 			}
 		}
@@ -244,25 +261,25 @@ func (c *APITokenStore) processUserDelete(u *auth.User) {
 }
 
 // Run starts the secretsWatcher.
-func (c *APITokenStore) RunWatch(stopCh <-chan struct{}) {
+func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 	runOnce := func() (bool, error) {
 		var listOpts metav1.ListOptions
 
 		// TODO: Filters?
 
-		userList, err := c.client.AuthV1alpha1().Users(objectNamespace).List(listOpts)
+		userList, err := s.client.AuthV1alpha1().Users(s.namespace).List(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error listing users: %v", err)
 		}
 		for i := range userList.Items {
 			u := &userList.Items[i]
 			glog.Infof("user: %v", u.Spec.Username)
-			c.processUserUpdate(u)
+			s.processUserUpdate(u)
 		}
 
 		listOpts.Watch = true
 		listOpts.ResourceVersion = userList.ResourceVersion
-		watcher, err := c.client.AuthV1alpha1().Users(objectNamespace).Watch(listOpts)
+		watcher, err := s.client.AuthV1alpha1().Users(s.namespace).Watch(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error watching users: %v", err)
 		}
@@ -283,10 +300,10 @@ func (c *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 
 				switch event.Type {
 				case watch.Added, watch.Modified:
-					c.processUserUpdate(u)
+					s.processUserUpdate(u)
 
 				case watch.Deleted:
-					c.processUserDelete(u)
+					s.processUserDelete(u)
 				}
 			}
 		}
@@ -312,21 +329,21 @@ func (c *APITokenStore) Run(stopCh <-chan struct{}) {
 }
 
 // Run starts the secretsWatcher.
-func (c *APITokenStore) RunPolling(stopCh <-chan struct{}) {
+func (s *APITokenStore) RunPolling(stopCh <-chan struct{}) {
 	runOnce := func() error {
 		var listOpts metav1.ListOptions
 
 		// TODO: Filters?
 
 		glog.V(2).Infof("polling users")
-		userList, err := c.client.AuthV1alpha1().Users(objectNamespace).List(listOpts)
+		userList, err := s.client.AuthV1alpha1().Users(s.namespace).List(listOpts)
 		if err != nil {
 			return fmt.Errorf("error listing users: %v", err)
 		}
 		for i := range userList.Items {
 			u := &userList.Items[i]
 			glog.Infof("user: %v", u.Spec.Username)
-			c.processUserUpdate(u)
+			s.processUserUpdate(u)
 		}
 		return nil
 	}

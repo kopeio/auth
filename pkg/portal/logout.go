@@ -5,7 +5,7 @@ import (
 )
 
 func (s *HTTPServer) portalActionLogout(rw http.ResponseWriter, req *http.Request) {
-	s.OAuthProxy.ClearCookie(rw, req)
+	s.oauthServer.Logout(rw, req)
 
 	http.Redirect(rw, req, "/", http.StatusFound)
 }

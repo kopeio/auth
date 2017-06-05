@@ -22,7 +22,7 @@ class UserComponent extends React.Component {
     }
 
     return (
-      <Card>
+      <Card className="UserComponent">
         <CardTitle title="Logged in" subtitle={this.props.user.username}/>
         <CardActions>
           <RaisedButton
@@ -35,15 +35,6 @@ class UserComponent extends React.Component {
             secondary={true}
             href="/portal/actions/logout"
           />
-
-          <RaisedButton
-            label="Settings"
-            secondary={true}
-            containerElement={<Link to="/config"/>}
-          />
-
-          <li><Link to="/config">Config</Link></li>
-
         </CardActions>
       </Card>
     );

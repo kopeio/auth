@@ -17,26 +17,43 @@ type UserInfo struct {
 
 func (s *HTTPServer) authenticate(rw http.ResponseWriter, req *http.Request) (*auth.User, error) {
 	// TODO: Cache in context ?
-	session, status := s.OAuthProxy.Authenticate(rw, req)
-	if status == http.StatusAccepted {
-		id := s.OAuthProxy.MapToIdentity(session)
-
-		glog.Infof("looking up identity %q", id)
-
-		u, err := s.Tokenstore.MapToUser(id, false)
-		if err != nil {
-			return nil, fmt.Errorf("error finding user: %v", err)
-		}
-		if u == nil {
-			glog.Infof("user not found %q", id.Username)
-			return nil, nil
-		}
-
-		return u, nil
-	} else {
+	session, err := s.oauthServer.Authenticate(rw, req)
+	if err != nil {
+		return nil, err
+	}
+	if session == nil {
 		return nil, nil
 	}
+
+	//id := s.mapToIdentity(session)
+	//glog.Infof("looking up identity %q", id)
+
+	u, err := s.tokenStore.FindUserByUID(session.KubernetesUid)
+	if err != nil {
+		return nil, fmt.Errorf("error finding user: %v", err)
+	}
+	if u == nil {
+		glog.Infof("user not found %q", session.KubernetesUid)
+		return nil, nil
+	}
+
+	return u, nil
 }
+
+//func (s *HTTPServer) mapToIdentity(session *session.Session) (*auth.IdentitySpec) {
+//	providerID := session.SessionData.ProviderId
+//
+//	// TODO: Store all information from provider?
+//	providerUserID := session.SessionData.UserId
+//
+//	id := &auth.IdentitySpec{
+//		ProviderID: providerID,
+//		ID:         providerUserID,
+//		Username:   providerUserID,
+//	}
+//
+//	return id
+//}
 
 func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
 	auth, err := s.authenticate(rw, req)
@@ -95,24 +112,26 @@ type TokenResponse struct {
 }
 
 func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
-	session, status := s.OAuthProxy.Authenticate(rw, req)
-	if status != http.StatusAccepted {
+	session, err := s.oauthServer.Authenticate(rw, req)
+	if err != nil {
+		s.internalError(rw, req, err)
+	}
+	if session == nil {
 		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
 		return
 	}
 
-	id := s.OAuthProxy.MapToIdentity(session)
+	//id := s.mapToIdentity(session)
+	//glog.Infof("looking up identity %q", id)
 
-	glog.Infof("looking up identity %q", id)
-
-	u, err := s.Tokenstore.MapToUser(id, false)
+	u, err := s.tokenStore.FindUserByUID(session.KubernetesUid)
 	if err != nil {
 		glog.Infof("error finding user: %v", err)
 		s.internalError(rw, req, err)
 		return
 	}
 	if u == nil {
-		glog.Infof("user not found %q", id.Username)
+		glog.Infof("user not found %q", session.KubernetesUid)
 		http.NotFound(rw, req)
 		return
 	}
@@ -121,7 +140,7 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 
 	if req.Method == "POST" {
 		hashed := false // really hard to use
-		tokenSpec, err := s.Tokenstore.CreateToken(u, hashed)
+		tokenSpec, err := s.tokenStore.CreateToken(u, hashed)
 		if err != nil {
 			s.internalError(rw, req, err)
 			return

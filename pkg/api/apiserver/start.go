@@ -7,12 +7,12 @@ import (
 
 	//"github.com/spf13/cobra"
 
+	"github.com/spf13/pflag"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
+	"k8s.io/apiserver/pkg/storage/storagebackend"
 	authv1alpha1 "kope.io/auth/pkg/apis/auth/v1alpha1"
 	componentconfigv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
-	"k8s.io/apiserver/pkg/storage/storagebackend"
-	"github.com/spf13/pflag"
 )
 
 // const defaultEtcdPathPrefix = "/registry/auth.kope.io"
@@ -21,8 +21,8 @@ const defaultEtcdPathPrefix = "/"
 type AuthServerOptions struct {
 	//RecommendedOptions *genericoptions.RecommendedOptions
 
-	Etcd           *genericoptions.EtcdOptions
-	SecureServing  *genericoptions.SecureServingOptions
+	Etcd          *genericoptions.EtcdOptions
+	SecureServing *genericoptions.SecureServingOptions
 	//Authentication *DelegatingAuthenticationOptions
 	//Authorization  *DelegatingAuthorizationOptions
 	//Audit          *genericoptions.AuditLogOptions
@@ -46,10 +46,10 @@ func NewAuthServerOptions(out, errOut io.Writer) *AuthServerOptions {
 
 	o.Etcd = genericoptions.NewEtcdOptions(storagebackend.NewDefaultConfig(prefix, copier, codec))
 	o.SecureServing = genericoptions.NewSecureServingOptions()
-		//Authentication: NewDelegatingAuthenticationOptions(),
-		//Authorization:  NewDelegatingAuthorizationOptions(),
-		//Audit:          NewAuditLogOptions(),
-		//Features:       NewFeatureOptions(),
+	//Authentication: NewDelegatingAuthenticationOptions(),
+	//Authorization:  NewDelegatingAuthorizationOptions(),
+	//Audit:          NewAuditLogOptions(),
+	//Features:       NewFeatureOptions(),
 
 	return o
 }
@@ -81,7 +81,6 @@ func NewAuthServerOptions(out, errOut io.Writer) *AuthServerOptions {
 //	return cmd
 //}
 
-
 func (o *AuthServerOptions) AddFlags(fs *pflag.FlagSet) {
 	//o.RecommendedOptions.AddFlags(fs)
 	o.Etcd.AddFlags(fs)
@@ -91,7 +90,6 @@ func (o *AuthServerOptions) AddFlags(fs *pflag.FlagSet) {
 	//o.Audit.AddFlags(fs)
 	//o.Features.AddFlags(fs)
 }
-
 
 func (o AuthServerOptions) Validate(args []string) error {
 	return nil
@@ -113,7 +111,7 @@ func (o AuthServerOptions) Config() (*Config, error) {
 	//	return nil, err
 	//}
 
-	serverConfig.CorsAllowedOriginList = []string{ ".*" }
+	serverConfig.CorsAllowedOriginList = []string{".*"}
 
 	if err := o.Etcd.ApplyTo(serverConfig); err != nil {
 		return nil, err
@@ -121,7 +119,6 @@ func (o AuthServerOptions) Config() (*Config, error) {
 	if err := o.SecureServing.ApplyTo(serverConfig); err != nil {
 		return nil, err
 	}
-
 
 	config := &Config{
 		GenericConfig: serverConfig,

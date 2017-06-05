@@ -1,20 +1,25 @@
 package keystore
 
 import (
+	crypto_rand "crypto/rand"
 	"fmt"
+	"io"
 	"strconv"
-	"strings"
 	"sync"
-	"time"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kope.io/auth/pkg/keystore/pb"
+	//"k8s.io/apimachinery/pkg/watch"
+	"github.com/golang/glog"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
-	"kope.io/auth/pkg/keystore/pb"
+	"strings"
+	"time"
 )
 
 type KubernetesKeyStore struct {
@@ -23,29 +28,23 @@ type KubernetesKeyStore struct {
 	namespace string
 	name      string
 
-	mutex            sync.Mutex
-	sharedSecretSets map[string]*KubernetesSharedSecretSet
-	resourceVersion  int64
+	mutex           sync.Mutex
+	keySets         map[string]*keySet
+	resourceVersion int64
 }
 
 var _ KeyStore = &KubernetesKeyStore{}
 
-type KubernetesSharedSecretSet struct {
-	keystore  *KubernetesKeyStore
-	generator SharedSecretGenerator
+type keySet struct {
+	data pb.KeySetData
+
+	keystore *KubernetesKeyStore
 
 	name     string
-	versions map[int32]*KubernetesSharedSecret
-	active   int32
+	versions map[int32]*secretboxKey
 }
 
-var _ SharedSecretSet = &KubernetesSharedSecretSet{}
-
-type KubernetesSharedSecret struct {
-	data pb.Key
-}
-
-var _ SharedSecret = &KubernetesSharedSecret{}
+var _ KeySet = &keySet{}
 
 func NewKubernetesKeyStore(client kubernetes.Interface, namespace string, name string) (*KubernetesKeyStore, error) {
 	s := &KubernetesKeyStore{
@@ -54,6 +53,64 @@ func NewKubernetesKeyStore(client kubernetes.Interface, namespace string, name s
 		name:      name,
 	}
 	return s, nil
+}
+
+func (k *KubernetesKeyStore) KeySet(name string) (KeySet, error) {
+	var key *secretboxKey
+	ks := k.keySets[name]
+	if ks != nil {
+		key = ks.versions[ks.data.ActiveId]
+	}
+	// TODO: Start key expiry / rotation thread?
+	if key != nil {
+		return ks, nil
+	}
+
+	// TODO: Strategy for consistency with multiple servers, avoid thundering herd etc
+
+	err := k.ensureKeySet(name, pb.KeyType_KEYTYPE_SECRETBOX)
+	if err != nil {
+		return nil, fmt.Errorf("error creating keyset: %v", err)
+	}
+
+	ks = k.keySets[name]
+	if ks != nil {
+		key = ks.versions[ks.data.ActiveId]
+	}
+
+	if key == nil {
+		return nil, fmt.Errorf("created key was not found")
+	}
+
+	return ks, nil
+}
+
+func (k *keySet) Encrypt(plaintext []byte) ([]byte, error) {
+	key, err := k.activeKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return key.encrypt(plaintext)
+}
+
+func (k *keySet) Decrypt(ciphertext []byte) ([]byte, error) {
+	encryptedData := &pb.EncryptedData{}
+	err := proto.Unmarshal(ciphertext, encryptedData)
+	if err != nil {
+		return nil, fmt.Errorf("error deserializing data: %v", err)
+	}
+
+	key, err := k.findKey(encryptedData.KeyId)
+	if err != nil {
+		return nil, err
+	}
+
+	if key == nil {
+		return nil, fmt.Errorf("unknown keyid (%d)", encryptedData.KeyId)
+	}
+
+	return key.decrypt(encryptedData)
 }
 
 func (k *KubernetesKeyStore) mutateSecret(mutator func(secret *v1.Secret) error) error {
@@ -109,63 +166,84 @@ func (k *KubernetesKeyStore) mutateSecret(mutator func(secret *v1.Secret) error)
 	return nil
 }
 
-func (k *KubernetesKeyStore) ensureSharedSecretInKubernetes(name string, generator SharedSecretGenerator) error {
+func generateSecret(keyType pb.KeyType) ([]byte, error) {
+	switch keyType {
+	case pb.KeyType_KEYTYPE_SECRETBOX:
+		return readCryptoRand(32)
+
+	default:
+		return nil, fmt.Errorf("unknown keytype: %s", keyType)
+	}
+}
+
+func readCryptoRand(n int) ([]byte, error) {
+	b := make([]byte, n, n)
+	if _, err := io.ReadFull(crypto_rand.Reader, b); err != nil {
+		return nil, fmt.Errorf("error reading random data: %v", err)
+	}
+	return b, nil
+}
+
+func (k *KubernetesKeyStore) ensureKeySet(name string, keyType pb.KeyType) error {
 	err := k.mutateSecret(func(secret *v1.Secret) error {
-		sharedSecretSets := k.decodeSecret(secret)
-		sharedSecretSet := sharedSecretSets[name]
-		if sharedSecretSet == nil {
-			sharedSecretSet = &KubernetesSharedSecretSet{
-				keystore:  k,
-				generator: generator,
-				name:      name,
-				versions:  make(map[int32]*KubernetesSharedSecret),
+		keysets := k.decodeSecret(secret)
+		keyset := keysets[name]
+		if keyset == nil {
+			keyset = &keySet{
+				data: pb.KeySetData{
+					KeyType: keyType,
+				},
+				keystore: k,
+				//generator: generator,
+				name:     name,
+				versions: make(map[int32]*secretboxKey),
 			}
-			sharedSecretSets[name] = sharedSecretSet
+			keysets[name] = keyset
 		}
 
-		sharedSecret := sharedSecretSet.versions[sharedSecretSet.active]
+		sharedSecret := keyset.versions[keyset.data.ActiveId]
 		if sharedSecret == nil {
 			maxId := int32(0)
-			for id := range sharedSecretSet.versions {
+			for id := range keyset.versions {
 				if id > maxId {
 					maxId = id
 				}
 			}
 
-			secretData, err := generator()
+			secretData, err := generateSecret(keyset.data.KeyType)
 			if err != nil {
 				return fmt.Errorf("error generating secret: %v", err)
 			}
 
-			sharedSecret := &KubernetesSharedSecret{
-				data: pb.Key{
-					Id:     maxId + 1,
-					Secret: secretData,
+			sharedSecret := &secretboxKey{
+				data: pb.KeyData{
+					Id:      maxId + 1,
+					Secret:  secretData,
+					Created: time.Now().Unix(),
 				},
 			}
 
-			sharedSecretSet.active = sharedSecret.data.Id
-			sharedSecretSet.versions[sharedSecret.data.Id] = sharedSecret
+			keyset.data.ActiveId = sharedSecret.data.Id
+			keyset.versions[sharedSecret.data.Id] = sharedSecret
 		}
 
-		keyPrefix := "secret." + sharedSecretSet.name + "."
+		keyPrefix := "secret." + keyset.name + "."
 		for k := range secret.Data {
 			if strings.HasPrefix(k, keyPrefix) {
 				delete(secret.Data, k)
 			}
 		}
 
-		keySet := &pb.KeySet{}
-		keySet.ActiveId = sharedSecretSet.active
-
-		for _, sharedSecret := range sharedSecretSet.versions {
-			keySet.Keys = append(keySet.Keys, &sharedSecret.data)
+		data := &pb.KeySetData{}
+		*data = keyset.data
+		for _, k := range keyset.versions {
+			data.Keys = append(data.Keys, &k.data)
 		}
 
 		if secret.Data == nil {
 			secret.Data = make(map[string][]byte)
 		}
-		bytes, err := proto.Marshal(keySet)
+		bytes, err := proto.Marshal(data)
 		if err != nil {
 			return fmt.Errorf("error serializing keyset: %v", err)
 		}
@@ -181,83 +259,74 @@ func int32ToString(v int32) string {
 	return strconv.FormatInt(int64(v), 10)
 }
 
-func (k *KubernetesKeyStore) EnsureSharedSecretSet(name string, generator SharedSecretGenerator) (SharedSecretSet, error) {
-	sharedSecretSet := k.sharedSecretSets[name]
-	if sharedSecretSet == nil {
-		err := k.ensureSharedSecretInKubernetes(name, generator)
+func (k *keySet) activeKey() (*secretboxKey, error) {
+	key := k.versions[k.data.ActiveId]
+	if key != nil {
+		return key, nil
+	}
+
+	return nil, fmt.Errorf("keyset not initialized")
+}
+
+func (k *keySet) findKey(keyId int32) (*secretboxKey, error) {
+	key := k.versions[keyId]
+	return key, nil
+}
+
+func (k *KubernetesKeyStore) ensureKeyset(name string) (*keySet, error) {
+	keyType := pb.KeyType_KEYTYPE_SECRETBOX
+	keyset := k.keySets[name]
+	if keyset == nil {
+		err := k.ensureKeySet(name, keyType)
 		if err != nil {
-			return nil, fmt.Errorf("error creating shared secret: %v", err)
+			return nil, fmt.Errorf("error creating keyset: %v", err)
 		}
 
-		sharedSecretSet = k.sharedSecretSets[name]
-		if sharedSecretSet == nil {
-			return nil, fmt.Errorf("created secret set was not found")
-		}
-	}
-
-	if sharedSecretSet.generator == nil {
-		sharedSecretSet.generator = generator
-	}
-
-	return sharedSecretSet, nil
-}
-
-func (s *KubernetesSharedSecretSet) EnsureSharedSecret() (SharedSecret, error) {
-	sharedSecret := s.versions[s.active]
-	if sharedSecret == nil {
-		err := s.keystore.ensureSharedSecretInKubernetes(s.name, s.generator)
-		if err != nil {
-			return nil, fmt.Errorf("error creating shared secret: %v", err)
-		}
-
-		sharedSecret = s.versions[s.active]
-		if sharedSecret == nil {
-			return nil, fmt.Errorf("created secret was not found")
+		keyset = k.keySets[name]
+		if keyset == nil {
+			return nil, fmt.Errorf("created keyset was not found")
 		}
 	}
 
-	return sharedSecret, nil
+	//if keyset.generator == nil {
+	//	keyset.generator = generator
+	//}
+
+	return keyset, nil
 }
 
-func (s *KubernetesSharedSecret) SecretData() []byte {
-	// TODO: Defensive copy?
-	return s.data.Secret
-}
-
-func (s *KubernetesKeyStore) decodeSecret(secret *v1.Secret) map[string]*KubernetesSharedSecretSet {
-	sharedSecretSets := make(map[string]*KubernetesSharedSecretSet)
+func (s *KubernetesKeyStore) decodeSecret(secret *v1.Secret) map[string]*keySet {
+	keySets := make(map[string]*keySet)
 	for k, v := range secret.Data {
 		tokens := strings.Split(k, ".")
 
 		// secret.<name>=<value>
 		if len(tokens) == 2 && tokens[0] == "secret" {
 			name := tokens[1]
-			sharedSecretSet := &KubernetesSharedSecretSet{
+			ks := &keySet{
 				keystore: s,
 				name:     name,
-				versions: make(map[int32]*KubernetesSharedSecret),
+				versions: make(map[int32]*secretboxKey),
 			}
-			data := &pb.KeySet{}
-			err := proto.Unmarshal(v, data)
+			err := proto.Unmarshal(v, &ks.data)
 			if err != nil {
-				glog.Warningf("error parsing key %v", k)
+				glog.Warningf("error parsing secret key %v", k)
 				continue
 			}
 
-			sharedSecretSet.active = data.ActiveId
-			for _, key := range data.Keys {
-				sharedSecretSet.versions[key.Id] = &KubernetesSharedSecret{
+			for _, key := range ks.data.Keys {
+				ks.versions[key.Id] = &secretboxKey{
 					data: *key,
 				}
 			}
 
-			sharedSecretSets[name] = sharedSecretSet
+			keySets[name] = ks
 		} else {
 			glog.Warningf("ignoring unrecognized key %v", k)
 		}
 	}
 
-	return sharedSecretSets
+	return keySets
 }
 
 // updateSecret parses and updates the specified secret
@@ -273,8 +342,8 @@ func (k *KubernetesKeyStore) updateSecret(secret *v1.Secret) {
 		return
 	}
 
-	sharedSecretSets := k.decodeSecret(secret)
-	k.sharedSecretSets = sharedSecretSets
+	keySets := k.decodeSecret(secret)
+	k.keySets = keySets
 
 	k.resourceVersion = resourceVersion
 }
@@ -291,8 +360,8 @@ func (k *KubernetesKeyStore) deleteSecret(resourceVersionString string) {
 		return
 	}
 
-	sharedSecretSets := make(map[string]*KubernetesSharedSecretSet)
-	k.sharedSecretSets = sharedSecretSets
+	keySets := make(map[string]*keySet)
+	k.keySets = keySets
 
 	k.resourceVersion = resourceVersion
 }
@@ -302,8 +371,9 @@ func (c *KubernetesKeyStore) Run(stopCh <-chan struct{}) {
 	runOnce := func() (bool, error) {
 		var listOpts metav1.ListOptions
 
-		// TODO: How to watch a single object by name?
-		// https://github.com/kubernetes/kubernetes/issues/43299
+		// How to watch a single object: https://github.com/kubernetes/kubernetes/issues/43299
+
+		listOpts.FieldSelector = fields.OneTermEqualSelector(api.ObjectNameField, c.name).String()
 
 		secretList, err := c.client.CoreV1().Secrets(c.namespace).List(listOpts)
 		if err != nil {

@@ -5,13 +5,11 @@ go_library(
     srcs = ["reader.go"],
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/apis/componentconfig/v1alpha1:go_default_library",
+        "//pkg/client/clientset_generated/clientset:go_default_library",
         "@com_github_golang_glog//:go_default_library",
-        "@io_k8s_apimachinery//pkg/api/errors:go_default_library",
-        "@io_k8s_apimachinery//pkg/apis/meta/v1:go_default_library",
-        "@io_k8s_apimachinery//pkg/runtime:go_default_library",
-        "@io_k8s_apimachinery//pkg/util/yaml:go_default_library",
-        "@io_k8s_client_go//kubernetes:go_default_library",
-        "@io_k8s_client_go//pkg/api/v1:go_default_library",
+        "@io_k8s_apimachinery//pkg/fields:go_default_library",
+        "@io_k8s_client_go//tools/cache:go_default_library",
     ],
 )
 

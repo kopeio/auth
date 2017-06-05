@@ -8,7 +8,6 @@ go_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/apis/auth:go_default_library",
         "//pkg/apis/componentconfig:go_default_library",
         "@io_k8s_apimachinery//pkg/fields:go_default_library",
         "@io_k8s_apimachinery//pkg/labels:go_default_library",

@@ -19,6 +19,8 @@ package v1alpha1
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // GroupName is the group name use in this package
@@ -39,9 +41,14 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&AuthProvider{},
 		&AuthProviderList{},
 	)
+	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
 
-func (obj *AuthConfiguration) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }
+func (obj *AuthConfiguration) GetObjectKind() schema.ObjectKind {
+	return &obj.TypeMeta
+}
 
-func (obj *AuthProvider) GetObjectKind() schema.ObjectKind { return &obj.TypeMeta }
+func (obj *AuthProvider) GetObjectKind() schema.ObjectKind {
+	return &obj.TypeMeta
+}

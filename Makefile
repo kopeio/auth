@@ -12,11 +12,14 @@ gofmt:
 
 portal:
 	cd webapp/portal; npm run build
-	gzip --force --keep --best webapp/portal/public/bundle.js
+	gzip --force --keep --best webapp/portal/build/static/js/main.*.js
 
 portal-push:
 	bazel run //images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 	docker push ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
+
+portal-bounce:
+	kubectl delete pod -n kopeio-auth -l app=auth-portal
 
 api-push:
 	bazel run //images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}

@@ -18,15 +18,6 @@ go_library(
         "providers.go",
         "session_state.go",
     ],
-    deps = [
-        "//pkg/cookie:go_default_library",
-        "//pkg/cookie/pb:go_default_library",
-        "//pkg/util:go_default_library",
-        "@com_github_golang_glog//:go_default_library",
-        "@org_golang_google_api//admin/directory/v1:go_default_library",
-        "@org_golang_x_oauth2//:go_default_library",
-        "@org_golang_x_oauth2//google:go_default_library",
-    ],
 )
 
 go_test(

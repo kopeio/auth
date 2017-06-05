@@ -81,8 +81,13 @@ func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Re
 			return
 		}
 
-		name := s.options.GenerateKubeconfig.Name
-		apiEndpoint := s.options.GenerateKubeconfig.Server
+		authConfiguration, err := s.config.AuthConfiguration()
+		if err != nil {
+			s.internalError(rw, req, err)
+			return
+		}
+		name := authConfiguration.GenerateKubeconfig.Name
+		apiEndpoint := authConfiguration.GenerateKubeconfig.Server
 
 		if apiEndpoint == "" && name != "" {
 			// Try to infer the apiEndpoint from the name (follow the kops convention)
@@ -212,7 +217,7 @@ func (s *HTTPServer) createToken(user *auth.User) (*tokenstore.TokenInfo, error)
 
 	if bestToken == nil {
 		hashed := false // really hard to use
-		tokenSpec, err := s.Tokenstore.CreateToken(user, hashed)
+		tokenSpec, err := s.tokenStore.CreateToken(user, hashed)
 		if err != nil {
 			return nil, fmt.Errorf("error creating token: %v", err)
 		}

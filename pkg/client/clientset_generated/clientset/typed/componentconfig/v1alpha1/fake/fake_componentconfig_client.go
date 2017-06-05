@@ -26,8 +26,8 @@ type FakeComponentconfigV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeComponentconfigV1alpha1) AuthConfigurations() v1alpha1.AuthConfigurationInterface {
-	return &FakeAuthConfigurations{c}
+func (c *FakeComponentconfigV1alpha1) AuthConfigurations(namespace string) v1alpha1.AuthConfigurationInterface {
+	return &FakeAuthConfigurations{c, namespace}
 }
 
 func (c *FakeComponentconfigV1alpha1) AuthProviders(namespace string) v1alpha1.AuthProviderInterface {

@@ -34,8 +34,8 @@ type ComponentconfigV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ComponentconfigV1alpha1Client) AuthConfigurations() AuthConfigurationInterface {
-	return newAuthConfigurations(c)
+func (c *ComponentconfigV1alpha1Client) AuthConfigurations(namespace string) AuthConfigurationInterface {
+	return newAuthConfigurations(c, namespace)
 }
 
 func (c *ComponentconfigV1alpha1Client) AuthProviders(namespace string) AuthProviderInterface {

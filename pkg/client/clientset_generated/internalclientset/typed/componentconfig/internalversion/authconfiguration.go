@@ -28,7 +28,7 @@ import (
 // AuthConfigurationsGetter has a method to return a AuthConfigurationInterface.
 // A group's client should implement this interface.
 type AuthConfigurationsGetter interface {
-	AuthConfigurations() AuthConfigurationInterface
+	AuthConfigurations(namespace string) AuthConfigurationInterface
 }
 
 // AuthConfigurationInterface has methods to work with AuthConfiguration resources.
@@ -47,12 +47,14 @@ type AuthConfigurationInterface interface {
 // authConfigurations implements AuthConfigurationInterface
 type authConfigurations struct {
 	client rest.Interface
+	ns     string
 }
 
 // newAuthConfigurations returns a AuthConfigurations
-func newAuthConfigurations(c *ComponentconfigClient) *authConfigurations {
+func newAuthConfigurations(c *ComponentconfigClient, namespace string) *authConfigurations {
 	return &authConfigurations{
 		client: c.RESTClient(),
+		ns:     namespace,
 	}
 }
 
@@ -60,6 +62,7 @@ func newAuthConfigurations(c *ComponentconfigClient) *authConfigurations {
 func (c *authConfigurations) Create(authConfiguration *componentconfig.AuthConfiguration) (result *componentconfig.AuthConfiguration, err error) {
 	result = &componentconfig.AuthConfiguration{}
 	err = c.client.Post().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		Body(authConfiguration).
 		Do().
@@ -71,6 +74,7 @@ func (c *authConfigurations) Create(authConfiguration *componentconfig.AuthConfi
 func (c *authConfigurations) Update(authConfiguration *componentconfig.AuthConfiguration) (result *componentconfig.AuthConfiguration, err error) {
 	result = &componentconfig.AuthConfiguration{}
 	err = c.client.Put().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		Name(authConfiguration.Name).
 		Body(authConfiguration).
@@ -82,6 +86,7 @@ func (c *authConfigurations) Update(authConfiguration *componentconfig.AuthConfi
 // Delete takes name of the authConfiguration and deletes it. Returns an error if one occurs.
 func (c *authConfigurations) Delete(name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		Name(name).
 		Body(options).
@@ -92,6 +97,7 @@ func (c *authConfigurations) Delete(name string, options *v1.DeleteOptions) erro
 // DeleteCollection deletes a collection of objects.
 func (c *authConfigurations) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	return c.client.Delete().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Body(options).
@@ -103,6 +109,7 @@ func (c *authConfigurations) DeleteCollection(options *v1.DeleteOptions, listOpt
 func (c *authConfigurations) Get(name string, options v1.GetOptions) (result *componentconfig.AuthConfiguration, err error) {
 	result = &componentconfig.AuthConfiguration{}
 	err = c.client.Get().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -115,6 +122,7 @@ func (c *authConfigurations) Get(name string, options v1.GetOptions) (result *co
 func (c *authConfigurations) List(opts v1.ListOptions) (result *componentconfig.AuthConfigurationList, err error) {
 	result = &componentconfig.AuthConfigurationList{}
 	err = c.client.Get().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Do().
@@ -126,6 +134,7 @@ func (c *authConfigurations) List(opts v1.ListOptions) (result *componentconfig.
 func (c *authConfigurations) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	opts.Watch = true
 	return c.client.Get().
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Watch()
@@ -135,6 +144,7 @@ func (c *authConfigurations) Watch(opts v1.ListOptions) (watch.Interface, error)
 func (c *authConfigurations) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *componentconfig.AuthConfiguration, err error) {
 	result = &componentconfig.AuthConfiguration{}
 	err = c.client.Patch(pt).
+		Namespace(c.ns).
 		Resource("authconfigurations").
 		SubResource(subresources...).
 		Name(name).

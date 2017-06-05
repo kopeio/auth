@@ -11,15 +11,15 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	registry_user "kope.io/auth/pkg/api/registry/user"
 	registry_authconfiguration "kope.io/auth/pkg/api/registry/authconfiguration"
 	registry_authprovider "kope.io/auth/pkg/api/registry/authprovider"
+	registry_user "kope.io/auth/pkg/api/registry/user"
 	"kope.io/auth/pkg/apis/auth"
 	authinstall "kope.io/auth/pkg/apis/auth/install"
 	authv1alpha1 "kope.io/auth/pkg/apis/auth/v1alpha1"
+	"kope.io/auth/pkg/apis/componentconfig"
 	componentconfiginstall "kope.io/auth/pkg/apis/componentconfig/install"
 	componentconfigv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
-	"kope.io/auth/pkg/apis/componentconfig"
 )
 
 var (
@@ -30,12 +30,12 @@ var (
 )
 
 func init() {
-	authinstall.Install(groupFactoryRegistry, registry, Scheme)
-	componentconfiginstall.Install(groupFactoryRegistry, registry, Scheme)
-
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
 	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Version: "v1"})
+
+	authinstall.Install(groupFactoryRegistry, registry, Scheme)
+	componentconfiginstall.Install(groupFactoryRegistry, registry, Scheme)
 
 	// TODO: keep the generic API server from wanting this
 	unversioned := schema.GroupVersion{Group: "", Version: "v1"}
@@ -115,7 +115,6 @@ func (c completedConfig) New() (*AuthServer, error) {
 			return nil, err
 		}
 	}
-
 
 	return s, nil
 }

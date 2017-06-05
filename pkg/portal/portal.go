@@ -2,68 +2,71 @@ package portal
 
 import (
 	"encoding/json"
+	"github.com/golang/glog"
+	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
-var indexTemplate = `
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Kubernetes Auth Portal</title>
-</head>
-<body>
-<style>
-    @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500:latin');
-
-    html {
-        font-family: 'Roboto', sans-serif;
-    }
-</style>
-<div id="app" />
-<script type="text/javascript">
-    window.initialProps = {{initialProps}};
-</script>
-<script src="/static/bundle.js" type="text/javascript"></script>
-</body>
-</html>
-`
-
 func (s *HTTPServer) portalIndex(rw http.ResponseWriter, req *http.Request) {
-	status, err := s.status(rw, req)
+	index, err := ioutil.ReadFile(filepath.Join(s.staticDir, "index.html"))
 	if err != nil {
 		s.internalError(rw, req, err)
 		return
 	}
 
-	statusJson, err := json.Marshal(status)
-	if err != nil {
-		s.internalError(rw, req, err)
-		return
-	}
+	html := string(index)
 
-	html := strings.Replace(indexTemplate, "{{initialProps}}", string(statusJson), -1)
-	rw.Write([]byte(html))
-}
-
-type PortalStatus struct {
-	User *UserInfo `json:"user"`
-}
-
-func (s *HTTPServer) status(rw http.ResponseWriter, req *http.Request) (*PortalStatus, error) {
-	auth, err := s.authenticate(rw, req)
-	if err != nil {
-		return nil, err
-	}
-
-	status := &PortalStatus{}
-
-	if auth != nil {
-		status.User = &UserInfo{
-			ID:       auth.Name,
-			Username: auth.Spec.Username,
+	{
+		settings := make(map[string]interface{})
+		settings["kubernetesUrl"] = "https://api.simple.awsdata.com/"
+		settingsJson, err := json.Marshal(settings)
+		if err != nil {
+			s.internalError(rw, req, err)
+			return
 		}
+
+		placeholder := "window.AppSettings={}"
+		if !strings.Contains(html, placeholder) {
+			glog.Warningf("index.html does not contain %q; will not be able to insert settings", placeholder)
+		}
+		html = strings.Replace(html, placeholder, "window.AppSettings="+string(settingsJson), -1)
 	}
 
-	return status, nil
+	{
+		auth, err := s.authenticate(rw, req)
+		if err != nil {
+			s.internalError(rw, req, err)
+			return
+		}
+
+		userJson := []byte("null")
+		if auth != nil {
+			user := &UserInfo{
+				ID:       auth.Name,
+				Username: auth.Spec.Username,
+			}
+			userJson, err = json.Marshal(user)
+			if err != nil {
+				s.internalError(rw, req, err)
+				return
+			}
+		}
+
+		placeholder := "window.User=null"
+		if !strings.Contains(html, placeholder) {
+			glog.Warningf("index.html does not contain %q; will not be able to insert user info", placeholder)
+		}
+		html = strings.Replace(html, placeholder, "window.User="+string(userJson), -1)
+	}
+
+	//content-encoding:gzip
+	//content-type:text/html; charset=utf-8
+	//date:Mon, 05 Jun 2017 00:07:28 GMT
+	//server:nginx/1.11.12
+	//status:200
+	//strict-transport-security:max-age=15724800; includeSubDomains;
+
+	rw.Write([]byte(html))
 }

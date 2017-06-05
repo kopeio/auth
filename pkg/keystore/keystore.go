@@ -1,15 +1,25 @@
 package keystore
 
-type SharedSecretGenerator func() ([]byte, error)
+//type sharedSecretGenerator func() ([]byte, error)
 
 type KeyStore interface {
-	EnsureSharedSecretSet(name string, generator SharedSecretGenerator) (SharedSecretSet, error)
+	KeySet(keyname string) (KeySet, error)
 }
 
-type SharedSecretSet interface {
-	EnsureSharedSecret() (SharedSecret, error)
+type KeySet interface {
+	Decrypt(ciphertext []byte) ([]byte, error)
+	Encrypt(plaintext []byte) ([]byte, error)
 }
 
-type SharedSecret interface {
-	SecretData() []byte
-}
+//type SharedSecretSet interface {
+//	EnsureSharedSecret() (SharedSecret, error)
+//}
+
+//type SharedSecret interface {
+//	SecretData() []byte
+//}
+
+//type Key interface {
+//	Id() int32
+//	//Secret() []byte
+//}
