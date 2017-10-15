@@ -3,7 +3,7 @@ package tokenstore
 import (
 	"encoding/base64"
 
-	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
+	authenticationv1beta1 "k8s.io/api/authentication/v1beta1"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	"kope.io/auth/pkg/oauth/session"
 )

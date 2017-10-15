@@ -17,7 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	authenticationv1beta1 "k8s.io/client-go/pkg/apis/authentication/v1beta1"
+	authenticationv1beta1 "k8s.io/api/authentication/v1beta1"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	client "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/oauth/session"

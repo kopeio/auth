@@ -58,6 +58,41 @@ func newUsers(c *AuthV1alpha1Client, namespace string) *users {
 	}
 }
 
+// Get takes name of the user, and returns the corresponding user object, and an error if there is any.
+func (c *users) Get(name string, options v1.GetOptions) (result *v1alpha1.User, err error) {
+	result = &v1alpha1.User{}
+	err = c.client.Get().
+		Namespace(c.ns).
+		Resource("users").
+		Name(name).
+		VersionedParams(&options, scheme.ParameterCodec).
+		Do().
+		Into(result)
+	return
+}
+
+// List takes label and field selectors, and returns the list of Users that match those selectors.
+func (c *users) List(opts v1.ListOptions) (result *v1alpha1.UserList, err error) {
+	result = &v1alpha1.UserList{}
+	err = c.client.Get().
+		Namespace(c.ns).
+		Resource("users").
+		VersionedParams(&opts, scheme.ParameterCodec).
+		Do().
+		Into(result)
+	return
+}
+
+// Watch returns a watch.Interface that watches the requested users.
+func (c *users) Watch(opts v1.ListOptions) (watch.Interface, error) {
+	opts.Watch = true
+	return c.client.Get().
+		Namespace(c.ns).
+		Resource("users").
+		VersionedParams(&opts, scheme.ParameterCodec).
+		Watch()
+}
+
 // Create takes the representation of a user and creates it.  Returns the server's representation of the user, and an error, if there is any.
 func (c *users) Create(user *v1alpha1.User) (result *v1alpha1.User, err error) {
 	result = &v1alpha1.User{}
@@ -103,41 +138,6 @@ func (c *users) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListO
 		Body(options).
 		Do().
 		Error()
-}
-
-// Get takes name of the user, and returns the corresponding user object, and an error if there is any.
-func (c *users) Get(name string, options v1.GetOptions) (result *v1alpha1.User, err error) {
-	result = &v1alpha1.User{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("users").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of Users that match those selectors.
-func (c *users) List(opts v1.ListOptions) (result *v1alpha1.UserList, err error) {
-	result = &v1alpha1.UserList{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("users").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Do().
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested users.
-func (c *users) Watch(opts v1.ListOptions) (watch.Interface, error) {
-	opts.Watch = true
-	return c.client.Get().
-		Namespace(c.ns).
-		Resource("users").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Watch()
 }
 
 // Patch applies the patch and returns the patched user.

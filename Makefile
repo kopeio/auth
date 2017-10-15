@@ -40,16 +40,11 @@ images: portal
 
 apimachinery:
 	#./hack/make-apimachinery.sh
-	${GOPATH}/bin/conversion-gen --skip-unsafe=true --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.conversion
-	${GOPATH}/bin/conversion-gen --skip-unsafe=true --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.conversion
-	${GOPATH}/bin/defaulter-gen --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.defaults
-	${GOPATH}/bin/defaulter-gen --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.defaults
-	${GOPATH}/bin/deepcopy-gen --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.deepcopy
-	${GOPATH}/bin/deepcopy-gen --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.deepcopy
-	#go install github.com/ugorji/go/codec/codecgen
-	# codecgen works only if invoked from directory where the file is located.
-	#cd pkg/apis/kops/v1alpha2/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
-	#cd pkg/apis/kops/v1alpha1/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
-	#cd pkg/apis/kops/ && ~/k8s/bin/codecgen -d 1234 -o types.generated.go instancegroup.go cluster.go federation.go
-	${GOPATH}/bin/client-gen  --input-base kope.io/auth/pkg/apis --input="auth/,auth/v1alpha1,componentconfig/,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
-	${GOPATH}/bin/client-gen  --clientset-name="clientset" --input-base kope.io/auth/pkg/apis --input="auth/v1alpha1,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/
+	${GOPATH}/bin/conversion-gen --skip-unsafe=true --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.conversion --go-header-file hack/boilerplate/boilerplate.go.txt --extra-peer-dirs=k8s.io/api/core/v1,k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/conversion,k8s.io/apimachinery/pkg/runtime
+	${GOPATH}/bin/conversion-gen --skip-unsafe=true --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.conversion --go-header-file hack/boilerplate/boilerplate.go.txt --extra-peer-dirs=k8s.io/api/core/v1,k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/conversion,k8s.io/apimachinery/pkg/runtime
+	${GOPATH}/bin/defaulter-gen --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.defaults --go-header-file hack/boilerplate/boilerplate.go.txt
+	${GOPATH}/bin/defaulter-gen --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.defaults --go-header-file hack/boilerplate/boilerplate.go.txt
+	${GOPATH}/bin/deepcopy-gen --input-dirs kope.io/auth/pkg/apis/auth/v1alpha1 --v=0  --output-file-base=zz_generated.deepcopy --go-header-file hack/boilerplate/boilerplate.go.txt
+	${GOPATH}/bin/deepcopy-gen --input-dirs kope.io/auth/pkg/apis/componentconfig/v1alpha1 --v=0  --output-file-base=zz_generated.deepcopy --go-header-file hack/boilerplate/boilerplate.go.txt
+	${GOPATH}/bin/client-gen  --input-base kope.io/auth/pkg/apis --input="auth/,auth/v1alpha1,componentconfig/,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/ --go-header-file hack/boilerplate/boilerplate.go.txt
+	${GOPATH}/bin/client-gen  --clientset-name="clientset" --input-base kope.io/auth/pkg/apis --input="auth/v1alpha1,componentconfig/v1alpha1" --clientset-path kope.io/auth/pkg/client/clientset_generated/ --go-header-file hack/boilerplate/boilerplate.go.txt

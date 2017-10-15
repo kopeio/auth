@@ -10,13 +10,14 @@ load(
 go_library(
     name = "go_default_library",
     srcs = ["install.go"],
+    importpath = "kope.io/auth/pkg/apis/auth/install",
     tags = ["automanaged"],
     deps = [
         "//pkg/apis/auth:go_default_library",
         "//pkg/apis/auth/v1alpha1:go_default_library",
-        "@io_k8s_apimachinery//pkg/apimachinery/announced:go_default_library",
-        "@io_k8s_apimachinery//pkg/apimachinery/registered:go_default_library",
-        "@io_k8s_apimachinery//pkg/runtime:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/apimachinery/announced:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/apimachinery/registered:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
     ],
 )
 

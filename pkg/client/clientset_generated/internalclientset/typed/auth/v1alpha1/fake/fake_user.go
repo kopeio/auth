@@ -34,40 +34,9 @@ type FakeUsers struct {
 
 var usersResource = schema.GroupVersionResource{Group: "auth.kope.io", Version: "v1alpha1", Resource: "users"}
 
-func (c *FakeUsers) Create(user *v1alpha1.User) (result *v1alpha1.User, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(usersResource, c.ns, user), &v1alpha1.User{})
+var usersKind = schema.GroupVersionKind{Group: "auth.kope.io", Version: "v1alpha1", Kind: "User"}
 
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.User), err
-}
-
-func (c *FakeUsers) Update(user *v1alpha1.User) (result *v1alpha1.User, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(usersResource, c.ns, user), &v1alpha1.User{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.User), err
-}
-
-func (c *FakeUsers) Delete(name string, options *v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(usersResource, c.ns, name), &v1alpha1.User{})
-
-	return err
-}
-
-func (c *FakeUsers) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(usersResource, c.ns, listOptions)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.UserList{})
-	return err
-}
-
+// Get takes name of the user, and returns the corresponding user object, and an error if there is any.
 func (c *FakeUsers) Get(name string, options v1.GetOptions) (result *v1alpha1.User, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(usersResource, c.ns, name), &v1alpha1.User{})
@@ -78,9 +47,10 @@ func (c *FakeUsers) Get(name string, options v1.GetOptions) (result *v1alpha1.Us
 	return obj.(*v1alpha1.User), err
 }
 
+// List takes label and field selectors, and returns the list of Users that match those selectors.
 func (c *FakeUsers) List(opts v1.ListOptions) (result *v1alpha1.UserList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(usersResource, c.ns, opts), &v1alpha1.UserList{})
+		Invokes(testing.NewListAction(usersResource, usersKind, c.ns, opts), &v1alpha1.UserList{})
 
 	if obj == nil {
 		return nil, err
@@ -104,6 +74,44 @@ func (c *FakeUsers) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(usersResource, c.ns, opts))
 
+}
+
+// Create takes the representation of a user and creates it.  Returns the server's representation of the user, and an error, if there is any.
+func (c *FakeUsers) Create(user *v1alpha1.User) (result *v1alpha1.User, err error) {
+	obj, err := c.Fake.
+		Invokes(testing.NewCreateAction(usersResource, c.ns, user), &v1alpha1.User{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.User), err
+}
+
+// Update takes the representation of a user and updates it. Returns the server's representation of the user, and an error, if there is any.
+func (c *FakeUsers) Update(user *v1alpha1.User) (result *v1alpha1.User, err error) {
+	obj, err := c.Fake.
+		Invokes(testing.NewUpdateAction(usersResource, c.ns, user), &v1alpha1.User{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.User), err
+}
+
+// Delete takes name of the user and deletes it. Returns an error if one occurs.
+func (c *FakeUsers) Delete(name string, options *v1.DeleteOptions) error {
+	_, err := c.Fake.
+		Invokes(testing.NewDeleteAction(usersResource, c.ns, name), &v1alpha1.User{})
+
+	return err
+}
+
+// DeleteCollection deletes a collection of objects.
+func (c *FakeUsers) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(usersResource, c.ns, listOptions)
+
+	_, err := c.Fake.Invokes(action, &v1alpha1.UserList{})
+	return err
 }
 
 // Patch applies the patch and returns the patched user.
