@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "barrier.go",
         "client.go",
-        "doc.go",
         "double_barrier.go",
         "key.go",
         "priority_queue.go",

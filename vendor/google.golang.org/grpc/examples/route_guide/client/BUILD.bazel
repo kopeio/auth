@@ -10,7 +10,7 @@ go_library(
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/credentials:go_default_library",
         "//vendor/google.golang.org/grpc/examples/route_guide/routeguide:go_default_library",
-        "//vendor/google.golang.org/grpc/testdata:go_default_library",
+        "//vendor/google.golang.org/grpc/grpclog:go_default_library",
     ],
 )
 

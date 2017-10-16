@@ -5,11 +5,7 @@ go_library(
     srcs = [
         "interrupt_unix.go",
         "osutil.go",
-        "signal.go",
     ] + select({
-        "@io_bazel_rules_go//go/platform:linux_amd64": [
-            "signal_linux.go",
-        ],
         "@io_bazel_rules_go//go/platform:windows_amd64": [
             "interrupt_windows.go",
         ],

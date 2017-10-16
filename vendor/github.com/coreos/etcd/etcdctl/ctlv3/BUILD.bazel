@@ -4,7 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "ctl.go",
-        "ctl_nocov.go",
         "help.go",
     ],
     importpath = "github.com/coreos/etcd/etcdctl/ctlv3",

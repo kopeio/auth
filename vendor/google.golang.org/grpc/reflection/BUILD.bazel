@@ -26,6 +26,5 @@ go_test(
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/reflection/grpc_reflection_v1alpha:go_default_library",
         "//vendor/google.golang.org/grpc/reflection/grpc_testing:go_default_library",
-        "//vendor/google.golang.org/grpc/reflection/grpc_testingv3:go_default_library",
     ],
 )

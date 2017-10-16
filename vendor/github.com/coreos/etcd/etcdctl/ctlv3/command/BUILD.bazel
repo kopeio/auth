@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "alarm_command.go",
         "auth_command.go",
-        "check.go",
         "compaction_command.go",
         "defrag_command.go",
         "del_command.go",
@@ -57,7 +56,6 @@ go_library(
         "//vendor/github.com/coreos/etcd/pkg/fileutil:go_default_library",
         "//vendor/github.com/coreos/etcd/pkg/flags:go_default_library",
         "//vendor/github.com/coreos/etcd/pkg/pbutil:go_default_library",
-        "//vendor/github.com/coreos/etcd/pkg/report:go_default_library",
         "//vendor/github.com/coreos/etcd/pkg/transport:go_default_library",
         "//vendor/github.com/coreos/etcd/pkg/types:go_default_library",
         "//vendor/github.com/coreos/etcd/raft:go_default_library",
@@ -72,7 +70,5 @@ go_library(
         "//vendor/github.com/olekukonko/tablewriter:go_default_library",
         "//vendor/github.com/spf13/cobra:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
-        "//vendor/golang.org/x/time/rate:go_default_library",
-        "//vendor/gopkg.in/cheggaaa/pb.v1:go_default_library",
     ],
 )

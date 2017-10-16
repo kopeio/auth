@@ -2,13 +2,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "doc.go",
-        "etcd_spawn_nocov.go",
-    ],
+    srcs = ["doc.go"],
     importpath = "github.com/coreos/etcd/e2e",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/coreos/etcd/pkg/expect:go_default_library"],
 )
 
 go_test(
@@ -52,7 +48,6 @@ go_test(
         "//vendor/github.com/coreos/etcd/pkg/flags:go_default_library",
         "//vendor/github.com/coreos/etcd/pkg/testutil:go_default_library",
         "//vendor/github.com/coreos/etcd/version:go_default_library",
-        "//vendor/github.com/grpc-ecosystem/grpc-gateway/runtime:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
     ],
 )
