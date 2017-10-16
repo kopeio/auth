@@ -18,6 +18,7 @@ go_library(
         "providers.go",
         "session_state.go",
     ],
+    importpath = "kope.io/auth/pkg/providers",
 )
 
 go_test(
@@ -32,6 +33,7 @@ go_test(
         "provider_default_test.go",
         "session_state_test.go",
     ],
+    importpath = "kope.io/auth/pkg/providers",
     library = ":go_default_library",
     deps = [
         "//pkg/assert:go_default_library",

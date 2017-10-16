@@ -14,15 +14,21 @@ portal:
 	cd webapp/portal; npm run build
 	gzip --force --keep --best webapp/portal/build/static/js/main.*.js
 
-portal-push:
-	bazel run //images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
+portal-image:
+	bazel run //images:auth-portal
+	docker tag bazel/images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
+
+portal-push: portal-image
 	docker push ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 
 portal-bounce:
 	kubectl delete pod -n kopeio-auth -l app=auth-portal
 
-api-push:
-	bazel run //images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+api-image:
+	bazel run //images:auth-api
+	docker tag bazel/images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+
+api-push: api-image
 	docker push ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
 
 api-bounce:
@@ -31,9 +37,8 @@ api-bounce:
 push: portal-push api-push
 	echo "pushed images"
 
-images: portal
-	bazel run //images:auth-api ${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
-	bazel run //images:auth-portal ${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
+images: portal-image api-image
+	echo "built images"
 
 # -----------------------------------------------------
 # api machinery regenerate

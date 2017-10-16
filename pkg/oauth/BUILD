@@ -11,6 +11,7 @@ go_library(
         "providers.go",
         "state.go",
     ],
+    importpath = "kope.io/auth/pkg/oauth",
     deps = [
         "//pkg/configreader:go_default_library",
         "//pkg/keystore:go_default_library",
@@ -18,8 +19,8 @@ go_library(
         "//pkg/oauth/providers:go_default_library",
         "//pkg/oauth/providers/google:go_default_library",
         "//pkg/oauth/session:go_default_library",
-        "@com_github_golang_glog//:go_default_library",
-        "@com_github_golang_protobuf//proto:go_default_library",
-        "@io_k8s_apimachinery//pkg/types:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/types:go_default_library",
     ],
 )
