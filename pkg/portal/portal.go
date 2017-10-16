@@ -20,7 +20,17 @@ func (s *HTTPServer) portalIndex(rw http.ResponseWriter, req *http.Request) {
 
 	{
 		settings := make(map[string]interface{})
-		settings["kubernetesUrl"] = "https://api.simple.awsdata.com/"
+
+		settings["kubernetesUrl"] = ""
+		authConfig, err := s.config.AuthConfiguration()
+		if err != nil {
+			glog.Warningf("error reading auth configuration: %v", err)
+			authConfig = nil
+		}
+		if authConfig != nil {
+			settings["kubernetesUrl"] = authConfig.GenerateKubeconfig.Server
+		}
+
 		settingsJson, err := json.Marshal(settings)
 		if err != nil {
 			s.internalError(rw, req, err)
