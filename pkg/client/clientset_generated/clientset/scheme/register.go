@@ -22,7 +22,7 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	authv1alpha1 "kope.io/auth/pkg/apis/auth/v1alpha1"
-	componentconfigv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+	configv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
 )
 
 var Scheme = runtime.NewScheme()
@@ -50,6 +50,6 @@ func init() {
 // correctly.
 func AddToScheme(scheme *runtime.Scheme) {
 	authv1alpha1.AddToScheme(scheme)
-	componentconfigv1alpha1.AddToScheme(scheme)
+	configv1alpha1.AddToScheme(scheme)
 
 }

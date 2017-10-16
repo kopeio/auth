@@ -23,58 +23,46 @@ import (
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
 	authinternalversion "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/auth/internalversion"
 	authv1alpha1 "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/auth/v1alpha1"
-	componentconfiginternalversion "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/componentconfig/internalversion"
-	componentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/componentconfig/v1alpha1"
+	configinternalversion "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/config/internalversion"
+	configv1alpha1 "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/config/v1alpha1"
 )
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	Auth() authinternalversion.AuthInterface
 	AuthV1alpha1() authv1alpha1.AuthV1alpha1Interface
-	Componentconfig() componentconfiginternalversion.ComponentconfigInterface
-	ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface
+	Config() configinternalversion.ConfigInterface
+	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	*authinternalversion.AuthClient
-	*authv1alpha1.AuthV1alpha1Client
-	*componentconfiginternalversion.ComponentconfigClient
-	*componentconfigv1alpha1.ComponentconfigV1alpha1Client
+	auth           *authinternalversion.AuthClient
+	authV1alpha1   *authv1alpha1.AuthV1alpha1Client
+	config         *configinternalversion.ConfigClient
+	configV1alpha1 *configv1alpha1.ConfigV1alpha1Client
 }
 
 // Auth retrieves the AuthClient
 func (c *Clientset) Auth() authinternalversion.AuthInterface {
-	if c == nil {
-		return nil
-	}
-	return c.AuthClient
+	return c.auth
 }
 
 // AuthV1alpha1 retrieves the AuthV1alpha1Client
 func (c *Clientset) AuthV1alpha1() authv1alpha1.AuthV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.AuthV1alpha1Client
+	return c.authV1alpha1
 }
 
-// Componentconfig retrieves the ComponentconfigClient
-func (c *Clientset) Componentconfig() componentconfiginternalversion.ComponentconfigInterface {
-	if c == nil {
-		return nil
-	}
-	return c.ComponentconfigClient
+// Config retrieves the ConfigClient
+func (c *Clientset) Config() configinternalversion.ConfigInterface {
+	return c.config
 }
 
-// ComponentconfigV1alpha1 retrieves the ComponentconfigV1alpha1Client
-func (c *Clientset) ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.ComponentconfigV1alpha1Client
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return c.configV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -93,19 +81,19 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.AuthClient, err = authinternalversion.NewForConfig(&configShallowCopy)
+	cs.auth, err = authinternalversion.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.AuthV1alpha1Client, err = authv1alpha1.NewForConfig(&configShallowCopy)
+	cs.authV1alpha1, err = authv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.ComponentconfigClient, err = componentconfiginternalversion.NewForConfig(&configShallowCopy)
+	cs.config, err = configinternalversion.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.ComponentconfigV1alpha1Client, err = componentconfigv1alpha1.NewForConfig(&configShallowCopy)
+	cs.configV1alpha1, err = configv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -122,10 +110,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.AuthClient = authinternalversion.NewForConfigOrDie(c)
-	cs.AuthV1alpha1Client = authv1alpha1.NewForConfigOrDie(c)
-	cs.ComponentconfigClient = componentconfiginternalversion.NewForConfigOrDie(c)
-	cs.ComponentconfigV1alpha1Client = componentconfigv1alpha1.NewForConfigOrDie(c)
+	cs.auth = authinternalversion.NewForConfigOrDie(c)
+	cs.authV1alpha1 = authv1alpha1.NewForConfigOrDie(c)
+	cs.config = configinternalversion.NewForConfigOrDie(c)
+	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -134,10 +122,10 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.AuthClient = authinternalversion.New(c)
-	cs.AuthV1alpha1Client = authv1alpha1.New(c)
-	cs.ComponentconfigClient = componentconfiginternalversion.New(c)
-	cs.ComponentconfigV1alpha1Client = componentconfigv1alpha1.New(c)
+	cs.auth = authinternalversion.New(c)
+	cs.authV1alpha1 = authv1alpha1.New(c)
+	cs.config = configinternalversion.New(c)
+	cs.configV1alpha1 = configv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

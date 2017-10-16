@@ -2,11 +2,9 @@ package configreader
 
 import (
 	"testing"
-
-	"k8s.io/client-go/pkg/api/v1"
-
 	"reflect"
 
+	"k8s.io/api/core/v1"
 	"kope.io/auth/pkg/api/apiserver"
 	"kope.io/auth/pkg/apis/componentconfig"
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"

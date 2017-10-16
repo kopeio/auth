@@ -21,7 +21,7 @@ package componentconfig
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-// +genclient=true
+// +genclient
 
 // TODO(authprovider-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
@@ -43,7 +43,7 @@ type AuthConfigurationList struct {
 	Items []AuthConfiguration `json:"items"`
 }
 
-// +genclient=true
+// +genclient
 
 type AuthProvider struct {
 	metav1.TypeMeta   `json:",inline"`

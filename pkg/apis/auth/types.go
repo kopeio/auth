@@ -2,7 +2,8 @@ package auth
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-// +genclient=true
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type User struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -38,58 +39,11 @@ type IdentitySpec struct {
 	Username string `json:"username,omitempty"`
 }
 
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type UserList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
 	Items []User `json:"items"`
 }
-
-//// Required to satisfy Object interface
-//func (e *User) GetObjectKind() schema.ObjectKind {
-//	return &e.TypeMeta
-//}
-
-//// Required to satisfy ObjectMetaAccessor interface
-//func (e *User) GetObjectMeta() metav1.Object {
-//	return &e.Metadata
-//}
-//
-//// Required to satisfy Object interface
-//func (el *UserList) GetObjectKind() schema.ObjectKind {
-//	return &el.TypeMeta
-//}
-//
-//// Required to satisfy ListMetaAccessor interface
-//func (el *UserList) GetListMeta() metav1.List {
-//	return &el.ListMeta
-//}
-
-//// The code below is used only to work around a known problem with third-party
-//// resources and ugorji. If/when these issues are resolved, the code below
-//// should no longer be required.
-//
-//type UserListCopy UserList
-//type UserCopy User
-//
-//func (e *User) UnmarshalJSON(data []byte) error {
-//	tmp := UserCopy{}
-//	err := json.Unmarshal(data, &tmp)
-//	if err != nil {
-//		return err
-//	}
-//	tmp2 := User(tmp)
-//	*e = tmp2
-//	return nil
-//}
-//
-//func (el *UserList) UnmarshalJSON(data []byte) error {
-//	tmp := UserListCopy{}
-//	err := json.Unmarshal(data, &tmp)
-//	if err != nil {
-//		return err
-//	}
-//	tmp2 := UserList(tmp)
-//	*el = tmp2
-//	return nil
-//}

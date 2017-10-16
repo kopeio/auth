@@ -18,7 +18,8 @@ package v1alpha1
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-// +genclient=true
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // TODO(authprovider-q): Is the Auth in AuthConfiguration redundant?
 type AuthConfiguration struct {
@@ -33,6 +34,8 @@ type GenerateKubeconfig struct {
 	Name   string `json:"name,omitempty"`
 }
 
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type AuthConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
@@ -40,7 +43,8 @@ type AuthConfigurationList struct {
 	Items []AuthConfiguration `json:"items"`
 }
 
-// +genclient=true
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type AuthProvider struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -66,6 +70,8 @@ type OAuthConfig struct {
 	// ClientSecret is the OAuth secret
 	ClientSecret string `json:"clientSecret,omitempty"`
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type AuthProviderList struct {
 	metav1.TypeMeta `json:",inline"`

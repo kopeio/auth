@@ -22,7 +22,7 @@ import (
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
 	authv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/auth/v1alpha1"
-	componentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1"
+	configv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/config/v1alpha1"
 )
 
 type Interface interface {
@@ -30,51 +30,39 @@ type Interface interface {
 	AuthV1alpha1() authv1alpha1.AuthV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Auth() authv1alpha1.AuthV1alpha1Interface
-	ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface
+	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
-	Componentconfig() componentconfigv1alpha1.ComponentconfigV1alpha1Interface
+	Config() configv1alpha1.ConfigV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	*authv1alpha1.AuthV1alpha1Client
-	*componentconfigv1alpha1.ComponentconfigV1alpha1Client
+	authV1alpha1   *authv1alpha1.AuthV1alpha1Client
+	configV1alpha1 *configv1alpha1.ConfigV1alpha1Client
 }
 
 // AuthV1alpha1 retrieves the AuthV1alpha1Client
 func (c *Clientset) AuthV1alpha1() authv1alpha1.AuthV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.AuthV1alpha1Client
+	return c.authV1alpha1
 }
 
 // Deprecated: Auth retrieves the default version of AuthClient.
 // Please explicitly pick a version.
 func (c *Clientset) Auth() authv1alpha1.AuthV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.AuthV1alpha1Client
+	return c.authV1alpha1
 }
 
-// ComponentconfigV1alpha1 retrieves the ComponentconfigV1alpha1Client
-func (c *Clientset) ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.ComponentconfigV1alpha1Client
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return c.configV1alpha1
 }
 
-// Deprecated: Componentconfig retrieves the default version of ComponentconfigClient.
+// Deprecated: Config retrieves the default version of ConfigClient.
 // Please explicitly pick a version.
-func (c *Clientset) Componentconfig() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.ComponentconfigV1alpha1Client
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	return c.configV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -93,11 +81,11 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.AuthV1alpha1Client, err = authv1alpha1.NewForConfig(&configShallowCopy)
+	cs.authV1alpha1, err = authv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.ComponentconfigV1alpha1Client, err = componentconfigv1alpha1.NewForConfig(&configShallowCopy)
+	cs.configV1alpha1, err = configv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +102,8 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.AuthV1alpha1Client = authv1alpha1.NewForConfigOrDie(c)
-	cs.ComponentconfigV1alpha1Client = componentconfigv1alpha1.NewForConfigOrDie(c)
+	cs.authV1alpha1 = authv1alpha1.NewForConfigOrDie(c)
+	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -124,8 +112,8 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.AuthV1alpha1Client = authv1alpha1.New(c)
-	cs.ComponentconfigV1alpha1Client = componentconfigv1alpha1.New(c)
+	cs.authV1alpha1 = authv1alpha1.New(c)
+	cs.configV1alpha1 = configv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

@@ -25,8 +25,8 @@ import (
 	clientset "kope.io/auth/pkg/client/clientset_generated/clientset"
 	authv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/auth/v1alpha1"
 	fakeauthv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/auth/v1alpha1/fake"
-	componentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1"
-	fakecomponentconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/componentconfig/v1alpha1/fake"
+	configv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/config/v1alpha1"
+	fakeconfigv1alpha1 "kope.io/auth/pkg/client/clientset_generated/clientset/typed/config/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -34,7 +34,7 @@ import (
 // without applying any validations and/or defaults. It shouldn't be considered a replacement
 // for a real clientset and is mostly useful in simple unit tests.
 func NewSimpleClientset(objects ...runtime.Object) *Clientset {
-	o := testing.NewObjectTracker(registry, scheme, codecs.UniversalDecoder())
+	o := testing.NewObjectTracker(scheme, codecs.UniversalDecoder())
 	for _, obj := range objects {
 		if err := o.Add(obj); err != nil {
 			panic(err)
@@ -42,11 +42,10 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 	}
 
 	fakePtr := testing.Fake{}
-	fakePtr.AddReactor("*", "*", testing.ObjectReaction(o, registry.RESTMapper()))
-
+	fakePtr.AddReactor("*", "*", testing.ObjectReaction(o))
 	fakePtr.AddWatchReactor("*", testing.DefaultWatchReactor(watch.NewFake(), nil))
 
-	return &Clientset{fakePtr}
+	return &Clientset{fakePtr, &fakediscovery.FakeDiscovery{Fake: &fakePtr}}
 }
 
 // Clientset implements clientset.Interface. Meant to be embedded into a
@@ -54,10 +53,11 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 // you want to test easier.
 type Clientset struct {
 	testing.Fake
+	discovery *fakediscovery.FakeDiscovery
 }
 
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
-	return &fakediscovery.FakeDiscovery{Fake: &c.Fake}
+	return c.discovery
 }
 
 var _ clientset.Interface = &Clientset{}
@@ -72,12 +72,12 @@ func (c *Clientset) Auth() authv1alpha1.AuthV1alpha1Interface {
 	return &fakeauthv1alpha1.FakeAuthV1alpha1{Fake: &c.Fake}
 }
 
-// ComponentconfigV1alpha1 retrieves the ComponentconfigV1alpha1Client
-func (c *Clientset) ComponentconfigV1alpha1() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
-	return &fakecomponentconfigv1alpha1.FakeComponentconfigV1alpha1{Fake: &c.Fake}
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
 
-// Componentconfig retrieves the ComponentconfigV1alpha1Client
-func (c *Clientset) Componentconfig() componentconfigv1alpha1.ComponentconfigV1alpha1Interface {
-	return &fakecomponentconfigv1alpha1.FakeComponentconfigV1alpha1{Fake: &c.Fake}
+// Config retrieves the ConfigV1alpha1Client
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }

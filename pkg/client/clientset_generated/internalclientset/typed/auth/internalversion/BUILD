@@ -8,13 +8,14 @@ go_library(
         "generated_expansion.go",
         "user.go",
     ],
+    importpath = "kope.io/auth/pkg/client/clientset_generated/internalclientset/typed/auth/internalversion",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/auth:go_default_library",
         "//pkg/client/clientset_generated/internalclientset/scheme:go_default_library",
-        "@io_k8s_apimachinery//pkg/apis/meta/v1:go_default_library",
-        "@io_k8s_apimachinery//pkg/types:go_default_library",
-        "@io_k8s_apimachinery//pkg/watch:go_default_library",
-        "@io_k8s_client_go//rest:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/types:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/watch:go_default_library",
+        "//vendor/k8s.io/client-go/rest:go_default_library",
     ],
 )

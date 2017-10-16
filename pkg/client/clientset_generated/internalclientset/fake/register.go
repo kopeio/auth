@@ -17,32 +17,43 @@ limitations under the License.
 package fake
 
 import (
-	announced "k8s.io/apimachinery/pkg/apimachinery/announced"
-	registered "k8s.io/apimachinery/pkg/apimachinery/registered"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
-	auth "kope.io/auth/pkg/apis/auth/install"
-	componentconfig "kope.io/auth/pkg/apis/componentconfig/install"
-	os "os"
+	authinternalversion "kope.io/auth/pkg/apis/auth"
+	authv1alpha1 "kope.io/auth/pkg/apis/auth/v1alpha1"
+	configinternalversion "kope.io/auth/pkg/apis/componentconfig"
+	configv1alpha1 "kope.io/auth/pkg/apis/componentconfig/v1alpha1"
 )
 
 var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 var parameterCodec = runtime.NewParameterCodec(scheme)
 
-var registry = registered.NewOrDie(os.Getenv("KUBE_API_VERSIONS"))
-var groupFactoryRegistry = make(announced.APIGroupFactoryRegistry)
-
 func init() {
 	v1.AddToGroupVersion(scheme, schema.GroupVersion{Version: "v1"})
-	Install(groupFactoryRegistry, registry, scheme)
+	AddToScheme(scheme)
 }
 
-// Install registers the API group and adds types to a scheme
-func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *registered.APIRegistrationManager, scheme *runtime.Scheme) {
-	auth.Install(groupFactoryRegistry, registry, scheme)
-	componentconfig.Install(groupFactoryRegistry, registry, scheme)
+// AddToScheme adds all types of this clientset into the given scheme. This allows composition
+// of clientsets, like in:
+//
+//   import (
+//     "k8s.io/client-go/kubernetes"
+//     clientsetscheme "k8s.io/client-go/kuberentes/scheme"
+//     aggregatorclientsetscheme "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset/scheme"
+//   )
+//
+//   kclientset, _ := kubernetes.NewForConfig(c)
+//   aggregatorclientsetscheme.AddToScheme(clientsetscheme.Scheme)
+//
+// After this, RawExtensions in Kubernetes types will serialize kube-aggregator types
+// correctly.
+func AddToScheme(scheme *runtime.Scheme) {
+	authinternalversion.AddToScheme(scheme)
+	authv1alpha1.AddToScheme(scheme)
+	configinternalversion.AddToScheme(scheme)
+	configv1alpha1.AddToScheme(scheme)
 
 }
