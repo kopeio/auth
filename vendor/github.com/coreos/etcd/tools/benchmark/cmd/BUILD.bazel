@@ -11,7 +11,6 @@ go_library(
         "range.go",
         "root.go",
         "stm.go",
-        "txn_put.go",
         "util.go",
         "watch.go",
         "watch_get.go",
@@ -22,7 +21,6 @@ go_library(
     deps = [
         "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
         "//vendor/github.com/coreos/etcd/clientv3/concurrency:go_default_library",
-        "//vendor/github.com/coreos/etcd/etcdserver/api/v3lock/v3lockpb:go_default_library",
         "//vendor/github.com/coreos/etcd/lease:go_default_library",
         "//vendor/github.com/coreos/etcd/mvcc:go_default_library",
         "//vendor/github.com/coreos/etcd/mvcc/backend:go_default_library",

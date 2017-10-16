@@ -2,10 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "doc.go",
-        "grpc.go",
-    ],
+    srcs = ["grpc.go"],
     importpath = "github.com/coreos/etcd/clientv3/naming",
     visibility = ["//visibility:public"],
     deps = [

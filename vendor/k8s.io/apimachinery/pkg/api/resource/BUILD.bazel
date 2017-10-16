@@ -1,20 +1,4 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
-
-proto_library(
-    name = "resource_proto",
-    srcs = ["generated.proto"],
-    visibility = ["//visibility:public"],
-    deps = ["//k8s.io/apimachinery/pkg/util/intstr:intstr_proto"],
-)
-
-go_proto_library(
-    name = "resource_go_proto",
-    importpath = "k8s.io/apimachinery/pkg/api/resource",
-    proto = ":resource_proto",
-    visibility = ["//visibility:public"],
-    deps = ["//k8s.io/apimachinery/pkg/util/intstr:go_default_library"],
-)
 
 go_library(
     name = "go_default_library",

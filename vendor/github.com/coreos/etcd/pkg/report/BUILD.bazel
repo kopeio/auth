@@ -6,7 +6,6 @@ go_library(
         "doc.go",
         "report.go",
         "timeseries.go",
-        "weighted.go",
     ],
     importpath = "github.com/coreos/etcd/pkg/report",
     visibility = ["//visibility:public"],

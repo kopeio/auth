@@ -22,19 +22,33 @@
   branch = "master"
   name = "golang.org/x/crypto"
 
+[[override]]
+  name = "github.com/coreos/etcd"
+  revision = "0520cb9304cb2385f7e72b8bc02d6e4d3257158a"
 
-[[constraint]]
+[[override]]
+  name = "github.com/ugorji/go"
+  revision = "ded73eae5db7e7a0ef6f55aace87a2873c5d2b74"
+
+[[override]]
+  name = "google.golang.org/grpc"
+  revision = "d2e1b51f33ff8c5e4a15560ff049d200e83726c5"
+
+[[override]]
   name = "k8s.io/client-go"
   revision = "afb4606c45bae77c4dc2c15291d4d7d6d792196c"
 
-[[constraint]]
+[[override]]
   name = "k8s.io/api"
   revision = "81aa34336d28aadc3a8e8da7dfd9258c5157e5e4"
 
-[[constraint]]
+[[override]]
   name = "k8s.io/apimachinery"
   revision = "3b05bbfa0a45413bfa184edbf9af617e277962fb"
 
+[[override]]
+  name = "k8s.io/apiserver"
+  revision = "f9b476d61dbdf6474e3d42cc5e854d0d8b7f759e"
 
 [[constraint]]
   branch = "master"
