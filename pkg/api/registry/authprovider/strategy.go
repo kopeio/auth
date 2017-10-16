@@ -55,12 +55,12 @@ func (apiServerStrategy) ValidateUpdate(ctx genericapirequest.Context, obj, old 
 	// return validation.ValidateFlunderUpdate(obj.(*wardle.Flunder), old.(*wardle.Flunder))
 }
 
-func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
+func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, bool, error) {
 	o, ok := obj.(*componentconfig.AuthProvider)
 	if !ok {
-		return nil, nil, fmt.Errorf("given object is not a AuthProvider.")
+		return nil, nil, false, fmt.Errorf("given object is not a AuthProvider.")
 	}
-	return labels.Set(o.ObjectMeta.Labels), AuthProviderToSelectableFields(o), nil
+	return labels.Set(o.ObjectMeta.Labels), AuthProviderToSelectableFields(o), o.Initializers != nil, nil
 }
 
 func MatchAuthProvider(label labels.Selector, field fields.Selector) storage.SelectionPredicate {

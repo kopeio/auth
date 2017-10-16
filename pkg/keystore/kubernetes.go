@@ -13,10 +13,10 @@ import (
 	"kope.io/auth/pkg/keystore/pb"
 	//"k8s.io/apimachinery/pkg/watch"
 	"github.com/golang/glog"
+	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/api/core/v1"
 	"strings"
 	"time"
 )
@@ -372,7 +372,7 @@ func (c *KubernetesKeyStore) Run(stopCh <-chan struct{}) {
 
 		// How to watch a single object: https://github.com/kubernetes/kubernetes/issues/43299
 
-		listOpts.FieldSelector = fields.OneTermEqualSelector(api.ObjectNameField, c.name).String()
+		listOpts.FieldSelector = fields.OneTermEqualSelector("metadata.name", c.name).String()
 
 		secretList, err := c.client.CoreV1().Secrets(c.namespace).List(listOpts)
 		if err != nil {

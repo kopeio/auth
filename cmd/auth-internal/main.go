@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
 	"kope.io/auth/pkg/api/apiserver"
@@ -68,7 +69,13 @@ func run(o *Options) error {
 		}
 	}
 
-	tokenStore := tokenstore.NewAPITokenStore(authClient)
+	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
+	}
+	namespace := string(namespaceBytes)
+
+	tokenStore := tokenstore.NewAPITokenStore(authClient, namespace)
 
 	stopCh := make(chan struct{})
 	go tokenStore.Run(stopCh)

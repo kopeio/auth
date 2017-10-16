@@ -17,11 +17,12 @@ func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) *REST
 	strategy := NewStrategy(scheme)
 
 	store := &genericregistry.Store{
-		Copier:            scheme,
-		NewFunc:           func() runtime.Object { return &auth.User{} },
-		NewListFunc:       func() runtime.Object { return &auth.UserList{} },
-		PredicateFunc:     MatchUser,
-		QualifiedResource: auth.Resource("users"),
+		Copier:        scheme,
+		NewFunc:       func() runtime.Object { return &auth.User{} },
+		NewListFunc:   func() runtime.Object { return &auth.UserList{} },
+		PredicateFunc: MatchUser,
+
+		DefaultQualifiedResource: auth.Resource("users"),
 
 		CreateStrategy: strategy,
 		UpdateStrategy: strategy,

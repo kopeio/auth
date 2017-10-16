@@ -67,7 +67,7 @@ func (c *ManagedConfiguration) AuthProvider(name string) (*v1alpha1.AuthProvider
 
 func (c *ManagedConfiguration) StartWatches(stopCh <-chan struct{}) error {
 	{
-		watcher := cache.NewListWatchFromClient(c.client.ComponentconfigV1alpha1().RESTClient(), "authconfigurations", c.namespace, fields.Everything())
+		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authconfigurations", c.namespace, fields.Everything())
 		indexer, informer := cache.NewIndexerInformer(watcher, &v1alpha1.AuthConfiguration{}, 0,
 			cache.ResourceEventHandlerFuncs{},
 			cache.Indexers{})
@@ -83,7 +83,7 @@ func (c *ManagedConfiguration) StartWatches(stopCh <-chan struct{}) error {
 	}
 
 	{
-		watcher := cache.NewListWatchFromClient(c.client.ComponentconfigV1alpha1().RESTClient(), "authproviders", c.namespace, fields.Everything())
+		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authproviders", c.namespace, fields.Everything())
 		indexer, informer := cache.NewIndexerInformer(watcher, &v1alpha1.AuthProvider{}, 0,
 			cache.ResourceEventHandlerFuncs{},
 			cache.Indexers{})

@@ -1,8 +1,8 @@
 package configreader
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 
 	"k8s.io/api/core/v1"
 	"kope.io/auth/pkg/api/apiserver"
