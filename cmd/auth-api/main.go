@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"github.com/spf13/pflag"
+	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
 	"kope.io/auth/pkg/api/apiserver"
@@ -20,6 +21,7 @@ func main() {
 	var o Options
 	o.Listen = ":8080"
 	o.Server = "http://127.0.0.1:8080"
+	o.ServerInsecure = false
 
 	pflag.Set("logtostderr", "true")
 	flag.CommandLine.Parse([]string{"--logtostderr=true"})
@@ -30,6 +32,7 @@ func main() {
 
 	pflag.StringVar(&o.Server, "server", o.Server, "url on which to connect to server")
 	pflag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
+	pflag.BoolVar(&o.ServerInsecure, "insecure-skip-tls-verify", o.ServerInsecure, "skip verification of server certificate (this is insecure)")
 
 	o.AuthServer.AddFlags(pflag.CommandLine)
 
@@ -48,9 +51,10 @@ func main() {
 }
 
 type Options struct {
-	Listen     string
-	Server     string
-	AuthServer *apiserver.AuthServerOptions
+	Listen         string
+	Server         string
+	ServerInsecure bool
+	AuthServer     *apiserver.AuthServerOptions
 }
 
 func run(o *Options) error {
@@ -70,9 +74,11 @@ func run(o *Options) error {
 		if err := o.AuthServer.Validate(nil); err != nil {
 			return err
 		}
-		if err := o.AuthServer.RunAuthServer(wait.NeverStop); err != nil {
-			return err
-		}
+		go func() {
+			if err := o.AuthServer.RunAuthServer(wait.NeverStop); err != nil {
+				glog.Fatalf("error running API server: %v", err)
+			}
+		}()
 	}
 
 	// creates the in-cluster config
@@ -86,16 +92,30 @@ func run(o *Options) error {
 		return fmt.Errorf("Invalid server flag: %q", o.Server)
 	}
 
-	config := &rest.Config{
+	authRestConfig := &rest.Config{
 		Host: u.Host,
 	}
 
-	authClient, err := authclient.NewForConfig(config)
+	if o.ServerInsecure {
+		authRestConfig.Insecure = o.ServerInsecure
+
+		// Avoid "specifying a root certificates file with the insecure flag is not allowed"
+		authRestConfig.TLSClientConfig.CAData = nil
+		authRestConfig.TLSClientConfig.CAFile = ""
+	}
+
+	authClient, err := authclient.NewForConfig(authRestConfig)
 	if err != nil {
 		return fmt.Errorf("error building user client: %v", err)
 	}
 
-	tokenStore := tokenstore.NewAPITokenStore(authClient)
+	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
+	}
+	namespace := string(namespaceBytes)
+
+	tokenStore := tokenstore.NewAPITokenStore(authClient, namespace)
 
 	stopCh := make(chan struct{})
 	go tokenStore.Run(stopCh)
@@ -130,5 +150,6 @@ func run(o *Options) error {
 		Addr:    o.Listen,
 		Handler: mux,
 	}
+	glog.Infof("starting hook server on %s", o.Listen)
 	return server.ListenAndServe()
 }

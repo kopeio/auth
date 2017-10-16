@@ -49,6 +49,7 @@ func (s *APITokenStore) LookupToken(tokenString string) (*authenticationv1beta1.
 
 	items := strings.SplitN(tokenString, "/", 3)
 	if len(items) != 3 {
+		glog.V(2).Infof("Rejecting token with incorrect number of tokens")
 		return nil, nil
 	}
 
