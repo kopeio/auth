@@ -1,0 +1,44 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+
+proto_library(
+    name = "gnostic_plugin_v1_proto",
+    srcs = ["plugin.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//github.com/googleapis/gnostic/OpenAPIv2:OpenAPIv2_proto",
+        "//github.com/googleapis/gnostic/OpenAPIv3:OpenAPIv3_proto",
+        "//github.com/googleapis/gnostic/discovery:discovery_proto",
+        "//github.com/googleapis/gnostic/surface:surface_proto",
+    ],
+)
+
+go_proto_library(
+    name = "gnostic_plugin_v1_go_proto",
+    importpath = "github.com/googleapis/gnostic/plugins",
+    proto = ":gnostic_plugin_v1_proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//github.com/googleapis/gnostic/OpenAPIv2:go_default_library",
+        "//github.com/googleapis/gnostic/OpenAPIv3:go_default_library",
+        "//github.com/googleapis/gnostic/discovery:go_default_library",
+        "//github.com/googleapis/gnostic/surface:go_default_library",
+    ],
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "environment.go",
+        "plugin.pb.go",
+    ],
+    importpath = "github.com/googleapis/gnostic/plugins",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/github.com/googleapis/gnostic/OpenAPIv2:go_default_library",
+        "//vendor/github.com/googleapis/gnostic/OpenAPIv3:go_default_library",
+        "//vendor/github.com/googleapis/gnostic/discovery:go_default_library",
+        "//vendor/github.com/googleapis/gnostic/surface:go_default_library",
+    ],
+)

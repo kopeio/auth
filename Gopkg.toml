@@ -1,0 +1,41 @@
+[[constraint]]
+  name = "github.com/18F/hmacauth"
+  version = "1.0.1"
+
+[[constraint]]
+  name = "github.com/ghodss/yaml"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/golang/glog"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/golang/protobuf"
+
+[[constraint]]
+  name = "github.com/spf13/pflag"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  revision = "afb4606c45bae77c4dc2c15291d4d7d6d792196c"
+
+[[constraint]]
+  name = "k8s.io/api"
+  revision = "81aa34336d28aadc3a8e8da7dfd9258c5157e5e4"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  revision = "3b05bbfa0a45413bfa184edbf9af617e277962fb"
+
+
+[[constraint]]
+  branch = "master"
+  name = "k8s.io/code-generator"
