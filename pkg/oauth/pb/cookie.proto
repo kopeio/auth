@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package pb;
+option go_package="kope.io/auth/pkg/oauth/pb";
 
 message SessionData {
     string provider_id = 1;
