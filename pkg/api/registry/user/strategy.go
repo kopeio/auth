@@ -55,12 +55,12 @@ func (apiServerStrategy) ValidateUpdate(ctx genericapirequest.Context, obj, old 
 	// return validation.ValidateFlunderUpdate(obj.(*wardle.Flunder), old.(*wardle.Flunder))
 }
 
-func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
-	apiserver, ok := obj.(*auth.User)
+func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, bool, error) {
+	user, ok := obj.(*auth.User)
 	if !ok {
-		return nil, nil, fmt.Errorf("given object is not a User.")
+		return nil, nil, false, fmt.Errorf("given object is not a User.")
 	}
-	return labels.Set(apiserver.ObjectMeta.Labels), UserToSelectableFields(apiserver), nil
+	return labels.Set(user.ObjectMeta.Labels), UserToSelectableFields(user), user.Initializers != nil, nil
 }
 
 // MatchUser is the filter used by the generic etcd backend to watch events
