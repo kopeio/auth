@@ -38,6 +38,7 @@ use-dev-images:
 push: portal-push api-push
 	echo "pushed images"
 
+.PHONY: images
 images: portal-image api-image
 	echo "built images"
 
