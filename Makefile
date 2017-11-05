@@ -42,6 +42,15 @@ push: portal-push api-push
 images: portal-image api-image
 	echo "built images"
 
+dep:
+	dep ensure
+	find vendor -name "BUILD" -delete
+	find vendor -name "BUILD.bazel" -delete
+	bazel run //:gazelle -- -proto disable
+
+goimports:
+	goimports -w cmd/ pkg/
+
 # -----------------------------------------------------
 # api machinery regenerate
 
