@@ -34,12 +34,12 @@ type ConfigV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ConfigV1alpha1Client) AuthConfigurations(namespace string) AuthConfigurationInterface {
-	return newAuthConfigurations(c, namespace)
+func (c *ConfigV1alpha1Client) AuthConfigurations() AuthConfigurationInterface {
+	return newAuthConfigurations(c)
 }
 
-func (c *ConfigV1alpha1Client) AuthProviders(namespace string) AuthProviderInterface {
-	return newAuthProviders(c, namespace)
+func (c *ConfigV1alpha1Client) AuthProviders() AuthProviderInterface {
+	return newAuthProviders(c)
 }
 
 // NewForConfig creates a new ConfigV1alpha1Client for the given config.

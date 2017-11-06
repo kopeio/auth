@@ -28,7 +28,7 @@ import (
 // UsersGetter has a method to return a UserInterface.
 // A group's client should implement this interface.
 type UsersGetter interface {
-	Users(namespace string) UserInterface
+	Users() UserInterface
 }
 
 // UserInterface has methods to work with User resources.
@@ -47,14 +47,12 @@ type UserInterface interface {
 // users implements UserInterface
 type users struct {
 	client rest.Interface
-	ns     string
 }
 
 // newUsers returns a Users
-func newUsers(c *AuthClient, namespace string) *users {
+func newUsers(c *AuthClient) *users {
 	return &users{
 		client: c.RESTClient(),
-		ns:     namespace,
 	}
 }
 
@@ -62,7 +60,6 @@ func newUsers(c *AuthClient, namespace string) *users {
 func (c *users) Get(name string, options v1.GetOptions) (result *auth.User, err error) {
 	result = &auth.User{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("users").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -75,7 +72,6 @@ func (c *users) Get(name string, options v1.GetOptions) (result *auth.User, err 
 func (c *users) List(opts v1.ListOptions) (result *auth.UserList, err error) {
 	result = &auth.UserList{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("users").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Do().
@@ -87,7 +83,6 @@ func (c *users) List(opts v1.ListOptions) (result *auth.UserList, err error) {
 func (c *users) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	opts.Watch = true
 	return c.client.Get().
-		Namespace(c.ns).
 		Resource("users").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Watch()
@@ -97,7 +92,6 @@ func (c *users) Watch(opts v1.ListOptions) (watch.Interface, error) {
 func (c *users) Create(user *auth.User) (result *auth.User, err error) {
 	result = &auth.User{}
 	err = c.client.Post().
-		Namespace(c.ns).
 		Resource("users").
 		Body(user).
 		Do().
@@ -109,7 +103,6 @@ func (c *users) Create(user *auth.User) (result *auth.User, err error) {
 func (c *users) Update(user *auth.User) (result *auth.User, err error) {
 	result = &auth.User{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("users").
 		Name(user.Name).
 		Body(user).
@@ -121,7 +114,6 @@ func (c *users) Update(user *auth.User) (result *auth.User, err error) {
 // Delete takes name of the user and deletes it. Returns an error if one occurs.
 func (c *users) Delete(name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("users").
 		Name(name).
 		Body(options).
@@ -132,7 +124,6 @@ func (c *users) Delete(name string, options *v1.DeleteOptions) error {
 // DeleteCollection deletes a collection of objects.
 func (c *users) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("users").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Body(options).
@@ -144,7 +135,6 @@ func (c *users) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListO
 func (c *users) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *auth.User, err error) {
 	result = &auth.User{}
 	err = c.client.Patch(pt).
-		Namespace(c.ns).
 		Resource("users").
 		SubResource(subresources...).
 		Name(name).

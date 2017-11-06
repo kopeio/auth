@@ -26,12 +26,26 @@ type FakeConfig struct {
 	*testing.Fake
 }
 
-func (c *FakeConfig) AuthConfigurations(namespace string) internalversion.AuthConfigurationInterface {
-	return &FakeAuthConfigurations{c, namespace}
+// RESTClient returns a RESTClient that is used to communicate
+// with API server by this client implementation.
+func (c *FakeConfig) RESTClient() rest.Interface {
+	var ret *rest.RESTClient
+	return ret
 }
 
-func (c *FakeConfig) AuthProviders(namespace string) internalversion.AuthProviderInterface {
-	return &FakeAuthProviders{c, namespace}
+type FakeConfig struct {
+	*testing.Fake
+}
+
+// RESTClient returns a RESTClient that is used to communicate
+// with API server by this client implementation.
+func (c *FakeConfig) RESTClient() rest.Interface {
+	var ret *rest.RESTClient
+	return ret
+}
+
+type FakeConfig struct {
+	*testing.Fake
 }
 
 // RESTClient returns a RESTClient that is used to communicate

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"github.com/spf13/pflag"
-	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
 	"kope.io/auth/pkg/api/apiserver"
@@ -13,15 +12,14 @@ import (
 	"kope.io/auth/pkg/k8sauth"
 	"kope.io/auth/pkg/tokenstore"
 	"net/http"
-	"net/url"
 	"os"
 )
 
 func main() {
 	var o Options
 	o.Listen = ":8080"
-	o.Server = "http://127.0.0.1:8080"
-	o.ServerInsecure = false
+	//o.Server = "http://127.0.0.1:8080"
+	//o.ServerInsecure = false
 
 	pflag.Set("logtostderr", "true")
 	flag.CommandLine.Parse([]string{"--logtostderr=true"})
@@ -30,9 +28,9 @@ func main() {
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
-	pflag.StringVar(&o.Server, "server", o.Server, "url on which to connect to server")
+	//pflag.StringVar(&o.Server, "server", o.Server, "url on which to connect to server")
 	pflag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
-	pflag.BoolVar(&o.ServerInsecure, "insecure-skip-tls-verify", o.ServerInsecure, "skip verification of server certificate (this is insecure)")
+	//pflag.BoolVar(&o.ServerInsecure, "insecure-skip-tls-verify", o.ServerInsecure, "skip verification of server certificate (this is insecure)")
 
 	o.AuthServer.AddFlags(pflag.CommandLine)
 
@@ -52,8 +50,8 @@ func main() {
 
 type Options struct {
 	Listen         string
-	Server         string
-	ServerInsecure bool
+	//Server         string
+	//ServerInsecure bool
 	AuthServer     *apiserver.AuthServerOptions
 }
 
@@ -81,41 +79,35 @@ func run(o *Options) error {
 		}()
 	}
 
-	// creates the in-cluster config
-	//config, err := rest.InClusterConfig()
-	//if err != nil {
-	//	return fmt.Errorf("error building kubernetes configuration: %v", err)
-	//}
-
-	u, err := url.Parse(o.Server)
+	 //creates the in-cluster config
+	authRestConfig, err := rest.InClusterConfig()
 	if err != nil {
-		return fmt.Errorf("Invalid server flag: %q", o.Server)
+		return fmt.Errorf("error building kubernetes configuration: %v", err)
 	}
 
-	authRestConfig := &rest.Config{
-		Host: u.Host,
-	}
-
-	if o.ServerInsecure {
-		authRestConfig.Insecure = o.ServerInsecure
-
-		// Avoid "specifying a root certificates file with the insecure flag is not allowed"
-		authRestConfig.TLSClientConfig.CAData = nil
-		authRestConfig.TLSClientConfig.CAFile = ""
-	}
+	//u, err := url.Parse(o.Server)
+	//if err != nil {
+	//	return fmt.Errorf("Invalid server flag: %q", o.Server)
+	//}
+	//
+	//authRestConfig := &rest.Config{
+	//	Host: u.Host,
+	//}
+	//
+	//if o.ServerInsecure {
+	//	authRestConfig.Insecure = o.ServerInsecure
+	//
+	//	// Avoid "specifying a root certificates file with the insecure flag is not allowed"
+	//	authRestConfig.TLSClientConfig.CAData = nil
+	//	authRestConfig.TLSClientConfig.CAFile = ""
+	//}
 
 	authClient, err := authclient.NewForConfig(authRestConfig)
 	if err != nil {
 		return fmt.Errorf("error building user client: %v", err)
 	}
 
-	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	if err != nil {
-		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
-	}
-	namespace := string(namespaceBytes)
-
-	tokenStore := tokenstore.NewAPITokenStore(authClient, namespace)
+	tokenStore := tokenstore.NewAPITokenStore(authClient)
 
 	stopCh := make(chan struct{})
 	go tokenStore.Run(stopCh)

@@ -33,8 +33,8 @@ type AuthV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *AuthV1alpha1Client) Users(namespace string) UserInterface {
-	return newUsers(c, namespace)
+func (c *AuthV1alpha1Client) Users() UserInterface {
+	return newUsers(c)
 }
 
 // NewForConfig creates a new AuthV1alpha1Client for the given config.

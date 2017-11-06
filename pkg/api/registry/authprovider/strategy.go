@@ -25,7 +25,7 @@ func NewStrategy(typer runtime.ObjectTyper) apiServerStrategy {
 }
 
 func (apiServerStrategy) NamespaceScoped() bool {
-	return true
+	return false
 }
 
 func (apiServerStrategy) PrepareForCreate(ctx genericapirequest.Context, obj runtime.Object) {

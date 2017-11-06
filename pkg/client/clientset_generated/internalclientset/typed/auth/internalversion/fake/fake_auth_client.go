@@ -26,8 +26,26 @@ type FakeAuth struct {
 	*testing.Fake
 }
 
-func (c *FakeAuth) Users(namespace string) internalversion.UserInterface {
-	return &FakeUsers{c, namespace}
+// RESTClient returns a RESTClient that is used to communicate
+// with API server by this client implementation.
+func (c *FakeAuth) RESTClient() rest.Interface {
+	var ret *rest.RESTClient
+	return ret
+}
+
+type FakeAuth struct {
+	*testing.Fake
+}
+
+// RESTClient returns a RESTClient that is used to communicate
+// with API server by this client implementation.
+func (c *FakeAuth) RESTClient() rest.Interface {
+	var ret *rest.RESTClient
+	return ret
+}
+
+type FakeAuth struct {
+	*testing.Fake
 }
 
 // RESTClient returns a RESTClient that is used to communicate

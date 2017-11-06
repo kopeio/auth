@@ -29,7 +29,6 @@ import (
 // FakeUsers implements UserInterface
 type FakeUsers struct {
 	Fake *FakeAuth
-	ns   string
 }
 
 var usersResource = schema.GroupVersionResource{Group: "auth.kope.io", Version: "", Resource: "users"}
@@ -39,8 +38,7 @@ var usersKind = schema.GroupVersionKind{Group: "auth.kope.io", Version: "", Kind
 // Get takes name of the user, and returns the corresponding user object, and an error if there is any.
 func (c *FakeUsers) Get(name string, options v1.GetOptions) (result *auth.User, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(usersResource, c.ns, name), &auth.User{})
-
+		Invokes(testing.NewRootGetAction(usersResource, name), &auth.User{})
 	if obj == nil {
 		return nil, err
 	}
@@ -50,8 +48,7 @@ func (c *FakeUsers) Get(name string, options v1.GetOptions) (result *auth.User, 
 // List takes label and field selectors, and returns the list of Users that match those selectors.
 func (c *FakeUsers) List(opts v1.ListOptions) (result *auth.UserList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(usersResource, usersKind, c.ns, opts), &auth.UserList{})
-
+		Invokes(testing.NewRootListAction(usersResource, usersKind, opts), &auth.UserList{})
 	if obj == nil {
 		return nil, err
 	}
@@ -72,15 +69,13 @@ func (c *FakeUsers) List(opts v1.ListOptions) (result *auth.UserList, err error)
 // Watch returns a watch.Interface that watches the requested users.
 func (c *FakeUsers) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(usersResource, c.ns, opts))
-
+		InvokesWatch(testing.NewRootWatchAction(usersResource, opts))
 }
 
 // Create takes the representation of a user and creates it.  Returns the server's representation of the user, and an error, if there is any.
 func (c *FakeUsers) Create(user *auth.User) (result *auth.User, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(usersResource, c.ns, user), &auth.User{})
-
+		Invokes(testing.NewRootCreateAction(usersResource, user), &auth.User{})
 	if obj == nil {
 		return nil, err
 	}
@@ -90,8 +85,7 @@ func (c *FakeUsers) Create(user *auth.User) (result *auth.User, err error) {
 // Update takes the representation of a user and updates it. Returns the server's representation of the user, and an error, if there is any.
 func (c *FakeUsers) Update(user *auth.User) (result *auth.User, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(usersResource, c.ns, user), &auth.User{})
-
+		Invokes(testing.NewRootUpdateAction(usersResource, user), &auth.User{})
 	if obj == nil {
 		return nil, err
 	}
@@ -101,14 +95,13 @@ func (c *FakeUsers) Update(user *auth.User) (result *auth.User, err error) {
 // Delete takes name of the user and deletes it. Returns an error if one occurs.
 func (c *FakeUsers) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(usersResource, c.ns, name), &auth.User{})
-
+		Invokes(testing.NewRootDeleteAction(usersResource, name), &auth.User{})
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
 func (c *FakeUsers) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(usersResource, c.ns, listOptions)
+	action := testing.NewRootDeleteCollectionAction(usersResource, listOptions)
 
 	_, err := c.Fake.Invokes(action, &auth.UserList{})
 	return err
@@ -117,8 +110,7 @@ func (c *FakeUsers) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 // Patch applies the patch and returns the patched user.
 func (c *FakeUsers) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *auth.User, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(usersResource, c.ns, name, data, subresources...), &auth.User{})
-
+		Invokes(testing.NewRootPatchSubresourceAction(usersResource, name, data, subresources...), &auth.User{})
 	if obj == nil {
 		return nil, err
 	}

@@ -8,7 +8,6 @@ import (
 	cryptorand "crypto/rand"
 	"encoding/binary"
 	"github.com/golang/glog"
-	"io/ioutil"
 	//apierrors "k8s.io/apimachinery/pkg/api/errors"
 	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -19,6 +18,7 @@ import (
 	"kope.io/auth/pkg/portal"
 	"kope.io/auth/pkg/tokenstore"
 	mathrand "math/rand"
+	"io/ioutil"
 )
 
 //const CookieSigningSecretLength = 24
@@ -85,12 +85,6 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 		return fmt.Errorf("error building auth client: %v", err)
 	}
 
-	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	if err != nil {
-		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
-	}
-	namespace := string(namespaceBytes)
-
 	//configs, err := authClient.ComponentconfigV1alpha1().AuthConfigurations(namespace).List(metav1.ListOptions{})
 	//if err != nil {
 	//		return fmt.Errorf("error reading AuthConfigurations from API: %v", err)
@@ -116,7 +110,7 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 	//	Decoder: configDecoder,
 	//}
 
-	configReader := configreader.New(authClient, namespace)
+	configReader := configreader.New(authClient)
 	if err := configReader.StartWatches(stopCh); err != nil {
 		return fmt.Errorf("error starting configuration watches: %v", err)
 	}
@@ -138,6 +132,12 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 	//// (I guess the same question with our User objects)
 	//config := configObj.(*authprovider.AuthConfiguration)
 
+	namespaceBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		return fmt.Errorf("error reading namespace from %q: %v", "/var/run/secrets/kubernetes.io/serviceaccount/namespace", err)
+	}
+	namespace := string(namespaceBytes)
+
 	keyStore, err := keystore.NewKubernetesKeyStore(k8sClient, namespace, "auth")
 	if err != nil {
 		return err
@@ -153,7 +153,7 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 	//o.ClientSecret = os.Getenv("OAUTH2_CLIENT_SECRET")
 	//o.CookieSecret = os.Getenv("OAUTH2_COOKIE_SECRET")
 
-	tokenStore := tokenstore.NewAPITokenStore(authClient, namespace)
+	tokenStore := tokenstore.NewAPITokenStore(authClient)
 	go tokenStore.Run(stopCh)
 
 	p, err := portal.NewHTTPServer(configReader, listen, staticDir, keyStore, tokenStore)
