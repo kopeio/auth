@@ -14,16 +14,14 @@ type ManagedConfiguration struct {
 	//Decoder runtime.Decoder
 
 	client    authclient.Interface
-	namespace string
 
 	authConfigurations cache.Indexer
 	authProviders      cache.Indexer
 }
 
-func New(client authclient.Interface, namespace string) *ManagedConfiguration {
+func New(client authclient.Interface) *ManagedConfiguration {
 	return &ManagedConfiguration{
 		client:    client,
-		namespace: namespace,
 	}
 }
 
@@ -54,7 +52,7 @@ func (c *ManagedConfiguration) AuthConfiguration() (*v1alpha1.AuthConfiguration,
 }
 
 func (c *ManagedConfiguration) AuthProvider(name string) (*v1alpha1.AuthProvider, error) {
-	obj, found, err := c.authProviders.GetByKey(c.namespace + "/" + name)
+	obj, found, err := c.authProviders.GetByKey(name)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving AuthProvider configuration: %v", err)
 	}
@@ -67,7 +65,7 @@ func (c *ManagedConfiguration) AuthProvider(name string) (*v1alpha1.AuthProvider
 
 func (c *ManagedConfiguration) StartWatches(stopCh <-chan struct{}) error {
 	{
-		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authconfigurations", c.namespace, fields.Everything())
+		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authconfigurations", "", fields.Everything())
 		indexer, informer := cache.NewIndexerInformer(watcher, &v1alpha1.AuthConfiguration{}, 0,
 			cache.ResourceEventHandlerFuncs{},
 			cache.Indexers{})
@@ -83,7 +81,7 @@ func (c *ManagedConfiguration) StartWatches(stopCh <-chan struct{}) error {
 	}
 
 	{
-		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authproviders", c.namespace, fields.Everything())
+		watcher := cache.NewListWatchFromClient(c.client.ConfigV1alpha1().RESTClient(), "authproviders", "", fields.Everything())
 		indexer, informer := cache.NewIndexerInformer(watcher, &v1alpha1.AuthProvider{}, 0,
 			cache.ResourceEventHandlerFuncs{},
 			cache.Indexers{})

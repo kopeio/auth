@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "builder.go",
+        "tokens.go",
+        "types.go",
+    ],
+    importpath = "kope.io/auth/pkg/kubeconfig",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/apis/auth/v1alpha1:go_default_library",
+        "//vendor/github.com/ghodss/yaml:go_default_library",
+    ],
+)

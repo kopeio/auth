@@ -23,6 +23,7 @@ func NewCmdCreate(f cmd.Factory, out io.Writer) *cobra.Command {
 	}
 
 	// create subcommands
+	cmd.AddCommand(NewCmdCreateToken(f, out))
 	cmd.AddCommand(NewCmdCreateUser(f, out))
 
 	return cmd

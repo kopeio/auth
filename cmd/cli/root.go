@@ -48,6 +48,7 @@ func NewCmdRoot(out io.Writer) *cobra.Command {
 	// create subcommands
 	//cmd.AddCommand(NewCmdCompletion(f, out))
 	cmd.AddCommand(NewCmdCreate(f, out))
+	cmd.AddCommand(NewCmdExport(f, out))
 
 	return cmd
 }

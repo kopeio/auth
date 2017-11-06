@@ -4,7 +4,10 @@ go_library(
     name = "go_default_library",
     srcs = [
         "create.go",
-        "createuser.go",
+        "create_token.go",
+        "create_user.go",
+        "export.go",
+        "export_kubecfg.go",
         "main.go",
         "root.go",
         "utils.go",

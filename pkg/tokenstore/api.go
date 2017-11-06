@@ -27,7 +27,6 @@ const bcryptCost = bcrypt.DefaultCost
 
 type APITokenStore struct {
 	client    client.Interface
-	namespace string
 
 	mutex sync.Mutex
 	users map[types.UID]*auth.User
@@ -35,10 +34,9 @@ type APITokenStore struct {
 
 var _ Interface = &APITokenStore{}
 
-func NewAPITokenStore(client client.Interface, namespace string) *APITokenStore {
+func NewAPITokenStore(client client.Interface) *APITokenStore {
 	s := &APITokenStore{
 		client:    client,
-		namespace: namespace,
 		users:     make(map[types.UID]*auth.User),
 	}
 	return s
@@ -153,9 +151,9 @@ func (s *APITokenStore) CreateToken(u *auth.User, hashSecret bool) (*auth.TokenS
 	//	}
 	//	// TODO: Update directly (vs going through watch)?
 	//} else {
-	_, err = s.client.AuthV1alpha1().Users(s.namespace).Update(u)
+	_, err = s.client.AuthV1alpha1().Users().Update(u)
 	if err != nil {
-		return nil, fmt.Errorf("error updating user %s/%s: %v", s.namespace, objectName, err)
+		return nil, fmt.Errorf("error updating user %s: %v", objectName, err)
 	}
 	// TODO: Update directly (vs going through watch)?
 	//}
@@ -189,14 +187,13 @@ func (s *APITokenStore) MapToUser(userInfo *session.UserInfo, create bool) (*aut
 		name := base32.HexEncoding.EncodeToString(uidBytes)
 		name = strings.Replace(name, "=", "", -1)
 		u.Name = strings.ToLower(name)
-		u.Namespace = s.namespace
 
 		u.Spec.Username = userInfo.Email
 
 		u.Spec.Identities = []auth.IdentitySpec{*identity}
-		u, err = s.client.AuthV1alpha1().Users(s.namespace).Create(u)
+		u, err = s.client.AuthV1alpha1().Users().Create(u)
 		if err != nil {
-			return nil, fmt.Errorf("error creating user %s/%s: %v", s.namespace, u.Name, err)
+			return nil, fmt.Errorf("error creating user %s: %v", u.Name, err)
 		}
 		// TODO: Update directly (vs going through watch)?
 	}
@@ -268,7 +265,7 @@ func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 
 		// TODO: Filters?
 
-		userList, err := s.client.AuthV1alpha1().Users(s.namespace).List(listOpts)
+		userList, err := s.client.AuthV1alpha1().Users().List(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error listing users: %v", err)
 		}
@@ -280,7 +277,7 @@ func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 
 		listOpts.Watch = true
 		listOpts.ResourceVersion = userList.ResourceVersion
-		watcher, err := s.client.AuthV1alpha1().Users(s.namespace).Watch(listOpts)
+		watcher, err := s.client.AuthV1alpha1().Users().Watch(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error watching users: %v", err)
 		}
@@ -317,7 +314,7 @@ func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 		}
 
 		if err != nil {
-			glog.Warningf("Unexpected error in secret watch, will retry: %v", err)
+			glog.Warningf("Unexpected error in user watch, will retry: %v", err)
 			time.Sleep(10 * time.Second)
 		}
 	}
@@ -329,7 +326,7 @@ func (c *APITokenStore) Run(stopCh <-chan struct{}) {
 	c.RunWatch(stopCh)
 }
 
-// Run starts the secretsWatcher.
+// Run starts the watcher.
 func (s *APITokenStore) RunPolling(stopCh <-chan struct{}) {
 	runOnce := func() error {
 		var listOpts metav1.ListOptions
@@ -337,7 +334,7 @@ func (s *APITokenStore) RunPolling(stopCh <-chan struct{}) {
 		// TODO: Filters?
 
 		glog.V(2).Infof("polling users")
-		userList, err := s.client.AuthV1alpha1().Users(s.namespace).List(listOpts)
+		userList, err := s.client.AuthV1alpha1().Users().List(listOpts)
 		if err != nil {
 			return fmt.Errorf("error listing users: %v", err)
 		}
