@@ -1,8 +1,5 @@
-# TODO: Move entirely to bazel?
-.PHONY: images
-
-DOCKER_REGISTRY?=kopeio
-DOCKER_TAG=1.0.20170506
+DOCKER_REGISTRY?=$(shell whoami)
+DOCKER_TAG?=latest
 
 all: images
 
@@ -33,6 +30,10 @@ api-push: api-image
 
 api-bounce:
 	kubectl delete pod -n kopeio-auth -l app=auth-api
+
+use-dev-images:
+	kubectl set image ds auth-api auth-api=${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+	kubectl set image deployment auth-portal auth-portal=${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 
 push: portal-push api-push
 	echo "pushed images"
