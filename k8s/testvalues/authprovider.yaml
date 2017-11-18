@@ -1,12 +1,13 @@
 apiVersion: config.auth.kope.io/v1alpha1
 kind: AuthProvider
 metadata:
-  name: default
+  name: google
   namespace: kopeio-auth
 description: "Google Auth"
 oAuthConfig:
   clientID: myid
   clientSecret: shush
+  # TODO: Specify google!
 permitEmails:
   - a@example.com
   - b@example.com

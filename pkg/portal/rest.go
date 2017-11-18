@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"github.com/golang/glog"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
-	"kope.io/auth/pkg/tokenstore"
+	"kope.io/auth/pkg/kubeconfig"
 )
 
 type UserInfo struct {
@@ -145,13 +144,8 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 			s.internalError(rw, req, err)
 			return
 		}
-		tokenInfo := &tokenstore.TokenInfo{
-			UserID:  string(u.UID),
-			TokenID: tokenSpec.ID,
-			Secret:  tokenSpec.RawSecret,
-		}
 		response := &TokenResponse{
-			Value: tokenInfo.Encode(),
+			Value: kubeconfig.EncodeToken(u, tokenSpec),
 		}
 		s.sendJson(rw, req, response)
 		return
@@ -160,13 +154,8 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 	if req.Method == "GET" {
 		response := []*TokenResponse{}
 		for _, t := range u.Spec.Tokens {
-			tokenInfo := &tokenstore.TokenInfo{
-				UserID:  string(u.UID),
-				TokenID: t.ID,
-				Secret:  t.RawSecret,
-			}
 			response = append(response, &TokenResponse{
-				Value: tokenInfo.Encode(),
+				Value: kubeconfig.EncodeToken(u, t),
 			})
 		}
 		s.sendJson(rw, req, response)

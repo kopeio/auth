@@ -29,7 +29,6 @@ import (
 // FakeAuthProviders implements AuthProviderInterface
 type FakeAuthProviders struct {
 	Fake *FakeConfigV1alpha1
-	ns   string
 }
 
 var authprovidersResource = schema.GroupVersionResource{Group: "config.auth.kope.io", Version: "v1alpha1", Resource: "authproviders"}
@@ -39,8 +38,7 @@ var authprovidersKind = schema.GroupVersionKind{Group: "config.auth.kope.io", Ve
 // Get takes name of the authProvider, and returns the corresponding authProvider object, and an error if there is any.
 func (c *FakeAuthProviders) Get(name string, options v1.GetOptions) (result *v1alpha1.AuthProvider, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(authprovidersResource, c.ns, name), &v1alpha1.AuthProvider{})
-
+		Invokes(testing.NewRootGetAction(authprovidersResource, name), &v1alpha1.AuthProvider{})
 	if obj == nil {
 		return nil, err
 	}
@@ -50,8 +48,7 @@ func (c *FakeAuthProviders) Get(name string, options v1.GetOptions) (result *v1a
 // List takes label and field selectors, and returns the list of AuthProviders that match those selectors.
 func (c *FakeAuthProviders) List(opts v1.ListOptions) (result *v1alpha1.AuthProviderList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(authprovidersResource, authprovidersKind, c.ns, opts), &v1alpha1.AuthProviderList{})
-
+		Invokes(testing.NewRootListAction(authprovidersResource, authprovidersKind, opts), &v1alpha1.AuthProviderList{})
 	if obj == nil {
 		return nil, err
 	}
@@ -72,15 +69,13 @@ func (c *FakeAuthProviders) List(opts v1.ListOptions) (result *v1alpha1.AuthProv
 // Watch returns a watch.Interface that watches the requested authProviders.
 func (c *FakeAuthProviders) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(authprovidersResource, c.ns, opts))
-
+		InvokesWatch(testing.NewRootWatchAction(authprovidersResource, opts))
 }
 
 // Create takes the representation of a authProvider and creates it.  Returns the server's representation of the authProvider, and an error, if there is any.
 func (c *FakeAuthProviders) Create(authProvider *v1alpha1.AuthProvider) (result *v1alpha1.AuthProvider, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(authprovidersResource, c.ns, authProvider), &v1alpha1.AuthProvider{})
-
+		Invokes(testing.NewRootCreateAction(authprovidersResource, authProvider), &v1alpha1.AuthProvider{})
 	if obj == nil {
 		return nil, err
 	}
@@ -90,8 +85,7 @@ func (c *FakeAuthProviders) Create(authProvider *v1alpha1.AuthProvider) (result 
 // Update takes the representation of a authProvider and updates it. Returns the server's representation of the authProvider, and an error, if there is any.
 func (c *FakeAuthProviders) Update(authProvider *v1alpha1.AuthProvider) (result *v1alpha1.AuthProvider, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(authprovidersResource, c.ns, authProvider), &v1alpha1.AuthProvider{})
-
+		Invokes(testing.NewRootUpdateAction(authprovidersResource, authProvider), &v1alpha1.AuthProvider{})
 	if obj == nil {
 		return nil, err
 	}
@@ -101,14 +95,13 @@ func (c *FakeAuthProviders) Update(authProvider *v1alpha1.AuthProvider) (result 
 // Delete takes name of the authProvider and deletes it. Returns an error if one occurs.
 func (c *FakeAuthProviders) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(authprovidersResource, c.ns, name), &v1alpha1.AuthProvider{})
-
+		Invokes(testing.NewRootDeleteAction(authprovidersResource, name), &v1alpha1.AuthProvider{})
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
 func (c *FakeAuthProviders) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(authprovidersResource, c.ns, listOptions)
+	action := testing.NewRootDeleteCollectionAction(authprovidersResource, listOptions)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.AuthProviderList{})
 	return err
@@ -117,8 +110,7 @@ func (c *FakeAuthProviders) DeleteCollection(options *v1.DeleteOptions, listOpti
 // Patch applies the patch and returns the patched authProvider.
 func (c *FakeAuthProviders) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AuthProvider, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(authprovidersResource, c.ns, name, data, subresources...), &v1alpha1.AuthProvider{})
-
+		Invokes(testing.NewRootPatchSubresourceAction(authprovidersResource, name, data, subresources...), &v1alpha1.AuthProvider{})
 	if obj == nil {
 		return nil, err
 	}

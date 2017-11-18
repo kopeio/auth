@@ -6,6 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"kope.io/auth/pkg/apis/componentconfig"
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 //func init() {
@@ -19,6 +20,13 @@ func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *r
 			GroupName:              componentconfig.GroupName,
 			VersionPreferenceOrder: []string{v1alpha1.SchemeGroupVersion.Version},
 			//ImportPrefix:               "kope.io/auth/pkg/apis/componentconfig",
+			// RootScopedKinds are resources that are not namespaced.
+			RootScopedKinds: sets.NewString(
+				"AuthConfiguration",
+				"AuthConfigurationList",
+				"AuthProvider",
+				"AuthProviderList",
+			),
 			AddInternalObjectsToScheme: componentconfig.AddToScheme,
 		},
 		announced.VersionToSchemeFunc{

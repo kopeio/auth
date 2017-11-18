@@ -26,12 +26,12 @@ type FakeConfigV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeConfigV1alpha1) AuthConfigurations(namespace string) v1alpha1.AuthConfigurationInterface {
-	return &FakeAuthConfigurations{c, namespace}
+func (c *FakeConfigV1alpha1) AuthConfigurations() v1alpha1.AuthConfigurationInterface {
+	return &FakeAuthConfigurations{c}
 }
 
-func (c *FakeConfigV1alpha1) AuthProviders(namespace string) v1alpha1.AuthProviderInterface {
-	return &FakeAuthProviders{c, namespace}
+func (c *FakeConfigV1alpha1) AuthProviders() v1alpha1.AuthProviderInterface {
+	return &FakeAuthProviders{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

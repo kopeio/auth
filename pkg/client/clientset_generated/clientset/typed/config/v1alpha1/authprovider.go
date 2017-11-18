@@ -28,7 +28,7 @@ import (
 // AuthProvidersGetter has a method to return a AuthProviderInterface.
 // A group's client should implement this interface.
 type AuthProvidersGetter interface {
-	AuthProviders(namespace string) AuthProviderInterface
+	AuthProviders() AuthProviderInterface
 }
 
 // AuthProviderInterface has methods to work with AuthProvider resources.
@@ -47,14 +47,12 @@ type AuthProviderInterface interface {
 // authProviders implements AuthProviderInterface
 type authProviders struct {
 	client rest.Interface
-	ns     string
 }
 
 // newAuthProviders returns a AuthProviders
-func newAuthProviders(c *ConfigV1alpha1Client, namespace string) *authProviders {
+func newAuthProviders(c *ConfigV1alpha1Client) *authProviders {
 	return &authProviders{
 		client: c.RESTClient(),
-		ns:     namespace,
 	}
 }
 
@@ -62,7 +60,6 @@ func newAuthProviders(c *ConfigV1alpha1Client, namespace string) *authProviders 
 func (c *authProviders) Get(name string, options v1.GetOptions) (result *v1alpha1.AuthProvider, err error) {
 	result = &v1alpha1.AuthProvider{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("authproviders").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -75,7 +72,6 @@ func (c *authProviders) Get(name string, options v1.GetOptions) (result *v1alpha
 func (c *authProviders) List(opts v1.ListOptions) (result *v1alpha1.AuthProviderList, err error) {
 	result = &v1alpha1.AuthProviderList{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("authproviders").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Do().
@@ -87,7 +83,6 @@ func (c *authProviders) List(opts v1.ListOptions) (result *v1alpha1.AuthProvider
 func (c *authProviders) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	opts.Watch = true
 	return c.client.Get().
-		Namespace(c.ns).
 		Resource("authproviders").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Watch()
@@ -97,7 +92,6 @@ func (c *authProviders) Watch(opts v1.ListOptions) (watch.Interface, error) {
 func (c *authProviders) Create(authProvider *v1alpha1.AuthProvider) (result *v1alpha1.AuthProvider, err error) {
 	result = &v1alpha1.AuthProvider{}
 	err = c.client.Post().
-		Namespace(c.ns).
 		Resource("authproviders").
 		Body(authProvider).
 		Do().
@@ -109,7 +103,6 @@ func (c *authProviders) Create(authProvider *v1alpha1.AuthProvider) (result *v1a
 func (c *authProviders) Update(authProvider *v1alpha1.AuthProvider) (result *v1alpha1.AuthProvider, err error) {
 	result = &v1alpha1.AuthProvider{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("authproviders").
 		Name(authProvider.Name).
 		Body(authProvider).
@@ -121,7 +114,6 @@ func (c *authProviders) Update(authProvider *v1alpha1.AuthProvider) (result *v1a
 // Delete takes name of the authProvider and deletes it. Returns an error if one occurs.
 func (c *authProviders) Delete(name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("authproviders").
 		Name(name).
 		Body(options).
@@ -132,7 +124,6 @@ func (c *authProviders) Delete(name string, options *v1.DeleteOptions) error {
 // DeleteCollection deletes a collection of objects.
 func (c *authProviders) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("authproviders").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Body(options).
@@ -144,7 +135,6 @@ func (c *authProviders) DeleteCollection(options *v1.DeleteOptions, listOptions 
 func (c *authProviders) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AuthProvider, err error) {
 	result = &v1alpha1.AuthProvider{}
 	err = c.client.Patch(pt).
-		Namespace(c.ns).
 		Resource("authproviders").
 		SubResource(subresources...).
 		Name(name).

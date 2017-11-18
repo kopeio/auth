@@ -15,5 +15,3 @@ limitations under the License.
 */
 
 package internalversion
-
-type UserExpansion interface{}

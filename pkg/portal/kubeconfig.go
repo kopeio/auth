@@ -7,54 +7,10 @@ import (
 	"net/url"
 	"os"
 	"strings"
-
-	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
-	"kope.io/auth/pkg/tokenstore"
+	"kope.io/auth/pkg/kubeconfig"
 )
-
-type KubeConfig struct {
-	Kind           string                    `json:"kind"`
-	ApiVersion     string                    `json:"apiVersion"`
-	CurrentContext string                    `json:"current-context"`
-	Clusters       []*KubectlClusterWithName `json:"clusters"`
-	Contexts       []*KubectlContextWithName `json:"contexts"`
-	Users          []*KubectlUserWithName    `json:"users"`
-}
-
-type KubectlClusterWithName struct {
-	Name    string         `json:"name"`
-	Cluster KubectlCluster `json:"cluster"`
-}
-
-type KubectlCluster struct {
-	Server                   string `json:"server,omitempty"`
-	CertificateAuthorityData []byte `json:"certificate-authority-data,omitempty"`
-}
-
-type KubectlContextWithName struct {
-	Name    string         `json:"name"`
-	Context KubectlContext `json:"context"`
-}
-
-type KubectlContext struct {
-	Cluster string `json:"cluster"`
-	User    string `json:"user"`
-}
-
-type KubectlUserWithName struct {
-	Name string      `json:"name"`
-	User KubectlUser `json:"user"`
-}
-
-type KubectlUser struct {
-	ClientCertificateData []byte `json:"client-certificate-data,omitempty"`
-	ClientKeyData         []byte `json:"client-key-data,omitempty"`
-	Password              string `json:"password,omitempty"`
-	Username              string `json:"username,omitempty"`
-	Token                 string `json:"token,omitempty"`
-}
 
 func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Request) {
 	// TODO: Is this safe against XSS attacks?
@@ -120,51 +76,17 @@ func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Re
 			caCertificate = nil
 		}
 
-		cluster := KubectlCluster{
-			Server: apiEndpoint,
-			CertificateAuthorityData: caCertificate,
-		}
-		context := KubectlContext{
-			Cluster: name,
-			User:    name,
-		}
-		user := KubectlUser{
-			Token: token.Encode(),
-		}
-		config := &KubeConfig{
-			ApiVersion:     "v1",
-			Kind:           "Config",
-			CurrentContext: name,
-			Clusters: []*KubectlClusterWithName{
-				{
-					Name:    name,
-					Cluster: cluster,
-				},
-			},
-			Contexts: []*KubectlContextWithName{
-				{
-					Name:    name,
-					Context: context,
-				},
-			},
-			Users: []*KubectlUserWithName{
-				{
-					Name: name,
-					User: user,
-				},
-			},
-		}
 
-		response, err := yaml.Marshal(config)
+		kubeconfigData, err := kubeconfig.BuildKubeconfig(apiEndpoint, caCertificate, authn, token)
 		if err != nil {
-			s.internalError(rw, req, fmt.Errorf("error serializing kubeconfig to yaml: %v", err))
+			s.internalError(rw, req, err)
 			return
 		}
 
 		rw.Header().Set("Content-Disposition", "attachment; filename=\""+"kubeconfig."+name+"\"")
 		rw.Header().Set("Content-Type", "application/octet-stream")
 
-		s.writeResponse(rw, req, []byte(response))
+		s.writeResponse(rw, req, []byte(kubeconfigData))
 		return
 	}
 
@@ -198,7 +120,7 @@ func (s *HTTPServer) apiKubeconfig(rw http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		response := token.Encode()
+		response := kubeconfig.EncodeToken(user, token)
 
 		s.writeResponse(rw, req, []byte(response))
 		return
@@ -207,13 +129,8 @@ func (s *HTTPServer) apiKubeconfig(rw http.ResponseWriter, req *http.Request) {
 	s.methodNotAllowed(rw, req)
 }
 
-func (s *HTTPServer) createToken(user *auth.User) (*tokenstore.TokenInfo, error) {
-	var bestToken *auth.TokenSpec
-
-	for _, t := range user.Spec.Tokens {
-		// TODO: Pick best token
-		bestToken = t
-	}
+func (s *HTTPServer) createToken(user *auth.User) (*auth.TokenSpec, error) {
+	bestToken := kubeconfig.FindBestToken(user)
 
 	if bestToken == nil {
 		hashed := false // really hard to use
@@ -229,11 +146,5 @@ func (s *HTTPServer) createToken(user *auth.User) (*tokenstore.TokenInfo, error)
 		return nil, nil
 	}
 
-	tokenInfo := &tokenstore.TokenInfo{
-		UserID:  string(user.UID),
-		TokenID: bestToken.ID,
-		Secret:  bestToken.RawSecret,
-	}
-
-	return tokenInfo, nil
+	return bestToken, nil
 }

@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  name: auth-portal
+  namespace: kopeio-auth
+spec:
+  rules:
+  - host: auth.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: auth-portal
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - auth.example.com
+    secretName: tls-auth.example.com

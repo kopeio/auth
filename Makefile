@@ -32,14 +32,30 @@ api-bounce:
 	kubectl delete pod -n kopeio-auth -l app=auth-api
 
 use-dev-images:
-	kubectl set image ds auth-api auth-api=${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
-	kubectl set image deployment auth-portal auth-portal=${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
+	kubectl set image ds -n kopeio-auth auth-api auth-api=${DOCKER_REGISTRY}/auth-api:${DOCKER_TAG}
+	kubectl set image deployment -n kopeio-auth auth-portal auth-portal=${DOCKER_REGISTRY}/auth-portal:${DOCKER_TAG}
 
 push: portal-push api-push
 	echo "pushed images"
 
+.PHONY: images
 images: portal-image api-image
 	echo "built images"
+
+dep:
+	dep ensure
+	find vendor -name "BUILD" -delete
+	find vendor -name "BUILD.bazel" -delete
+	bazel run //:gazelle -- -proto disable
+
+.PHONY: gazelle
+gazelle:
+	bazel run //:gazelle
+	git checkout -- vendor/
+	git clean -df vendor/
+
+goimports:
+	goimports -w cmd/ pkg/
 
 # -----------------------------------------------------
 # api machinery regenerate

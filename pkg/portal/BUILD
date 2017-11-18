@@ -20,6 +20,7 @@ go_library(
         "//pkg/apis/auth/v1alpha1:go_default_library",
         "//pkg/configreader:go_default_library",
         "//pkg/keystore:go_default_library",
+        "//pkg/kubeconfig:go_default_library",
         "//pkg/oauth:go_default_library",
         "//pkg/oauth/session:go_default_library",
         "//pkg/tokenstore:go_default_library",

@@ -1,7 +1,0 @@
-apiVersion: extensions/v1beta1
-kind: ThirdPartyResource
-description: "Kopeio-Auth User objects."
-metadata:
-  name: "user.auth.kope.io"
-versions:
-  - name: v1alpha1
