@@ -3,60 +3,8 @@ kind: Namespace
 metadata:
   name: kopeio-auth
 
-#---
-#
-#apiVersion: v1
-#kind: ConfigMap
-#metadata:
-#  name: auth-portal
-#  namespace: kopeio-auth
-#data:
-#  auth-portal.cfg: |-
-#    EmailDomains:
-#    - "*"
-
 ---
 
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: auth-portal
-  namespace: kopeio-auth
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: auth-portal
-    spec:
-      serviceAccountName: auth-portal
-      containers:
-      - name: auth-portal
-        image: kopeio/auth-portal:1.0.20170506
-        ports:
-        - containerPort: 8080
-        command:
-        - /auth-portal
-        - --server=https://auth-api
-        - --insecure-skip-tls-verify
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: auth-portal
-  namespace: kopeio-auth
-spec:
-  selector:
-    app: auth-portal
-  ports:
-  - port: 80
-    targetPort: 8080
-
----
-
-# API service, needed until we have API aggregation
 apiVersion: v1
 kind: Service
 metadata:
@@ -134,3 +82,70 @@ spec:
     name: auth-api
     namespace: kopeio-auth
   version: v1alpha1
+
+---
+
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: auth-api
+  namespace: kopeio-auth
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kopeio-auth:auth-api:auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: auth-api
+  namespace: kopeio-auth
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kopeio-auth:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: auth-api
+  namespace: kopeio-auth
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: auth-api
+  namespace: kopeio-auth
+rules:
+- apiGroups: ["auth.kope.io"]
+  resources: ["users"]
+  verbs: ["get", "list", "watch"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: auth-api
+  namespace: kopeio-auth
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: auth-api
+subjects:
+- kind: ServiceAccount
+  name: auth-api
+  namespace: kopeio-auth
