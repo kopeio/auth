@@ -11,13 +11,6 @@ import (
 )
 
 func TestReadConfigMap(t *testing.T) {
-	//apiContext, err := api.NewAPIContext("")
-	//if err != nil {
-	//	t.Fatalf("error creating API context: %v", err)
-	//}
-	//
-	//componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
-
 	mc := &ManagedConfiguration{
 		Decoder: apiserver.Codecs.UniversalDecoder(),
 	}

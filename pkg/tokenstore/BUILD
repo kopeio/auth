@@ -7,8 +7,6 @@ go_library(
     srcs = [
         "api.go",
         "interface.go",
-        "secrets.go",
-        "tpr.go",
     ],
     importpath = "kope.io/auth/pkg/tokenstore",
     deps = [

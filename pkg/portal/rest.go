@@ -25,9 +25,6 @@ func (s *HTTPServer) authenticate(rw http.ResponseWriter, req *http.Request) (*a
 		return nil, nil
 	}
 
-	//id := s.mapToIdentity(session)
-	//glog.Infof("looking up identity %q", id)
-
 	u, err := s.tokenStore.FindUserByUID(session.KubernetesUid)
 	if err != nil {
 		return nil, fmt.Errorf("error finding user: %v", err)
@@ -39,21 +36,6 @@ func (s *HTTPServer) authenticate(rw http.ResponseWriter, req *http.Request) (*a
 
 	return u, nil
 }
-
-//func (s *HTTPServer) mapToIdentity(session *session.Session) (*auth.IdentitySpec) {
-//	providerID := session.SessionData.ProviderId
-//
-//	// TODO: Store all information from provider?
-//	providerUserID := session.SessionData.UserId
-//
-//	id := &auth.IdentitySpec{
-//		ProviderID: providerID,
-//		ID:         providerUserID,
-//		Username:   providerUserID,
-//	}
-//
-//	return id
-//}
 
 func (s *HTTPServer) apiWhoAmI(rw http.ResponseWriter, req *http.Request) {
 	auth, err := s.authenticate(rw, req)
@@ -121,9 +103,6 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//id := s.mapToIdentity(session)
-	//glog.Infof("looking up identity %q", id)
-
 	u, err := s.tokenStore.FindUserByUID(session.KubernetesUid)
 	if err != nil {
 		glog.Infof("error finding user: %v", err)
@@ -135,8 +114,6 @@ func (s *HTTPServer) apiTokens(rw http.ResponseWriter, req *http.Request) {
 		http.NotFound(rw, req)
 		return
 	}
-
-	// strings.Replace(session.Email, "@", "-", -1)
 
 	if req.Method == "POST" {
 		hashed := false // really hard to use
