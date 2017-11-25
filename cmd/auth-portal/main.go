@@ -85,16 +85,6 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 		return fmt.Errorf("error building auth client: %v", err)
 	}
 
-	//configs, err := authClient.ComponentconfigV1alpha1().AuthConfigurations(namespace).List(metav1.ListOptions{})
-	//if err != nil {
-	//		return fmt.Errorf("error reading AuthConfigurations from API: %v", err)
-	//}
-	//
-	//authProviderList, err := authClient.ComponentconfigV1alpha1().AuthProviders(namespace).List(metav1.ListOptions{})
-	//if err != nil {
-	//	return fmt.Errorf("error reading AuthProviders from API: %v", err)
-	//}
-
 	stopCh := make(chan struct{})
 
 	//apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
@@ -160,6 +150,8 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 	if err != nil {
 		return err
 	}
+
+	glog.Infof("listening on %s", listen)
 
 	return p.ListenAndServe()
 }
