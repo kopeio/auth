@@ -29,6 +29,8 @@ spec:
     metadata:
       labels:
         app: auth-api
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       serviceAccountName: auth-api
       hostNetwork: true
@@ -37,6 +39,8 @@ spec:
       tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
       containers:
       - name: auth-api
         image: kopeio/auth-api:1.0.20170506
