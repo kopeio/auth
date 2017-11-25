@@ -3,11 +3,12 @@ package oauth
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/golang/glog"
-	"kope.io/auth/pkg/oauth/session"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/golang/glog"
+	"kope.io/auth/pkg/oauth/session"
 )
 
 func (p *Server) loadCookiedSession(req *http.Request) (*session.Session, error) {

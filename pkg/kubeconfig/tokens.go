@@ -2,10 +2,11 @@ package kubeconfig
 
 import (
 	"encoding/base64"
+
 	"kope.io/auth/pkg/apis/auth/v1alpha1"
 )
 
-func FindBestToken(user *v1alpha1.User) (*v1alpha1.TokenSpec) {
+func FindBestToken(user *v1alpha1.User) *v1alpha1.TokenSpec {
 	var bestToken *v1alpha1.TokenSpec
 
 	for _, t := range user.Spec.Tokens {

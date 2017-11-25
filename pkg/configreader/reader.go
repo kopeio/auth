@@ -2,6 +2,7 @@ package configreader
 
 import (
 	"fmt"
+
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/client-go/tools/cache"
@@ -13,7 +14,7 @@ type ManagedConfiguration struct {
 	//Config  runtime.Object
 	//Decoder runtime.Decoder
 
-	client    authclient.Interface
+	client authclient.Interface
 
 	authConfigurations cache.Indexer
 	authProviders      cache.Indexer
@@ -21,7 +22,7 @@ type ManagedConfiguration struct {
 
 func New(client authclient.Interface) *ManagedConfiguration {
 	return &ManagedConfiguration{
-		client:    client,
+		client: client,
 	}
 }
 

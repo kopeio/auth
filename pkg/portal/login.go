@@ -1,8 +1,9 @@
 package portal
 
 import (
-	"github.com/golang/glog"
 	"net/http"
+
+	"github.com/golang/glog"
 )
 
 func (s *HTTPServer) portalActionLogin(rw http.ResponseWriter, req *http.Request) {

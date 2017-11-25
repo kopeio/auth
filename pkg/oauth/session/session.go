@@ -2,9 +2,10 @@ package session
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/golang/protobuf/proto"
 	"kope.io/auth/pkg/oauth/pb"
-	"time"
 )
 
 type Session struct {

@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/golang/glog"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -11,8 +14,6 @@ import (
 	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
 	"kope.io/auth/pkg/k8sauth"
 	"kope.io/auth/pkg/tokenstore"
-	"net/http"
-	"os"
 )
 
 func main() {
@@ -49,10 +50,10 @@ func main() {
 }
 
 type Options struct {
-	Listen         string
+	Listen string
 	//Server         string
 	//ServerInsecure bool
-	AuthServer     *apiserver.AuthServerOptions
+	AuthServer *apiserver.AuthServerOptions
 }
 
 func run(o *Options) error {
@@ -79,7 +80,7 @@ func run(o *Options) error {
 		}()
 	}
 
-	 //creates the in-cluster config
+	//creates the in-cluster config
 	authRestConfig, err := rest.InClusterConfig()
 	if err != nil {
 		return fmt.Errorf("error building kubernetes configuration: %v", err)

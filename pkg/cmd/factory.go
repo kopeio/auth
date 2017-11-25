@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"kope.io/auth/pkg/client/clientset_generated/clientset"
 	"k8s.io/client-go/rest"
+	"kope.io/auth/pkg/client/clientset_generated/clientset"
 )
 
 // Factory provides what is effectively injection for the commands

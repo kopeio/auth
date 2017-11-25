@@ -2,11 +2,12 @@ package portal
 
 import (
 	"encoding/json"
-	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/golang/glog"
 )
 
 func (s *HTTPServer) portalIndex(rw http.ResponseWriter, req *http.Request) {

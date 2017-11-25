@@ -3,17 +3,18 @@ package oauth
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/types"
 	"kope.io/auth/pkg/configreader"
 	"kope.io/auth/pkg/keystore"
 	"kope.io/auth/pkg/oauth/providers"
 	"kope.io/auth/pkg/oauth/session"
-	"net/http"
-	"net/url"
-	"strings"
-	"sync"
-	"time"
 )
 
 type UserMapperFn func(session *session.Session, info *session.UserInfo) (types.UID, error)

@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"kope.io/auth/pkg/client/clientset_generated/clientset"
-	"k8s.io/client-go/rest"
 )
 
 // DefaultFactory providers the default implementation of Factory
@@ -40,7 +40,7 @@ func (f *DefaultFactory) Clientset() (clientset.Interface, error) {
 	return f.clientset, nil
 }
 
-func (f*DefaultFactory) Config() (*rest.Config, error) {
+func (f *DefaultFactory) Config() (*rest.Config, error) {
 	kubeconfig := f.options.Kubeconfig
 	if kubeconfig == "" {
 		return nil, fmt.Errorf("kubeconfig path must be provided")

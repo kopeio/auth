@@ -2,10 +2,11 @@ package oauth
 
 import (
 	"fmt"
-	"github.com/golang/glog"
-	"kope.io/auth/pkg/oauth/session"
 	"net/http"
 	"time"
+
+	"github.com/golang/glog"
+	"kope.io/auth/pkg/oauth/session"
 )
 
 func (p *Server) Authenticate(rw http.ResponseWriter, req *http.Request) (*session.Session, error) {
