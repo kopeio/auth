@@ -26,7 +26,7 @@ import (
 const bcryptCost = bcrypt.DefaultCost
 
 type APITokenStore struct {
-	client    client.Interface
+	client client.Interface
 
 	mutex sync.Mutex
 	users map[types.UID]*auth.User
@@ -36,8 +36,8 @@ var _ Interface = &APITokenStore{}
 
 func NewAPITokenStore(client client.Interface) *APITokenStore {
 	s := &APITokenStore{
-		client:    client,
-		users:     make(map[types.UID]*auth.User),
+		client: client,
+		users:  make(map[types.UID]*auth.User),
 	}
 	return s
 }
@@ -251,6 +251,19 @@ func (s *APITokenStore) processUserUpdate(u *auth.User) {
 	s.users[u.UID] = u
 }
 
+func (s *APITokenStore) resyncUsers(userList *auth.UserList) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	users := make(map[types.UID]*auth.User)
+	for i := range userList.Items {
+		u := &userList.Items[i]
+		glog.V(8).Infof("list found user %q with username %q", u.Name, u.Spec.Username)
+		users[u.UID] = u
+	}
+	s.users = users
+}
+
 func (s *APITokenStore) processUserDelete(u *auth.User) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -270,11 +283,7 @@ func (s *APITokenStore) runWatch(stopCh <-chan struct{}) {
 		if err != nil {
 			return false, fmt.Errorf("error listing users: %v", err)
 		}
-		for i := range userList.Items {
-			u := &userList.Items[i]
-			glog.V(8).Infof("list found user %q with username %q", u.Name, u.Spec.Username)
-			s.processUserUpdate(u)
-		}
+		s.resyncUsers(userList)
 
 		listOpts.Watch = true
 		listOpts.ResourceVersion = userList.ResourceVersion
