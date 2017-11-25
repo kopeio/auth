@@ -1,12 +1,13 @@
+// @flow
 import KubernetesTypeWrapper from "./KubernetesTypeWrapper";
 
 class AuthConfigurations extends KubernetesTypeWrapper {
-  constructor(namespace) {
-    super("config.auth.kope.io", "v1alpha1", "authconfigurations", namespace);
+  constructor() {
+    super("config.auth.kope.io", "v1alpha1", "authconfigurations");
   }
 
-  static namespace(namespace) {
-    return new AuthConfigurations(namespace);
+  static build() : AuthConfigurations {
+    return new AuthConfigurations();
   }
 }
 

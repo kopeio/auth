@@ -1,10 +1,10 @@
 class Kubernetes {
   static url(group, version) {
-    var kubernetesUrl = window.AppSettings.kubernetesUrl || "https://userapimock.useast1.k8s.justinsb.com";
+    var kubernetesUrl = window.AppSettings.kubernetesUrl || ("https://" + window.host);
     if (!kubernetesUrl.endsWith("/")) {
       kubernetesUrl += "/";
     }
-    return  kubernetesUrl + "apis/" + group + "/" + version + "/";
+    return kubernetesUrl + "apis/" + group + "/" + version + "/";
   }
 };
 

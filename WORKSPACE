@@ -27,10 +27,12 @@ load(
 
 container_repositories()
 
+# Use a kubernetes base image which includes ca-certificates (so we can talk to google for OAuth)
+# Some potential here: https://github.com/GoogleCloudPlatform/base-images-docker
 container_pull(
-    name = "debian_base_amd64",  # 'tag' is also supported, but digest is encouraged for reproducibility.
-    digest = "sha256:f45c0513d335c6654ab72de6994f5899e65d87a24141e527b39ec5f503e22670",
+    name = "debian_base_amd64",
+    digest = "sha256:1a05a58432254268c31ef5c8d9c21f3d01a40611b14707de6ac2772c0793bd13",
     registry = "gcr.io",
-    repository = "google_containers/debian-base-amd64",
-    tag = "0.2",
+    repository = "google-containers/debian-hyperkube-base-amd64",
+    tag = "0.7",
 )

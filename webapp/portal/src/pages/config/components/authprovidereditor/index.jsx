@@ -7,7 +7,7 @@ import FormComponent from "../../../../components/FormComponent.jsx";
 class AuthProviderEditComponent extends FormComponent {
 
   constructor(props) {
-    super(props, AuthProviders.namespace("kopeio-auth"), props.name);
+    super(props, AuthProviders.build(), props.name);
   }
 
   render() {

@@ -9,8 +9,12 @@ class KubernetesTypeWrapper {
     this.namespace = namespace;
   }
 
-  _url(name: string) : string {
-    var u = Kubernetes.url(this.group, this.version) + "namespaces/" + this.namespace + "/" + this.kind + "/";
+  _url(name: string): string {
+    var u = Kubernetes.url(this.group, this.version);
+    if (this.namespace) {
+      u += "namespaces/" + this.namespace + "/";
+    }
+    u += this.kind + "/";
     if (name) {
       u += name;
     }

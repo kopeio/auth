@@ -118,7 +118,7 @@ class Config extends React.Component {
   }
 
   componentDidMount() {
-    AuthProviders.namespace("kopeio-auth").list().then(json => {
+    AuthProviders.build().list().then(json => {
       this.setState({
         data: json,
       });
@@ -155,8 +155,7 @@ class Config extends React.Component {
         confirm({message: "Delete authentication provider " + p.metadata.name + "?"}).then(
         (confirmed) => {
           if (confirmed) {
-            let ns = AuthProviders.namespace("kopeio-auth");
-            ns.delete(p.metadata.name).then(() => {
+            AuthProviders.build().delete(p.metadata.name).then(() => {
               data.items.splice(i, 1);
               this.setState({data: data});
             });
