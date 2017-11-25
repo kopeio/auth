@@ -119,9 +119,6 @@ func NewHTTPServer(config *configreader.ManagedConfiguration, listen string, sta
 }
 
 func (s *HTTPServer) ListenAndServe() error {
-	stopCh := make(chan struct{})
-	go s.tokenStore.Run(stopCh)
-
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/oauth2/start", s.oauthStart)

@@ -244,39 +244,41 @@ func (s *APITokenStore) findUserByProviderInfo(id *auth.IdentitySpec) *auth.User
 }
 
 // updateUser processes an update notification for a user
-func (c *APITokenStore) processUserUpdate(u *auth.User) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+func (s *APITokenStore) processUserUpdate(u *auth.User) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	c.users[u.UID] = u
+	s.users[u.UID] = u
 }
 
-func (c *APITokenStore) processUserDelete(u *auth.User) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+func (s *APITokenStore) processUserDelete(u *auth.User) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	delete(c.users, u.UID)
+	delete(s.users, u.UID)
 }
 
-// Run starts the secretsWatcher.
-func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
+// runWatch starts the watcher that watches users and builds an in-memory index
+func (s *APITokenStore) runWatch(stopCh <-chan struct{}) {
 	runOnce := func() (bool, error) {
 		var listOpts metav1.ListOptions
 
 		// TODO: Filters?
 
+		glog.V(4).Infof("listing users")
 		userList, err := s.client.AuthV1alpha1().Users().List(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error listing users: %v", err)
 		}
 		for i := range userList.Items {
 			u := &userList.Items[i]
-			glog.Infof("user: %v", u.Spec.Username)
+			glog.V(8).Infof("list found user %q with username %q", u.Name, u.Spec.Username)
 			s.processUserUpdate(u)
 		}
 
 		listOpts.Watch = true
 		listOpts.ResourceVersion = userList.ResourceVersion
+		glog.V(4).Infof("watching users from %s", listOpts.ResourceVersion)
 		watcher, err := s.client.AuthV1alpha1().Users().Watch(listOpts)
 		if err != nil {
 			return false, fmt.Errorf("error watching users: %v", err)
@@ -285,7 +287,7 @@ func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 		for {
 			select {
 			case <-stopCh:
-				glog.Infof("Got stop signal")
+				glog.Infof("user watch got stop signal")
 				return true, nil
 			case event, ok := <-ch:
 				if !ok {
@@ -320,47 +322,7 @@ func (s *APITokenStore) RunWatch(stopCh <-chan struct{}) {
 	}
 }
 
-func (c *APITokenStore) Run(stopCh <-chan struct{}) {
-	//c.RunPolling(stopCh)
-	//glog.Warning("Using polling while watches of TPRs are broken")
-	c.RunWatch(stopCh)
-}
-
-// Run starts the watcher.
-func (s *APITokenStore) RunPolling(stopCh <-chan struct{}) {
-	runOnce := func() error {
-		var listOpts metav1.ListOptions
-
-		// TODO: Filters?
-
-		glog.V(2).Infof("polling users")
-		userList, err := s.client.AuthV1alpha1().Users().List(listOpts)
-		if err != nil {
-			return fmt.Errorf("error listing users: %v", err)
-		}
-		for i := range userList.Items {
-			u := &userList.Items[i]
-			glog.Infof("user: %v", u.Spec.Username)
-			s.processUserUpdate(u)
-		}
-		return nil
-	}
-
-	for {
-		err := runOnce()
-		if err != nil {
-			glog.Warningf("Unexpected error in user poll, will retry: %v", err)
-		}
-
-		timer := time.NewTimer(10 * time.Second)
-		for {
-			select {
-			case <-stopCh:
-				glog.Infof("Got stop signal")
-				return
-
-			case <-timer.C:
-			}
-		}
-	}
+// Run starts the watch-loop
+func (s *APITokenStore) Run(stopCh <-chan struct{}) {
+	s.runWatch(stopCh)
 }
