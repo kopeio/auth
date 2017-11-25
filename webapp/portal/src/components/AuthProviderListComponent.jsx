@@ -13,7 +13,7 @@ class AuthProviderListComponent extends React.Component {
   }
 
   componentDidMount() {
-    AuthProviders.namespace("kopeio-auth").list().then(json => {
+    AuthProviders.build().list().then(json => {
       this.setState({
         data: json,
       });
