@@ -85,36 +85,10 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 
 	stopCh := make(chan struct{})
 
-	//apiContext, err := api.NewAPIContext(os.Getenv("API_VERSIONS"))
-	//if err != nil {
-	//	return fmt.Errorf("error initializing API: %v", err)
-	//}
-	//
-	//componentconfiginstall.Install(apiContext.GroupFactoryRegistry, apiContext.Registry, apiContext.Scheme)
-
-	//configDecoder := apiserver.Codecs.UniversalDecoder()
-	//
-	//configReader := &configreader.ManagedConfiguration{
-	//	Decoder: configDecoder,
-	//}
-
 	configReader := configreader.New(authClient)
 	if err := configReader.StartWatches(stopCh); err != nil {
 		return fmt.Errorf("error starting configuration watches: %v", err)
 	}
-
-	//configFile := os.Getenv("CONFIG")
-	//if configFile != "" {
-	//	err := configReader.Read(configFile)
-	//	if err != nil {
-	//		return fmt.Errorf("error reading config file %q: %v\n", configFile, err)
-	//	}
-	//}
-
-	//configObj, err := configReader.ReadFromKubernetes(k8sClient, namespace, name)
-	//if err != nil {
-	//	return fmt.Errorf("error reading configuration: %v", err)
-	//}
 
 	//// TODO(authprovider-q): Should we deal with v1alpha1 or unversioned when we own the API?
 	//// (I guess the same question with our User objects)
@@ -132,15 +106,6 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 	}
 	go keyStore.Run(stopCh)
 
-	//sharedSecretSet, err := secretStore.EnsureSharedSecretSet("cookie-signing", generateCookieSigningSecrets)
-	//if err != nil {
-	//	return err
-	//}
-
-	//o.ClientID = os.Getenv("OAUTH2_CLIENT_ID")
-	//o.ClientSecret = os.Getenv("OAUTH2_CLIENT_SECRET")
-	//o.CookieSecret = os.Getenv("OAUTH2_COOKIE_SECRET")
-
 	tokenStore := tokenstore.NewAPITokenStore(authClient)
 	go tokenStore.Run(stopCh)
 
@@ -153,15 +118,6 @@ func run(listen string, staticDir string, server string, insecureServer bool) er
 
 	return p.ListenAndServe()
 }
-
-//func generateCookieSigningSecrets() ([]byte, error) {
-//	data := make([]byte, CookieSigningSecretLength)
-//	_, err := cryptorand.Read(data)
-//	if err != nil {
-//		return nil, fmt.Errorf("error generating cookie signing secret: %v", err)
-//	}
-//	return data, nil
-//}
 
 func cryptoSeed() {
 	data := make([]byte, 8)

@@ -19,8 +19,6 @@ import (
 func main() {
 	var o Options
 	o.Listen = ":8080"
-	//o.Server = "http://127.0.0.1:8080"
-	//o.ServerInsecure = false
 
 	pflag.Set("logtostderr", "true")
 	flag.CommandLine.Parse([]string{"--logtostderr=true"})
@@ -29,9 +27,7 @@ func main() {
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
-	//pflag.StringVar(&o.Server, "server", o.Server, "url on which to connect to server")
 	pflag.StringVar(&o.Listen, "listen", o.Listen, "host/port on which to listen")
-	//pflag.BoolVar(&o.ServerInsecure, "insecure-skip-tls-verify", o.ServerInsecure, "skip verification of server certificate (this is insecure)")
 
 	o.AuthServer.AddFlags(pflag.CommandLine)
 
@@ -50,22 +46,11 @@ func main() {
 }
 
 type Options struct {
-	Listen string
-	//Server         string
-	//ServerInsecure bool
+	Listen     string
 	AuthServer *apiserver.AuthServerOptions
 }
 
 func run(o *Options) error {
-	// creates the clientset
-	//k8sClient, err := kubernetes.NewForConfig(config)
-	//if err != nil {
-	//	return fmt.Errorf("error building kubernetes client: %v", err)
-	//}
-	//if err := authclient.RegisterResource(k8sClient); err != nil {
-	//	return fmt.Errorf("error registering third party resource: %v", err)
-	//}
-
 	{
 		if err := o.AuthServer.Complete(); err != nil {
 			return err
@@ -85,23 +70,6 @@ func run(o *Options) error {
 	if err != nil {
 		return fmt.Errorf("error building kubernetes configuration: %v", err)
 	}
-
-	//u, err := url.Parse(o.Server)
-	//if err != nil {
-	//	return fmt.Errorf("Invalid server flag: %q", o.Server)
-	//}
-	//
-	//authRestConfig := &rest.Config{
-	//	Host: u.Host,
-	//}
-	//
-	//if o.ServerInsecure {
-	//	authRestConfig.Insecure = o.ServerInsecure
-	//
-	//	// Avoid "specifying a root certificates file with the insecure flag is not allowed"
-	//	authRestConfig.TLSClientConfig.CAData = nil
-	//	authRestConfig.TLSClientConfig.CAFile = ""
-	//}
 
 	authClient, err := authclient.NewForConfig(authRestConfig)
 	if err != nil {

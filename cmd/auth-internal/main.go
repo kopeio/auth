@@ -47,15 +47,6 @@ func run(o *Options) error {
 		return fmt.Errorf("error building auth client: %v", err)
 	}
 
-	// creates the clientset
-	//k8sClient, err := kubernetes.NewForConfig(config)
-	//if err != nil {
-	//	return fmt.Errorf("error building kubernetes client: %v", err)
-	//}
-	//if err := authclient.RegisterResource(k8sClient); err != nil {
-	//	return fmt.Errorf("error registering third party resource: %v", err)
-	//}
-
 	{
 		o := apiserver.NewAuthServerOptions(os.Stdout, os.Stderr)
 		if err := o.Complete(); err != nil {
