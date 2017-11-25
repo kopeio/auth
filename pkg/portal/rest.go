@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"github.com/golang/glog"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	"kope.io/auth/pkg/kubeconfig"

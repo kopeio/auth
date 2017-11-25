@@ -3,8 +3,9 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"kope.io/auth/pkg/apis/auth/v1alpha1"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kope.io/auth/pkg/apis/auth/v1alpha1"
 )
 
 type CreateUserOptions struct {

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kope.io/auth/pkg/kubeconfig"
 )

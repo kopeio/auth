@@ -2,10 +2,11 @@ package portal
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/types"
 	"kope.io/auth/pkg/oauth/session"
-	"strings"
 )
 
 func (s *HTTPServer) mapUser(session *session.Session, info *session.UserInfo) (types.UID, error) {

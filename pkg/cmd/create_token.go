@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	crypto_rand "crypto/rand"
 	"fmt"
 	"io"
+	"strconv"
+	"time"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kope.io/auth/pkg/apis/auth/v1alpha1"
-	"time"
-	"strconv"
-	crypto_rand "crypto/rand"
 )
 
 type CreateTokenOptions struct {

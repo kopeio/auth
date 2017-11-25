@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/spf13/cobra"
 	"kope.io/auth/pkg/cmd"
-	"fmt"
 )
 
 var (

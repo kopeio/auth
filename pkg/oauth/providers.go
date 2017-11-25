@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"fmt"
+
 	"github.com/golang/glog"
 	"kope.io/auth/pkg/oauth/providers"
 	"kope.io/auth/pkg/oauth/providers/google"

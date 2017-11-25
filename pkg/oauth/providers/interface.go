@@ -1,9 +1,10 @@
 package providers
 
 import (
+	"net/url"
+
 	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
 	"kope.io/auth/pkg/oauth/session"
-	"net/url"
 )
 
 type Provider interface {

@@ -1,15 +1,15 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"os"
-
 	cryptorand "crypto/rand"
 	"encoding/binary"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	mathrand "math/rand"
+	"os"
+
 	"github.com/golang/glog"
-	//apierrors "k8s.io/apimachinery/pkg/api/errors"
-	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	authclient "kope.io/auth/pkg/client/clientset_generated/clientset"
@@ -17,8 +17,6 @@ import (
 	"kope.io/auth/pkg/keystore"
 	"kope.io/auth/pkg/portal"
 	"kope.io/auth/pkg/tokenstore"
-	mathrand "math/rand"
-	"io/ioutil"
 )
 
 //const CookieSigningSecretLength = 24

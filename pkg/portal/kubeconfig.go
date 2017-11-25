@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+
 	"github.com/golang/glog"
 	auth "kope.io/auth/pkg/apis/auth/v1alpha1"
 	"kope.io/auth/pkg/kubeconfig"
@@ -75,7 +76,6 @@ func (s *HTTPServer) portalActionKubeconfig(rw http.ResponseWriter, req *http.Re
 			}
 			caCertificate = nil
 		}
-
 
 		kubeconfigData, err := kubeconfig.BuildKubeconfig(apiEndpoint, caCertificate, authn, token)
 		if err != nil {

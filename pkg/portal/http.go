@@ -2,13 +2,14 @@ package portal
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/golang/glog"
 	"kope.io/auth/pkg/configreader"
 	"kope.io/auth/pkg/keystore"
 	"kope.io/auth/pkg/oauth"
 	"kope.io/auth/pkg/tokenstore"
-	"net/http"
-	"time"
 )
 
 type HTTPServer struct {

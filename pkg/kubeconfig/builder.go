@@ -1,9 +1,10 @@
 package kubeconfig
 
 import (
-	"kope.io/auth/pkg/apis/auth/v1alpha1"
 	"fmt"
+
 	"github.com/ghodss/yaml"
+	"kope.io/auth/pkg/apis/auth/v1alpha1"
 )
 
 func BuildKubeconfig(apiEndpoint string, caCertificate []byte, user *v1alpha1.User, token *v1alpha1.TokenSpec) ([]byte, error) {
@@ -13,7 +14,7 @@ func BuildKubeconfig(apiEndpoint string, caCertificate []byte, user *v1alpha1.Us
 	}
 
 	cluster := KubectlCluster{
-		Server:                   apiEndpoint,
+		Server: apiEndpoint,
 		CertificateAuthorityData: caCertificate,
 	}
 	context := KubectlContext{

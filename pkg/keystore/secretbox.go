@@ -3,9 +3,10 @@ package keystore
 import (
 	crypto_rand "crypto/rand"
 	"fmt"
+	"io"
+
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/crypto/nacl/secretbox"
-	"io"
 	"kope.io/auth/pkg/keystore/pb"
 )
 

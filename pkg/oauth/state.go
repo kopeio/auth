@@ -3,6 +3,7 @@ package oauth
 import (
 	"encoding/base64"
 	"fmt"
+
 	"github.com/golang/protobuf/proto"
 	"kope.io/auth/pkg/oauth/pb"
 )

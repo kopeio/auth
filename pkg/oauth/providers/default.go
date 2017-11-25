@@ -2,12 +2,13 @@ package providers
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"io/ioutil"
-	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
-	"kope.io/auth/pkg/oauth/session"
 	"net/http"
 	"net/url"
+
+	"github.com/golang/glog"
+	"kope.io/auth/pkg/apis/componentconfig/v1alpha1"
+	"kope.io/auth/pkg/oauth/session"
 )
 
 type DefaultProvider struct {
