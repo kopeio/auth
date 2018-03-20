@@ -33,8 +33,7 @@ go_test(
         "provider_default_test.go",
         "session_state_test.go",
     ],
-    importpath = "kope.io/auth/pkg/providers",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     deps = [
         "//pkg/assert:go_default_library",
         "//pkg/cookie:go_default_library",

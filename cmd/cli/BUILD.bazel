@@ -22,7 +22,6 @@ go_library(
 
 go_binary(
     name = "cli",
-    importpath = "kope.io/auth/cmd/cli",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )

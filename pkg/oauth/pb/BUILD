@@ -18,6 +18,6 @@ go_proto_library(
 
 go_library(
     name = "go_default_library",
+    embed = [":pb_go_proto"],
     importpath = "kope.io/auth/pkg/oauth/pb",
-    library = ":pb_go_proto",
 )
