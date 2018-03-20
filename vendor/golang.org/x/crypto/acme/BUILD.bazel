@@ -18,6 +18,5 @@ go_test(
         "jws_test.go",
         "types_test.go",
     ],
-    importpath = "golang.org/x/crypto/acme",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
 )

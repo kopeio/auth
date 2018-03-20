@@ -41,8 +41,7 @@ go_test(
         "register_test.go",
         "scheme_test.go",
     ],
-    importpath = "kope.io/auth/pkg/api/apiserver",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     deps = [
         ":go_default_library",
         "//pkg/apis/componentconfig/v1alpha1:go_default_library",

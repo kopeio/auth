@@ -17,6 +17,5 @@ go_test(
         "iocopy_test.go",
         "progressbar_test.go",
     ],
-    importpath = "github.com/coreos/pkg/progressutil",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
 )

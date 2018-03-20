@@ -17,8 +17,7 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = ["reader_test.go"],
-    importpath = "kope.io/auth/pkg/configreader",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     deps = [
         "//pkg/api/apiserver:go_default_library",
         "//pkg/apis/componentconfig:go_default_library",
