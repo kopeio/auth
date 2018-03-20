@@ -22,7 +22,6 @@ go_library(
 
 go_binary(
     name = "disco",
-    importpath = "github.com/googleapis/gnostic/apps/disco",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )

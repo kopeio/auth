@@ -16,7 +16,6 @@ go_library(
 
 go_binary(
     name = "protoc-gen-grpc-gateway",
-    importpath = "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )

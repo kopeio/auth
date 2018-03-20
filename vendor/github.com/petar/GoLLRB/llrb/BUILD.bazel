@@ -19,6 +19,5 @@ go_test(
         "iterator_test.go",
         "llrb_test.go",
     ],
-    importpath = "github.com/petar/GoLLRB/llrb",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
 )

@@ -16,6 +16,5 @@ go_test(
         "list_test.go",
         "table_test.go",
     ],
-    importpath = "golang.org/x/net/publicsuffix",
-    library = ":go_default_library",
+    embed = [":go_default_library"],
 )
