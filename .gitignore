@@ -1,9 +1,0 @@
-bazel-auth
-bazel-bin
-bazel-genfiles
-bazel-out
-bazel-testlogs
-
-# IDEs
-.idea/
-*.iml
