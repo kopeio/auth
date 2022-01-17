@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package="kope.io/auth/pkg/oauth/pb";
+
+message StateData {
+  string provider_id = 1;
+  string redirect = 2;
+  string nonce = 3;
+}
